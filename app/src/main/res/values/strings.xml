@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Cercis</string>
+    <string name="title_activity_startup">Cercis</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="user_id_hint">ID / 邮箱 / 手机号</string>
+    <string name="password_hint">密码</string>
+    <string name="error_invalid_login">用户名或密码错误</string>
+    <string name="success_login">登录成功</string>
+    <string name="error_network_exception">无法连接到 Cercis 服务器</string>
 </resources>
