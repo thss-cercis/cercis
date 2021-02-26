@@ -8,4 +8,7 @@
     <string name="error_invalid_login">用户名或密码错误</string>
     <string name="success_login">登录成功</string>
     <string name="error_network_exception">无法连接到 Cercis 服务器</string>
+    <string name="nav_messages">消息</string>
+    <string name="nav_contacts">联系人</string>
+    <string name="nav_discovery">发现</string>
 </resources>
