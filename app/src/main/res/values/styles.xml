@@ -25,5 +25,17 @@
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>
+    
+    <style name="TextAppearance.Cercis.Messages.Username" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.Messages.Preview" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.Messages.Time" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">14sp</item>
+    </style>
 
 </resources>

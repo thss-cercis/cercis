@@ -15,7 +15,7 @@ import cn.edu.tsinghua.thss.cercis.sqlite.ChatDbHelper
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
-import com.tinder.scarlet.messageadapter.jackson.JacksonMessageAdapter
+import com.tinder.scarlet.messageadapter.moshi.MoshiMessageAdapter
 import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
@@ -53,7 +53,7 @@ class MessageService : Service() {
                 .build()
         val scarlet = Scarlet.Builder()
                 .webSocketFactory(okHttpClient.newWebSocketFactory(WSS_MESSAGES))
-                .addMessageAdapterFactory(JacksonMessageAdapter.Factory())
+                .addMessageAdapterFactory(MoshiMessageAdapter.Factory())
                 .addStreamAdapterFactory(RxJava2StreamAdapterFactory())
                 .backoffStrategy(backoffStrategy)
                 .lifecycle(lifecycle)

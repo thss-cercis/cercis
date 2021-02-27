@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thss.cercis.service
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.ws.Receive
 import com.tinder.scarlet.ws.Send
@@ -20,27 +21,32 @@ interface CercisWebSocketService {
     fun observeWebSocketEvent(): Flowable<WebSocket.Event>
 }
 
+@JsonClass(generateAdapter = true)
 data class ChatLatestStatus(
-        @JsonProperty("id") val id: Int,
-        @JsonProperty("latest") val latest: Int
+        @Json(name = "id") val id: Int,
+        @Json(name = "latest") val latest: Int
 )
 
+@JsonClass(generateAdapter = true)
 data class InitMessage(
-        @JsonProperty("chats", required = true) val chats: List<ChatLatestStatus>
+        @Json(name = "chats") val chats: List<ChatLatestStatus>
 )
 
+@JsonClass(generateAdapter = true)
 data class ChatUpdateMessage(
-        @JsonProperty("id", required = true) val id: String,
-        @JsonProperty("type", required = true) val type: String,
-        @JsonProperty("content", required = true) val content: String
+        @Json(name = "id") val id: String,
+        @Json(name = "type") val type: String,
+        @Json(name = "content") val content: String
 )
 
+@JsonClass(generateAdapter = true)
 data class ChatUpdate(
-        @JsonProperty("id") val id: Int,
-        @JsonProperty("messages", required = true) val messages: List<ChatUpdateMessage>
+        @Json(name = "id") val id: Int,
+        @Json(name = "messages") val messages: List<ChatUpdateMessage>
 )
 
+@JsonClass(generateAdapter = true)
 data class Update(
-        @JsonProperty("type", required = true) val type: String,
-        @JsonProperty("chats", required = false) val chats: List<ChatUpdate>?
+        @Json(name = "type") val type: String,
+        @Json(name = "chats") val chats: List<ChatUpdate>?
 )
