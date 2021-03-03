@@ -5,7 +5,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
-import cn.edu.tsinghua.thss.cercis.ui.messages.SessionListFragment
+import cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 

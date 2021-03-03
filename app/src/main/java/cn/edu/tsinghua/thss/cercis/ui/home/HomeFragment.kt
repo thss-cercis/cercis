@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.ui.messages
+package cn.edu.tsinghua.thss.cercis.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,21 +8,22 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.databinding.LayoutSessionsBinding
+import cn.edu.tsinghua.thss.cercis.databinding.LayoutHomeBinding
 import cn.edu.tsinghua.thss.cercis.util.ActivityHelper
-import cn.edu.tsinghua.thss.cercis.util.PreferencesHelper
-import cn.edu.tsinghua.thss.cercis.viewmodel.SessionListViewModel
+import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-class SessionListFragment : Fragment() {
-    private val sessionListViewModel: SessionListViewModel by viewModels()
+@AndroidEntryPoint
+class HomeFragment : Fragment() {
+    private val userViewModel: UserViewModel by viewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = LayoutSessionsBinding.inflate(inflater, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val binding = LayoutHomeBinding.inflate(inflater, container, false)
         binding.topAppBar.setNavigationOnClickListener {
             binding.navDrawerLayout.openDrawer(GravityCompat.START)
         }
         binding.navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId){
+            when (menuItem.itemId) {
                 R.id.nav_drawer_item_logout -> menuLogout()
             }
             true
@@ -33,10 +34,8 @@ class SessionListFragment : Fragment() {
     private fun menuLogout() {
         val context = this.context
         if (context != null) {
-            sessionListViewModel.loggedIn.postValue(false)
+            userViewModel.loggedIn.postValue(false)
             ActivityHelper.switchToStartupActivity(context)
         }
     }
-
-    private lateinit var binding: LayoutSessionsBinding
 }

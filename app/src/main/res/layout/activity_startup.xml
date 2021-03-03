@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/startup_root_view"
     android:layout_width="match_parent"
@@ -11,20 +12,30 @@
     android:windowSoftInputMode="adjustResize"
     tools:context=".StartupActivity">
 
-    <ViewFlipper
-        android:id="@+id/flipper"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/startup_fragment_container"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:navGraph="@navigation/startup_nav_graph"
+        app:defaultNavHost="true" />
 
-        <include
-            android:id="@+id/splash_view"
-            layout="@layout/layout_splash" />
-        <include
-            android:id="@+id/login_view"
-            layout="@layout/layout_login" />
-        <include
-            android:id="@+id/signup_view"
-            layout="@layout/layout_signup" />
-    </ViewFlipper>
+<!--    <ViewFlipper-->
+<!--        android:id="@+id/flipper"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+
+<!--        <include-->
+<!--            android:id="@+id/splash_view"-->
+<!--            layout="@layout/layout_splash" />-->
+
+<!--        <include-->
+<!--            android:id="@+id/login_view"-->
+<!--            layout="@layout/layout_login" />-->
+
+<!--        <include-->
+<!--            android:id="@+id/signup_view"-->
+<!--            layout="@layout/layout_signup" />-->
+<!--    </ViewFlipper>-->
 
 </ScrollView>

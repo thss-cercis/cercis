@@ -55,8 +55,8 @@
                     android:id="@+id/login_user_id_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={viewModel.userId}"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:text="@={viewModel.userId}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -76,7 +76,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:text="@={viewModel.password}"/>
+                    android:text="@={viewModel.password}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -84,19 +84,20 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="60dp"
+                android:enabled="@{viewModel.isValid()}"
                 android:insetLeft="0dp"
                 android:insetTop="0dp"
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:paddingHorizontal="20dp"
                 android:scaleType="center"
+                android:onClick="@{viewModel::onLoginButtonClicked}"
                 app:icon="@drawable/ic_east_white_40dp"
                 app:iconPadding="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/signup_password"
-                app:shapeAppearanceOverlay="@style/roundedCorner"
-                android:enabled="@{viewModel.isValid()}"/>
+                app:shapeAppearanceOverlay="@style/roundedCorner" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout

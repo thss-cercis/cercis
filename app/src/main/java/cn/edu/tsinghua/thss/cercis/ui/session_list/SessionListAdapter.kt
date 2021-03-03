@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.ui.messages
+package cn.edu.tsinghua.thss.cercis.ui.session_list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.databinding.MessageSessionListItemBinding
+import cn.edu.tsinghua.thss.cercis.viewmodel.SessionListItemViewModel
 
 class MessageSessionAdapter : Adapter<ChatSessionViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatSessionViewHolder {
@@ -24,7 +25,7 @@ class MessageSessionAdapter : Adapter<ChatSessionViewHolder>() {
         holder.binding.executePendingBindings()
     }
 
-    private val sessions = ArrayList<MessageSessionViewModel>()
+    private val sessions = ArrayList<SessionListItemViewModel>()
 }
 
 class ChatSessionViewHolder(

@@ -38,4 +38,7 @@ interface UserDao {
 
     @Query("SELECT * FROM currentUser WHERE id = :userId")
     fun loadCurrentUser(userId: UserId): Flow<CurrentUser>
+
+    @Query("SELECT * FROM currentUser")
+    fun loadCurrentUsers(): Flow<List<CurrentUser>>
 }
