@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0073FF</color>
-    <color name="colorPrimaryDark">#003F8C</color>
-    <color name="colorAccent">#FF3300</color>
+    <color name="cercis_main">#0073FF</color>
+    <color name="cercis_main_light">#147DFD</color>
+    <color name="cercis_main_dark">#003F8C</color>
+    <color name="cercis_accent">#FF3300</color>
 
     <color name="loginPageBackgroundColor">#FFFFFF</color>
 

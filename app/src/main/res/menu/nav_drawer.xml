@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:icon="@drawable/ic_logout_24px"
+        android:id="@+id/nav_drawer_item_logout"
+        android:title="@string/nav_drawer_logout" />
+
+</menu>

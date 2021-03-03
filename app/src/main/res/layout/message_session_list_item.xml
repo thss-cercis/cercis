@@ -1,61 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@mipmap/ic_launcher"
-        app:shapeAppearanceOverlay="@style/roundedCorner" />
+    <data>
+        <variable
+            name="viewModel"
+            type="cn.edu.tsinghua.thss.cercis.ui.messages.MessageSessionViewModel" />
+    </data>
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="10dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
-
-        <TextView
-            style="@style/TextAppearance.Cercis.Messages.Username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="example" />
-
-        <TextView
-            style="@style/TextAppearance.Cercis.Messages.Preview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="example2" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="end"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:padding="8dp">
 
-        <TextView
-            android:id="@+id/time_view"
-            style="@style/TextAppearance.Cercis.Messages.Time"
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@{viewModel.avatar}"
+            app:shapeAppearanceOverlay="@style/roundedCorner" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.Cercis.Messages.Username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.sessionName}" />
+
+            <TextView
+                style="@style/TextAppearance.Cercis.Messages.Preview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.latestMessage}" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="19:19" />
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/unread_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/round_corner"
-            android:gravity="center"
-            android:paddingHorizontal="8dp"
-            android:text="0"
-            android:textColor="?attr/colorOnPrimary"
-            android:visibility="invisible" />
+            <TextView
+                android:id="@+id/time_view"
+                style="@style/TextAppearance.Cercis.Messages.Time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.lastUpdate}" />
+
+            <TextView
+                android:id="@+id/unread_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/round_corner"
+                android:gravity="center"
+                android:paddingHorizontal="8dp"
+                android:text="@{String.valueOf(viewModel.unreadCount)}"
+                android:textColor="?attr/colorOnPrimary"
+                android:visibility='@{viewModel.unreadCount > 0 ? 0 : 1}' />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</layout>

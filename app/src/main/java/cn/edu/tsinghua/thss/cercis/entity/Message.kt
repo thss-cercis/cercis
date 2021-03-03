@@ -1,11 +1,19 @@
 package cn.edu.tsinghua.thss.cercis.entity
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import cn.edu.tsinghua.thss.cercis.util.ChatId
+import cn.edu.tsinghua.thss.cercis.util.MessageId
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@Entity
+@JsonClass(generateAdapter = true)
 data class Message(
-        @JsonProperty("id") var id: Long,
-        @JsonProperty("type") var type: String,
-        @JsonProperty("content") var content: String,
-        @JsonProperty("chat_id") var chatId: Long,
-        @JsonProperty("sender_id") var senderId: Long
+        @PrimaryKey
+        @Json(name = "id") val id: MessageId,
+        @Json(name = "chat_id") val chatId: ChatId,
+        @Json(name = "type") val type: String,
+        @Json(name = "content") val content: String,
+        @Json(name = "sender_id") var senderId: Long,
 )

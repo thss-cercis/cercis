@@ -1,5 +1,9 @@
 package cn.edu.tsinghua.thss.cercis.service
 
+import cn.edu.tsinghua.thss.cercis.util.ChatId
+import cn.edu.tsinghua.thss.cercis.util.MessageId
+import cn.edu.tsinghua.thss.cercis.util.SerialId
+import cn.edu.tsinghua.thss.cercis.util.UserId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket
@@ -12,41 +16,80 @@ import io.reactivex.Flowable
  */
 interface CercisWebSocketService {
     @Send
-    fun sendInit(initMessage: InitMessage)
+    fun sendInitMessage(initMessageFromClient: InitMessageFromClient)
+
+    @Send
+    fun sendSendMessageRequestMessage(sendMessageRequestMessage: SendMessageRequestMessage)
 
     @Receive
-    fun receiveUpdate(): Flowable<Update>
+    fun receiveInitMessage(): Flowable<InitMessageFromServer>
 
     @Receive
     fun observeWebSocketEvent(): Flowable<WebSocket.Event>
+
+    @Receive
+    fun receiveChatsUpdate(): Flowable<ChatsUpdateMessage>
+
+    @Receive
+    fun receiveSendMessageResponseMessage(): Flowable<SendMessageResponseMessage>
 }
 
 @JsonClass(generateAdapter = true)
-data class ChatLatestStatus(
-        @Json(name = "id") val id: Int,
-        @Json(name = "latest") val latest: Int
+data class InitMessageFromServer(
+        @Json(name = "friends") val friends: List<InitMessageFromServerFriend>,
+        @Json(name = "groups") val groups: List<InitMessageFromServerGroup>,
 )
 
 @JsonClass(generateAdapter = true)
-data class InitMessage(
-        @Json(name = "chats") val chats: List<ChatLatestStatus>
+data class InitMessageFromServerFriend(
+        @Json(name = "user_id") val userId: UserId,
+        @Json(name = "chat_id") val chatId: ChatId,
+        @Json(name = "alias") val alias: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class InitMessageFromServerGroup(
+        @Json(name = "id") val chatId: ChatId,
+)
+
+@JsonClass(generateAdapter = true)
+data class InitMessageFromClient(
+        @Json(name = "latest") val latestMessageId: MessageId,
+)
+
+@JsonClass(generateAdapter = true)
+data class ChatsUpdateMessage(
+        @Json(name = "type") val type: String,
+        @Json(name = "chats") val chats: List<ChatsUpdateMessageChat>,
+)
+
+@JsonClass(generateAdapter = true)
+data class ChatsUpdateMessageChat(
+        @Json(name = "id") val chatId: ChatId,
+        @Json(name = "messages") val messages: List<ChatUpdateMessage>,
 )
 
 @JsonClass(generateAdapter = true)
 data class ChatUpdateMessage(
-        @Json(name = "id") val id: String,
+        @Json(name = "id") val messageId: MessageId,
         @Json(name = "type") val type: String,
-        @Json(name = "content") val content: String
+        @Json(name = "content") val content: String,
 )
 
 @JsonClass(generateAdapter = true)
-data class ChatUpdate(
-        @Json(name = "id") val id: Int,
-        @Json(name = "messages") val messages: List<ChatUpdateMessage>
+data class SendMessageRequestMessage(
+        /**
+         * Client generated serial number.
+         * Used to receive corresponding response.
+         */
+        @Json(name = "serial") val serial: SerialId,
+        @Json(name = "chat_id") val chatId: ChatId,
+        @Json(name = "type") val type: String,
+        @Json(name = "content") val content: String,
 )
 
 @JsonClass(generateAdapter = true)
-data class Update(
-        @Json(name = "type") val type: String,
-        @Json(name = "chats") val chats: List<ChatUpdate>?
+data class SendMessageResponseMessage(
+        @Json(name = "serial") val serial: SerialId,
+        @Json(name = "message_id") val messageId: MessageId,
 )

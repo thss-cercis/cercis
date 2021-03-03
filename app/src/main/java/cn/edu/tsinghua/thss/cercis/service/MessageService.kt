@@ -4,14 +4,13 @@ import android.app.Service
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
-import android.os.Binder
 import android.os.IBinder
-import android.os.Parcel
-import android.os.RemoteException
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import cn.edu.tsinghua.thss.cercis.Constants.WSS_MESSAGES
 import cn.edu.tsinghua.thss.cercis.entity.Chat
-import cn.edu.tsinghua.thss.cercis.sqlite.ChatDbHelper
+import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
@@ -19,26 +18,33 @@ import com.tinder.scarlet.messageadapter.moshi.MoshiMessageAdapter
 import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import okhttp3.OkHttpClient
+import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MessageService : Service() {
-    private val binder: ClientBinder = ClientBinder()
     private val disposables = ArrayList<Disposable>()
-    private var listener: MessageServiceListener? = null
+    private lateinit var socketService: CercisWebSocketService
     private lateinit var db: SQLiteDatabase
 
-    inner class ClientBinder : Binder() {
-        @Throws(RemoteException::class)
-        override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
-            // TODO finish this
-            return super.onTransact(code, data, reply, flags)
-        }
+    @Inject
+    lateinit var messageRepository: MessageRepository
+    @Inject
+    lateinit var okHttpClient: OkHttpClient
+
+    enum class ConnectionStatus {
+        DISCONNECTED,
+        CONNECTING,
+        UPDATING,
+        CONNECTED,
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        return binder
+        return null
     }
 
     override fun onCreate() {
@@ -46,11 +52,6 @@ class MessageService : Service() {
         val lifecycle = AndroidLifecycle.ofApplicationForeground(application)
         val backoffStrategy = ExponentialWithJitterBackoffStrategy(5000, 5000)
 
-        val okHttpClient = OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .build()
         val scarlet = Scarlet.Builder()
                 .webSocketFactory(okHttpClient.newWebSocketFactory(WSS_MESSAGES))
                 .addMessageAdapterFactory(MoshiMessageAdapter.Factory())
@@ -59,24 +60,39 @@ class MessageService : Service() {
                 .lifecycle(lifecycle)
                 .build()
 
-        val socketService = scarlet.create<CercisWebSocketService>()
+        socketService = scarlet.create()
+        messageRepository.submitConnectionStatus(ConnectionStatus.CONNECTING)
 
         disposables += socketService.observeWebSocketEvent().subscribe({ event ->
             if (event is WebSocket.Event.OnConnectionOpened<*>) {
-                socketService.sendInit(InitMessage(List(0) { ChatLatestStatus(0, 0) }))
+                messageRepository.submitConnectionStatus(ConnectionStatus.CONNECTED)
             }
         }, { error ->
             Log.e(TAG, "Error while observing socket ${error.cause}")
         })
 
-        disposables += socketService.receiveUpdate().subscribe({ update ->
-
+        disposables += socketService.receiveChatsUpdate().subscribe({ update ->
+            insertMessages(update)
         }, { error ->
             Log.e(TAG, "Error while receiving update ${error.cause}")
         })
 
-        val dbHelper = ChatDbHelper(this, null);
-        this.db = dbHelper.writableDatabase
+        disposables += socketService.receiveSendMessageResponseMessage().subscribe({ resp ->
+
+        }, { error ->
+            Log.e(TAG, "Error while receiving response ${error.cause}")
+        })
+
+        // val dbHelper = ChatDbHelper(this, null);
+        // this.db = dbHelper.writableDatabase
+    }
+
+    private fun sendInitMessage() {
+        // TODO finish this
+        socketService.sendInitMessage(InitMessageFromClient(0))
+    }
+
+    private fun insertMessages(update: ChatsUpdateMessage) {
         // TODO finish this
     }
 
@@ -89,61 +105,11 @@ class MessageService : Service() {
         return START_STICKY;
     }
 
-    // listener functions
-    /**
-     * A listener on upcoming messages.
-     * Only one such listener can be bounded to MessageService at once.
-     *
-     * Do not throw any exception in the listener handler method! Such exceptions would be
-     * considered a listener fault leading to the listener being abandoned.
-     */
-    interface MessageServiceListener {
-        /**
-         * Called when new messages arrived at the client from UI Thread.
-         */
-        fun onChatUpdate(/* TODO: finish event implementation */)
-
-        /**
-         * Called when client status changed from UI Thread.
-         */
-        fun onStatusChanged(/* TODO: finish event implementation */)
-    }
-
-    /**
-     * Bind a service listener. Only one listener would be valid.
-     */
-    fun bindMessageServiceListener(listener: MessageServiceListener) {
-        this.listener = listener
-    }
-
-    // local message functions
     /**
      * Get all chats managed by the service.
      */
     fun getAllChats(): List<Chat> {
         // TODO finish this
-//        val cursor = db.rawQuery("select * from chats", null)
-//        val columnId = cursor.getColumnIndex("id")
-//        val columnType = cursor.getColumnIndex("type")
-//        val columnName = cursor.getColumnIndex("name")
-//        val list = ArrayList<Chat>()
-//        while (cursor.moveToNext()) {
-//            list.add(Chat(
-//                    id = cursor.getLong(columnId),
-//                    type = cursor.getInt(columnType),
-//                    name = cursor.getString(columnName)))
-//        }
-//        cursor.close()
-//        return list
         return ArrayList()
     }
-
-    /**
-     * Apply updates.
-     */
-    private fun insertMessages(update: ChatUpdate): List<Chat> {
-        // TODO finish this
-        return ArrayList()
-    }
-
 }

@@ -17,8 +17,14 @@
         android:layout_height="wrap_content">
 
         <include
+            android:id="@+id/splash_view"
+            layout="@layout/layout_splash" />
+        <include
             android:id="@+id/login_view"
             layout="@layout/layout_login" />
+        <include
+            android:id="@+id/signup_view"
+            layout="@layout/layout_signup" />
     </ViewFlipper>
 
 </ScrollView>

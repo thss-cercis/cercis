@@ -1,9 +1,11 @@
 package cn.edu.tsinghua.thss.cercis.entity
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Chat(
-        @JsonProperty("id") var id: Long,
-        @JsonProperty("type") var type: Int,
-        @JsonProperty("name") var name: String
+        @Json(name = "id") var id: Long,
+        @Json(name = "type") var type: Int,
+        @Json(name = "name") var name: String
 )
