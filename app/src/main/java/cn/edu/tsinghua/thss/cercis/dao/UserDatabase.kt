@@ -19,7 +19,7 @@ interface UserDao {
     fun insertUser(vararg users: User)
 
     @Query("SELECT * FROM user")
-    fun loadAllUsers(): Flow<Array<User>>
+    fun loadAllUsers(): Flow<List<User>>
 
     @Query("SELECT * FROM user WHERE id = :userId")
     fun loadUser(userId: UserId): Flow<User>

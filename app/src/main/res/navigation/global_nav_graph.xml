@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/global_nav_graph"
+    app:startDestination="@id/startup_nav_graph">
+
+    <include app:graph="@navigation/startup_nav_graph" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.home.HomeFragment"
+        android:label="layout_home"
+        tools:layout="@layout/layout_home" >
+    </fragment>
+</navigation>

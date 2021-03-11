@@ -1,43 +1,40 @@
 package cn.edu.tsinghua.thss.cercis
 
 import android.os.Bundle
-import android.widget.FrameLayout
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
-import cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.navigation.NavGraph
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import cn.edu.tsinghua.thss.cercis.databinding.ActivityMainBinding
+import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    private val userViewModel: UserViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        viewFlipper = findViewById(R.id.main_view_flipper)
-        bottomNavigation = findViewById(R.id.bottom_navigation)
-        bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
-            switchFragment(menuItem.itemId)
-            true
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_fragment_container) as NavHostFragment
+        val navInflater = navHostFragment.navController.navInflater
+        val graph: NavGraph = navInflater.inflate(R.navigation.global_nav_graph)
+        graph.startDestination = when (userViewModel.loggedIn.value) {
+            true -> R.id.homeFragment
+            false -> R.id.startup_nav_graph
+            else -> R.id.startup_nav_graph
         }
+        navHostFragment.navController.graph = graph
 
-        bottomNavigation.selectedItemId = R.id.page_messages
-    }
-
-    private fun switchFragment(id: Int) {
-        val fragment: Fragment? = when (id) {
-            R.id.page_messages -> SessionListFragment()
-            R.id.page_contacts -> ContactListFragment()
-            R.id.page_discovery -> ContactListFragment()
-            else -> null
-        }
-        if (fragment != null) {
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_view_flipper, fragment)
-                    .commit()
+        userViewModel.loggedIn.observe(this) {
+            if (it == true) {
+                findNavController(R.id.main_fragment_container).navigate(R.id.homeFragment)
+            } else {
+                findNavController(R.id.main_fragment_container).navigate(R.id.startup_nav_graph)
+            }
         }
     }
-
-    private lateinit var viewFlipper: FrameLayout
-    private lateinit var bottomNavigation: BottomNavigationView
 }

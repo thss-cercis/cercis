@@ -6,16 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.databinding.LayoutHomeBinding
-import cn.edu.tsinghua.thss.cercis.util.ActivityHelper
+import cn.edu.tsinghua.thss.cercis.viewmodel.HomeViewModel
 import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
-    private val userViewModel: UserViewModel by viewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
+    private val homeViewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = LayoutHomeBinding.inflate(inflater, container, false)
@@ -35,7 +37,6 @@ class HomeFragment : Fragment() {
         val context = this.context
         if (context != null) {
             userViewModel.loggedIn.postValue(false)
-            ActivityHelper.switchToStartupActivity(context)
         }
     }
 }

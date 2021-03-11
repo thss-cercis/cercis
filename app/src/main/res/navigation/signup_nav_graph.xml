@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/signup_nav_graph"
+    app:startDestination="@id/signUpFragment1">
+    <fragment
+        android:id="@+id/signUpFragment1"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment1"
+        android:label="layout_signup_1"
+        tools:layout="@layout/layout_signup_1" >
+        <action
+            android:id="@+id/action_signUpFragment1_to_signUpFragment2"
+            app:destination="@id/signUpFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment2"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment2"
+        android:label="layout_signup_2"
+        tools:layout="@layout/layout_signup_2" >
+        <action
+            android:id="@+id/action_signUpFragment2_to_signUpSuccessFragment"
+            app:destination="@id/signUpSuccessFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpSuccessFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpSuccessFragment"
+        android:label="layout_signup_success"
+        tools:layout="@layout/layout_signup_success" />
+</navigation>

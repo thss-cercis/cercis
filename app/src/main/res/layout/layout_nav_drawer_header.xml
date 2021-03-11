@@ -27,6 +27,6 @@
             android:background="?attr/colorOnPrimary"
             android:src="@drawable/ic_eco_white_24dp"
             android:tint="?attr/colorPrimary"
-            app:shapeAppearanceOverlay="@drawable/round_corner" />
+            app:shapeAppearanceOverlay="@style/roundedCorner" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

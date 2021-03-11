@@ -8,7 +8,9 @@ import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MessageRepository @Inject constructor(
         val messageDao: MessageDao
 ) {

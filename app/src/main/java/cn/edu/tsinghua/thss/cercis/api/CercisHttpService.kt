@@ -13,19 +13,22 @@ import retrofit2.http.POST
 interface CercisHttpService {
 
     @POST("auth/login")
-    fun login(@Body request: LoginRequest): Call<EmptyResponse>
+    suspend fun login(@Body request: LoginRequest): EmptyResponse
 
     @POST("auth/signup")
-    fun signUp(@Body request: SignUpRequest): Call<SignUpResponse>
+    suspend fun signUp(@Body request: SignUpRequest): SignUpResponse
 
     @POST("auth/signup")
-    fun logout(): Call<EmptyResponse>
+    suspend fun logout(): EmptyResponse
 
     @POST("mobile/signup")
-    fun mobileSignUp(@Body request: MobileSignUpRequest): Call<EmptyResponse>
+    suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyResponse
+
+    @POST("mobile/signup/check")
+    suspend fun mobileSignUpCheck(@Body request: MobileSignUpCheckRequest): MobileSignUpCheckResponse
 
     @POST("user/current")
-    fun userCurrent(): Call<UserCurrentResponse>
+    suspend fun userCurrent(): UserCurrentResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -39,6 +42,7 @@ data class SignUpRequest(
         val nickname: String,
         val email: String,
         val mobile: String,
+        @Json(name = "code") val verificationCode: String,
         val password: String
 )
 
@@ -53,5 +57,17 @@ typealias SignUpResponse = PayloadResponse<SignUpResponsePayload>
 data class MobileSignUpRequest(
         val mobile: String
 )
+
+@JsonClass(generateAdapter = true)
+data class MobileSignUpCheckRequest(
+        val code: String
+)
+
+@JsonClass(generateAdapter = true)
+data class MobileSignUpCheckResponsePayload(
+        val ok: Boolean
+)
+
+typealias MobileSignUpCheckResponse = PayloadResponse<MobileSignUpCheckResponsePayload>
 
 typealias UserCurrentResponse = PayloadResponse<CurrentUser>

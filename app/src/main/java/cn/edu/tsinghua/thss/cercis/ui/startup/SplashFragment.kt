@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.edu.tsinghua.thss.cercis.R
@@ -16,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SplashFragment : Fragment() {
-    private val splashViewModel: SplashViewModel by viewModels()
+    private val splashViewModel: SplashViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = LayoutSplashBinding.inflate(inflater, container, false)
@@ -26,7 +27,7 @@ class SplashFragment : Fragment() {
             findNavController().navigate(R.id.loginFragment)
         }
         binding.splashButtonGotoUserSignup.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment)
+            findNavController().navigate(R.id.action_splashFragment_to_signup_nav_graph)
         }
         return binding.root
     }

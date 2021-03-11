@@ -12,15 +12,17 @@
             android:id="@+id/action_splashFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
         <action
-            android:id="@+id/action_splashFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment" />
+            android:id="@+id/action_splashFragment_to_signup_nav_graph"
+            app:destination="@id/signup_nav_graph" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.startup.LoginFragment"
-        android:label="LoginFragment" />
-    <fragment
-        android:id="@+id/signUpFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment"
-        android:label="SignUpFragment" />
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_signup_nav_graph"
+            app:destination="@id/signup_nav_graph" />
+    </fragment>
+    <include app:graph="@navigation/signup_nav_graph" />
+    <action android:id="@+id/action_global_loginFragment" app:destination="@id/loginFragment" />
 </navigation>

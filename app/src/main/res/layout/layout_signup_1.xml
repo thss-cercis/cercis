@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel" />
+
+        <variable
+            name="viewModel"
+            type="SignUpViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/signup_1_root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:animateLayoutChanges="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="36dp"
+        tools:context=".ui.startup.SignUpFragment1">
+
+        <TextView
+            android:id="@+id/signup_headline"
+            style="@style/TextAppearance.MaterialComponents.Headline4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/signup_headline_signup"
+            android:textColor="?android:textColorPrimary"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/signup_headline2"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.modeHeadline}"
+            app:layout_constraintTop_toBottomOf="@id/signup_headline" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_mobile"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:hint="@{viewModel.fieldHint}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signup_headline2"
+            app:shapeAppearanceOverlay="@style/roundedCorner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.emailOrMobile}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/send_code_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:enabled="@{!viewModel.emailOrMobile.empty}"
+            android:insetBottom="0dp"
+            android:onClick="@{viewModel::onSendCodeButtonClicked}"
+            android:text="@string/signup_send_code"
+            app:layout_constraintBaseline_toBaselineOf="@id/signup_code"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/signup_code" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_code"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:hint="@string/signup_code"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toStartOf="@id/send_code_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signup_mobile"
+            app:shapeAppearanceOverlay="@style/roundedCorner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.verificationCode}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signup_code_next_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:onClick="@{viewModel::onFragment1NextButtonClicked}"
+            android:text="@string/signup_code_next_step"
+            app:layout_constraintTop_toBottomOf="@id/signup_code" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:onClick="@{viewModel::onSwitchViewClicked}"
+            android:text="@{viewModel.switchMessage}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signup_code_next_button" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
