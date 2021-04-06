@@ -19,4 +19,9 @@ class HomeViewModel @Inject constructor(
     fun refreshCurrentUser() {
         userRepository.currentUser(viewModelScope)
     }
+
+    fun logout() {
+        userRepository.loggedIn.postValue(false)
+    }
+
 }

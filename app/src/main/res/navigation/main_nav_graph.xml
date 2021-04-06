@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_graph"
     app:startDestination="@id/sessionListFragment">
     <fragment
         android:id="@+id/sessionListFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment"
         android:label="SessionListFragment" />
+    <fragment
+        android:id="@+id/contactListFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment"
+        android:label="layout_contacts"
+        tools:layout="@layout/layout_contacts" />
+    <action
+        android:id="@+id/action_global_contactListFragment"
+        app:destination="@id/contactListFragment" />
+    <action
+        android:id="@+id/action_global_sessionListFragment"
+        app:destination="@id/sessionListFragment" />
 </navigation>
 

@@ -72,12 +72,12 @@ class SignUpViewModel @Inject constructor(
     val signUpSubmittingBusy = MutableLiveData(false)
     val passwordChecker = PasswordChecker(password)
     val canSubmit: LiveData<Boolean> = run {
-        Transformations.map(TripleLiveData(signUpSubmittingBusy, nickname, passwordChecker.valid)) {
-            it.first != true && !it.second.isNullOrEmpty() && it.third != false
+        Transformations.map(TripleLiveData(signUpSubmittingBusy, nickname, passwordChecker.result)) {
+            it.first != true && !it.second.isNullOrEmpty() && it.third?.valid != false
         }
     }
-    val passwordError: LiveData<String?> = Transformations.map(passwordChecker.valid) {
-        if (it != false) null else getString(R.string.error_password_invalid)
+    val passwordError: LiveData<String?> = Transformations.map(passwordChecker.result) {
+        if (it?.emptyOrValid == true) null else getString(R.string.error_password_invalid)
     }
 
     // SignUpFragment3
@@ -142,7 +142,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        passwordChecker.clear()
+//        passwordChecker.clear()
         Log.d(TAG, "SignUpViewModel destroyed.")
     }
 

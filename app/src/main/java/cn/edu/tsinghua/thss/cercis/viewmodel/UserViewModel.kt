@@ -9,7 +9,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
         application: Application,
-        userRepository: UserRepository,
+        val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
     /**
      * Checks if a user is logged in.
@@ -18,4 +18,5 @@ class UserViewModel @Inject constructor(
      * @see UserRepository.loggedIn
      */
     val loggedIn = userRepository.loggedIn
+
 }

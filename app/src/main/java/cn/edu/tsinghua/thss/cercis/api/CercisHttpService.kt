@@ -21,6 +21,12 @@ interface CercisHttpService {
     @POST("auth/signup")
     suspend fun logout(): EmptyResponse
 
+    @POST("email/signup")
+    suspend fun emailSignUp(@Body request: MobileSignUpRequest): EmptyResponse
+
+    @POST("email/signup/check")
+    suspend fun emailSignUpCheck(@Body request: EmailSignUpCheckRequest): EmailSignUpCheckResponse
+
     @POST("mobile/signup")
     suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyResponse
 
@@ -59,7 +65,17 @@ data class MobileSignUpRequest(
 )
 
 @JsonClass(generateAdapter = true)
+data class EmailSignUpRequest(
+        val email: String
+)
+
+@JsonClass(generateAdapter = true)
 data class MobileSignUpCheckRequest(
+        val code: String
+)
+
+@JsonClass(generateAdapter = true)
+data class EmailSignUpCheckRequest(
         val code: String
 )
 
@@ -69,5 +85,12 @@ data class MobileSignUpCheckResponsePayload(
 )
 
 typealias MobileSignUpCheckResponse = PayloadResponse<MobileSignUpCheckResponsePayload>
+
+@JsonClass(generateAdapter = true)
+data class EmailSignUpCheckResponsePayload(
+        val ok: Boolean
+)
+
+typealias EmailSignUpCheckResponse = PayloadResponse<EmailSignUpCheckResponsePayload>
 
 typealias UserCurrentResponse = PayloadResponse<CurrentUser>

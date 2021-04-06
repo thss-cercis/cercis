@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
@@ -49,9 +50,15 @@ class LoginViewModel @Inject constructor(
         login()
     }
 
+    @MainThread
     private fun login() {
+        if (isBusyLogin.value == true) {
+            return
+        }
+        // updates this value on main thread to prevent double submit
+        isBusyLogin.value = true
+        loginError.value = null
         viewModelScope.launch(Dispatchers.IO) {
-            isBusyLogin.postValue(true)
             try {
                 val response = httpService.login(LoginRequest(userId.value!!, password.value!!))
                 Log.d(ContentValues.TAG, "login response: $response")

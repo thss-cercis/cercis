@@ -4,14 +4,19 @@
 
     <data>
 
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SessionListItemData" />
+
         <variable
             name="viewModel"
-            type="cn.edu.tsinghua.thss.cercis.viewmodel.SessionListItemViewModel" />
+            type="SessionListItemData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:orientation="horizontal"
         android:padding="8dp">
 
@@ -19,7 +24,6 @@
             android:id="@+id/avatar"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_marginEnd="8dp"
             android:src="@{viewModel.avatar}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -29,24 +33,28 @@
             android:id="@+id/session_name"
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{viewModel.sessionName}"
+            android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintVertical_chainStyle="spread" />
 
         <TextView
             android:id="@+id/textView"
             style="@style/TextAppearance.Cercis.Messages.Preview"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{viewModel.latestMessage}"
+            android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
             app:layout_constraintStart_toEndOf="@id/avatar"

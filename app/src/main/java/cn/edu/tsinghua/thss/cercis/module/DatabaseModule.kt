@@ -2,10 +2,7 @@ package cn.edu.tsinghua.thss.cercis.module
 
 import android.content.Context
 import androidx.room.Room
-import cn.edu.tsinghua.thss.cercis.dao.MessageDao
-import cn.edu.tsinghua.thss.cercis.dao.MessageDatabase
-import cn.edu.tsinghua.thss.cercis.dao.UserDao
-import cn.edu.tsinghua.thss.cercis.dao.UserDatabase
+import cn.edu.tsinghua.thss.cercis.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,4 +38,8 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun providesMessageDao(messageDatabase: MessageDatabase): MessageDao = messageDatabase.MessageDao()
+
+    @Provides
+    @Singleton
+    fun providesChatDao(messageDatabase: MessageDatabase): ChatDao = messageDatabase.ChatDao()
 }

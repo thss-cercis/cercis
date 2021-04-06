@@ -1,13 +1,14 @@
 package cn.edu.tsinghua.thss.cercis.util
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 
 /**
  * Checks if a string is strong enough as a password.
  *
- * Length at least 8.
+ * Length at least 8, at most 20
  * Contains at least 3/4 of the following items:
  *  - Uppercase letters
  *  - Lowercase letters
@@ -19,74 +20,76 @@ import androidx.lifecycle.Observer
  *  - Symbols [PasswordChecker.ALLOWED_SYMBOLS]
  */
 class PasswordChecker(val password: LiveData<String>) {
-    val valid = MutableLiveData<Boolean>()
-    val ruleLength = MutableLiveData<Boolean>()
-    val ruleAllowedCharacters = MutableLiveData<Boolean>()
-    val ruleUpperCase = MutableLiveData<Boolean>()
-    val ruleLowerCase = MutableLiveData<Boolean>()
-    val ruleDigit = MutableLiveData<Boolean>()
-    val ruleSymbol = MutableLiveData<Boolean>()
-    val invalidCharacter = MutableLiveData<String>()
-    private val observer = Observer<String> { str ->
-        var ruleLengthVal = false
-        var ruleAllowedCharactersVal = true
-        var ruleUpperCaseVal = false
-        var ruleLowerCaseVal = false
-        var ruleDigitVal = false
-        var ruleSymbolVal = false
-        var invalidCharacterVal = ""
-        if (str != null) {
-            ruleLengthVal = str.length >= PASSWORD_MIN_LENGTH
-            str.forEach {
-                when {
-                    it.isUpperCase() -> {
-                        ruleUpperCaseVal = true
-                    }
-                    it.isLowerCase() -> {
-                        ruleLowerCaseVal = true
-                    }
-                    it.isDigit() -> {
-                        ruleDigitVal = true
-                    }
-                    it in ALLOWED_SYMBOLS -> {
-                        ruleSymbolVal = true
-                    }
-                    else -> {
-                        ruleAllowedCharactersVal = false
-                        invalidCharacterVal = try {
-                            String(charArrayOf(it))
-                        } catch (t: Throwable) {
-                            // todo: deal with surrogate pair
-                            ""
+    data class PasswordValidationResult(
+            val emptyOrValid: Boolean,
+            val valid: Boolean,
+            val ruleLength: Boolean,
+            val ruleAllowedCharacters: Boolean,
+            val ruleUpperCase: Boolean,
+            val ruleLowerCase: Boolean,
+            val ruleDigit: Boolean,
+            val ruleSymbol: Boolean,
+            val invalidCharacter: String?,
+    )
+    val result: MediatorLiveData<PasswordValidationResult> = run {
+        val liveData = MediatorLiveData<PasswordValidationResult>()
+        liveData.addSource(password) { str: String? ->
+            var ruleLengthVal = false
+            var ruleAllowedCharactersVal = true
+            var ruleUpperCaseVal = false
+            var ruleLowerCaseVal = false
+            var ruleDigitVal = false
+            var ruleSymbolVal = false
+            var invalidCharacterVal = ""
+            if (str != null) {
+                ruleLengthVal = str.length in PASSWORD_MIN_LENGTH..PASSWORD_MAX_LENGTH
+                str.forEach {
+                    when {
+                        it.isUpperCase() -> {
+                            ruleUpperCaseVal = true
+                        }
+                        it.isLowerCase() -> {
+                            ruleLowerCaseVal = true
+                        }
+                        it.isDigit() -> {
+                            ruleDigitVal = true
+                        }
+                        it in ALLOWED_SYMBOLS -> {
+                            ruleSymbolVal = true
+                        }
+                        else -> {
+                            ruleAllowedCharactersVal = false
+                            invalidCharacterVal = try {
+                                String(charArrayOf(it))
+                            } catch (t: Throwable) {
+                                // todo: deal with surrogate pair
+                                ""
+                            }
                         }
                     }
                 }
             }
+            val valid = ruleLengthVal
+                    && ruleAllowedCharactersVal
+                    && arrayOf(ruleUpperCaseVal, ruleLowerCaseVal, ruleDigitVal, ruleSymbolVal).count { it } >= 3
+            liveData.postValue(PasswordValidationResult(
+                    emptyOrValid = str.isNullOrEmpty() || valid,
+                    valid = valid,
+                    ruleLength = ruleLengthVal,
+                    ruleAllowedCharacters = ruleAllowedCharactersVal,
+                    ruleUpperCase = ruleUpperCaseVal,
+                    ruleLowerCase = ruleLowerCaseVal,
+                    ruleDigit = ruleDigitVal,
+                    ruleSymbol = ruleSymbolVal,
+                    invalidCharacter = invalidCharacterVal,
+            ))
         }
-        valid.postValue(ruleLengthVal
-                && ruleAllowedCharactersVal
-                && arrayOf(ruleUpperCaseVal, ruleLowerCaseVal, ruleDigitVal, ruleSymbolVal).count { it } >= 3)
-        ruleLength.postValue(ruleLengthVal)
-        ruleAllowedCharacters.postValue(ruleAllowedCharactersVal)
-        ruleUpperCase.postValue(ruleUpperCaseVal)
-        ruleLowerCase.postValue(ruleLowerCaseVal)
-        ruleDigit.postValue(ruleDigitVal)
-        ruleSymbol.postValue(ruleSymbolVal)
-        invalidCharacter.postValue(invalidCharacterVal)
-    }
-
-    fun isValid() = valid.value != false
-
-    fun clear() {
-        password.removeObserver(observer)
-    }
-
-    init {
-        password.observeForever(observer)
+        liveData
     }
 
     companion object {
         const val PASSWORD_MIN_LENGTH = 8
+        const val PASSWORD_MAX_LENGTH = 20
         val ALLOWED_SYMBOLS = arrayOf('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~')
     }
 }
