@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
@@ -11,6 +12,7 @@ import cn.edu.tsinghua.thss.cercis.databinding.ChatItemBinding
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
+import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
 import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,46 +29,20 @@ class SessionViewModel @Inject constructor(
     private val chatId = savedStateHandle.get<Long>("chatId") ?: -1
     private val chatParticipants = messageRepository.getChatParticipants(chatId)
     val chat = messageRepository.getChat(chatId)
+    fun side(senderId: ChatId) : MessageViewModel.Side = when {
+        senderId != userRepository.currentUserId.value -> {
+            MessageViewModel.Side.OTHER
+        }
+        else -> MessageViewModel.Side.THIS
+    }
 
     /**
      * Messages to be displayed.
      */
     private val messageList: ArrayList<Message> = ArrayList()
-    private val messageListDataSource: MediatorLiveData<List<Message>> = MediatorLiveData()
     private var messageListDataSource0: LiveData<List<Message>>? = null
-    val messageListAdapter = object : Adapter<MessageViewHolder>() {
-        init {
-            setHasStableIds(true)
-        }
+    val messageListDataSource: MediatorLiveData<List<Message>> = MediatorLiveData()
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
-            val binding = ChatItemBinding.inflate(inflater, parent, false)
-            return MessageViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-            val msg = messageList[position];
-            holder.binding.viewModel = MessageViewModel(
-                    side = when {
-                        msg.senderId != userRepository.currentUserId.value -> {
-                            MessageViewModel.Side.OTHER
-                        }
-                        else -> MessageViewModel.Side.THIS
-                    },
-                    message = msg,
-            )
-            holder.binding.executePendingBindings()
-        }
-
-        override fun getItemCount(): Int {
-            return messageList.size
-        }
-
-        override fun getItemId(position: Int): Long {
-            return messageList[position].chatId
-        }
-    }
 
     /** used by [loadMorePreviousMessage] */
     private var messageLoading = false
@@ -75,26 +51,22 @@ class SessionViewModel @Inject constructor(
     private val currentIdStart: MessageId = 0
     private val currentIdEnd: MessageId = 0
 
-    class MessageViewHolder(
-            val binding: ChatItemBinding
-    ) : RecyclerView.ViewHolder(binding.root)
 
     @MainThread
-    fun loadCurrentMessages(count: Long) {
+    private fun loadCurrentMessages(count: Long) {
         preventDoubleSubmitRun {
             messageRepository.getChatRecentMessages(count, 15)
         }
     }
 
     @MainThread
-    fun reloadMessageList(messages: List<Message>) {
+    private fun reloadMessageList(messages: List<Message>) {
         messageList.clear()
         messageList.addAll(messages)
-        messageListAdapter.notifyDataSetChanged()
     }
 
     @MainThread
-    fun replaceDataSource(messageDataSource: LiveData<List<Message>>) {
+    private fun replaceDataSource(messageDataSource: LiveData<List<Message>>) {
         messageListDataSource0?.let { messageListDataSource.removeSource(it) }
         messageListDataSource0 = messageDataSource
         messageListDataSource.addSource(messageDataSource) {
@@ -105,7 +77,7 @@ class SessionViewModel @Inject constructor(
     }
 
     @MainThread
-    fun preventDoubleSubmitRun(runnable: suspend () -> Unit) {
+    private fun preventDoubleSubmitRun(runnable: suspend () -> Unit) {
         if (messageLoading) {
             return;
         }
@@ -122,7 +94,7 @@ class SessionViewModel @Inject constructor(
      * Loads more previous messages when for example, swiped to the top.
      */
     @MainThread
-    fun loadMorePreviousMessage(count: Long) {
+    private fun loadMorePreviousMessage(count: Long) {
         preventDoubleSubmitRun {
             val newData = messageRepository.getChatMessagesNewerThanWithPreviousMessages(
                     chatId,
@@ -131,5 +103,12 @@ class SessionViewModel @Inject constructor(
             )
             messageLoading = false
         }
+    }
+
+    /**
+     * Exits view
+     */
+    fun navigationOnClickListener(view: View) {
+        TODO("finish this")
     }
 }

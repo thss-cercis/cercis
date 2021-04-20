@@ -12,14 +12,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
         val userRepository: UserRepository
 ): ViewModel() {
-    fun currentUser(): LiveData<CurrentUser?> {
-        return userRepository.currentUser(viewModelScope)
-    }
-
-    fun refreshCurrentUser() {
-        userRepository.currentUser(viewModelScope)
-    }
-
     fun logout() {
         userRepository.loggedIn.postValue(false)
     }

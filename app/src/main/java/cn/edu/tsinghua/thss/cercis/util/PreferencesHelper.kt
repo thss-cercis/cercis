@@ -10,17 +10,10 @@ object PreferencesHelper {
         }
 
         /**
-         * Checks if first startup.
+         * Called in [cn.edu.tsinghua.thss.cercis.StartupActivity]
          */
-        fun isFirstStartup(context: Context): Boolean {
-            return getAuthPreferences(context).getBoolean("first_startup", true)
-        }
-
-        /**
-         * Sets if first startup.
-         */
-        fun setFirstStartup(context: Context, firstStartup: Boolean) {
-            getAuthPreferences(context).edit().putBoolean("first_startup", true).apply()
+        fun isLoggedIn(context: Context): Boolean {
+            return getAuthPreferences(context).getBoolean("logged_in", false)
         }
     }
 }

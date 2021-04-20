@@ -17,18 +17,17 @@
         android:id="@+id/nav_drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
         tools:openDrawer="start">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true">
+            android:layout_height="match_parent">
 
             <com.google.android.material.appbar.AppBarLayout
                 style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/topAppBar"
@@ -45,10 +44,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:fitsSystemWindows="true"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/nav_host_fragment"
+                    android:id="@+id/master_view_container"
                     android:name="androidx.navigation.fragment.NavHostFragment"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/nav_host_fragment"
+                    app:layout_constraintTop_toBottomOf="@id/master_view_container"
                     app:menu="@menu/bottom_nav_bar" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

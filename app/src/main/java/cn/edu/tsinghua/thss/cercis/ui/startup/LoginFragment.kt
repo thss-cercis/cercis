@@ -1,19 +1,17 @@
 package cn.edu.tsinghua.thss.cercis.ui.startup
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.databinding.LayoutLoginBinding
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +29,7 @@ class LoginFragment : Fragment() {
             binding.signupPassword.error = it
         }
         binding.linkResetPassword.setOnClickListener {
-            Log.d(TAG, "reset password not implemented")
+            Log.d(LOG_TAG, "reset password not implemented")
         }
         binding.linkUserSignup.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signup_nav_graph)
@@ -43,9 +41,7 @@ class LoginFragment : Fragment() {
                     it.map { it1 -> it1.id.toString() }
             ))
         }
-        loginViewModel.currentUserId.observe(viewLifecycleOwner) {
-            binding.loginUserIdList.setText(it.toString())
-        }
+        (binding.root as ViewGroup).enableTransition()
         return binding.root
     }
 }

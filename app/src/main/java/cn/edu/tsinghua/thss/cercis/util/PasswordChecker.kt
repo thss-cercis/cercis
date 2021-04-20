@@ -2,8 +2,6 @@ package cn.edu.tsinghua.thss.cercis.util
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 
 /**
  * Checks if a string is strong enough as a password.

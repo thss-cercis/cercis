@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import cn.edu.tsinghua.thss.cercis.databinding.LayoutSessionListBinding
-import cn.edu.tsinghua.thss.cercis.ui.home.HomeFragmentDirections
-import cn.edu.tsinghua.thss.cercis.util.doGlobalNavigation
+import cn.edu.tsinghua.thss.cercis.ui.session.SessionFragment
+import cn.edu.tsinghua.thss.cercis.util.doDetailNavigation
 import cn.edu.tsinghua.thss.cercis.viewmodel.SessionListViewModel
 
 class SessionListFragment : Fragment() {
@@ -26,7 +26,7 @@ class SessionListFragment : Fragment() {
         // bind item click listener
         sessionListViewModel.openedSession.observe(viewLifecycleOwner) {
             if (it != null) {
-                doGlobalNavigation(HomeFragmentDirections.actionHomeFragmentToSessionFragment(it))
+                doDetailNavigation(SessionFragment.navDirection(it))
                 sessionListViewModel.openedSession.value = null
             }
         }

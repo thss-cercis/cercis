@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
@@ -143,7 +142,7 @@ class SignUpViewModel @Inject constructor(
 
     override fun onCleared() {
 //        passwordChecker.clear()
-        Log.d(TAG, "SignUpViewModel destroyed.")
+        Log.d(LOG_TAG, "SignUpViewModel destroyed.")
     }
 
     @Throws(DataFetchException::class)
@@ -192,7 +191,7 @@ class SignUpViewModel @Inject constructor(
                     password = password,
                     verificationCode = verificationCode,
             ))
-            Log.d(TAG, "signup resp: $response")
+            Log.d(LOG_TAG, "signup resp: $response")
             if (response.successful && response.payload != null) {
                 val user = CurrentUser(
                         id = response.payload.userId,
@@ -210,7 +209,7 @@ class SignUpViewModel @Inject constructor(
                 signUpError.postValue(response.msg)
             }
         } catch (t: Throwable) {
-            Log.e(TAG, "signup error: $t")
+            Log.e(LOG_TAG, "signup error: $t")
             signUpError.postValue(userRepository.context.getString(R.string.error_network_exception))
         } finally {
             signUpSubmittingBusy.postValue(false)

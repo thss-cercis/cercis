@@ -15,15 +15,20 @@
         android:theme="@style/Theme.Cercis"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
+            android:name=".StartupActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_startup"
-            android:theme="@style/FullscreenTheme">
+            android:theme="@style/FullscreenTheme"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".AuthActivity" android:noHistory="true"/>
+        <activity android:name=".MainActivity" android:noHistory="true">
+
         </activity>
 
         <service android:name=".service.MessageService" />

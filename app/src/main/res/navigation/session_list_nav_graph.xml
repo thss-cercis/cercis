@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/session_list_nav_graph"
+    app:startDestination="@id/emptyFragment">
+
+    <fragment
+        android:id="@+id/sessionFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.session.SessionFragment"
+        android:label="layout_session"
+        tools:layout="@layout/layout_session">
+        <argument
+            android:name="chatId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/emptyFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.empty.EmptyFragment"
+        android:label="layout_empty"
+        tools:layout="@layout/layout_empty" />
+    <action
+        android:id="@+id/action_to_sessionFragment"
+        app:destination="@id/sessionFragment"
+        app:popUpTo="@id/emptyFragment" />
+    <action
+        android:id="@+id/action_global_emptyFragment"
+        app:destination="@id/emptyFragment" />
+
+</navigation>

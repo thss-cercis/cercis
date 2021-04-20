@@ -2,17 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:icon="@drawable/ic_chat_white_24dp"
-        android:id="@+id/page_messages"
+        android:id="@+id/session_list_nav_graph"
         android:enabled="true"
         android:title="@string/nav_messages" />
     <item
         android:icon="@drawable/ic_contacts_white_24dp"
-        android:id="@+id/page_contacts"
+        android:id="@+id/contact_list_nav_graph"
         android:enabled="true"
         android:title="@string/nav_contacts" />
     <item
         android:icon="@drawable/ic_eco_white_24dp"
-        android:id="@+id/page_discovery"
+        android:id="@+id/activity_list_nav_graph"
         android:enabled="true"
         android:title="@string/nav_discovery" />
+    <item
+        android:icon="@drawable/ic_account_circle_24"
+        android:id="@+id/profile_nav_graph"
+        android:enabled="true"
+        android:title="@string/profile" />
 </menu>

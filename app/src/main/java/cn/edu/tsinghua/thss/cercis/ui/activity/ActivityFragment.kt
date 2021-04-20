@@ -1,9 +1,9 @@
-package cn.edu.tsinghua.thss.cercis.ui.discovery
+package cn.edu.tsinghua.thss.cercis.ui.activity
 
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DiscoveryFragment : Fragment() {
+class ActivityFragment : Fragment() {
     // TODO 快上
 }

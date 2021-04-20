@@ -19,5 +19,18 @@
     <action
         android:id="@+id/action_global_sessionListFragment"
         app:destination="@id/sessionListFragment" />
+    <fragment
+        android:id="@+id/activityFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment"
+        android:label="layout_discovery"
+        tools:layout="@layout/layout_activity" />
+    <action
+        android:id="@+id/action_global_activityFragment"
+        app:destination="@id/activityFragment" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment"
+        android:label="layout_profile"
+        tools:layout="@layout/layout_profile" /><action android:id="@+id/action_global_profileFragment" app:destination="@id/profileFragment"/>
 </navigation>
 

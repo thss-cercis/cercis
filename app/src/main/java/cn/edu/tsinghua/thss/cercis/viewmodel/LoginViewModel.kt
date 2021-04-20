@@ -13,6 +13,7 @@ import cn.edu.tsinghua.thss.cercis.api.LoginRequest
 import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.PairLiveData
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,12 @@ class LoginViewModel @Inject constructor(
         private val httpService: CercisHttpService,
         private val userRepository: UserRepository,
 ) : ViewModel() {
-    val userId = MutableLiveData("")
+    val userId: MutableLiveData<String> = MutableLiveData(userRepository.currentUserId.value.let {
+        return@let when (it) {
+            -1L, null -> ""
+            else -> it.toString()
+        }
+    })
     val password = MutableLiveData("")
     val isUserIdPasswordValid: LiveData<Boolean> =
             Transformations.map(PairLiveData(userId, password)) {
@@ -61,14 +67,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = httpService.login(LoginRequest(userId.value!!, password.value!!))
-                Log.d(ContentValues.TAG, "login response: $response")
+                Log.d(LOG_TAG, "login response: $response")
                 if (response.successful) {
                     userRepository.loggedIn.postValue(true)
                 } else {
                     loginError.postValue(response.msg)
                 }
             } catch (t: Throwable) {
-                Log.e(ContentValues.TAG, "login error: $t")
+                Log.e(LOG_TAG, "login error: $t")
                 loginError.postValue(context.getString(R.string.error_network_exception))
             } finally {
                 isBusyLogin.postValue(false)

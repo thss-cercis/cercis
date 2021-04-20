@@ -26,8 +26,8 @@ fun ViewGroup.enableTransition() {
  * This is done via a hole in MainActivity.
  * @param id resId for navigation action
  */
-fun Fragment.doGlobalNavigation(id: Int) {
-    (requireActivity() as MainActivity).doGlobalNavigation(id)
+fun Fragment.doDetailNavigation(id: Int) {
+    (requireActivity() as MainActivity).doDetailNavigation(id)
 }
 
 /**
@@ -36,6 +36,6 @@ fun Fragment.doGlobalNavigation(id: Int) {
  * This is done via a hole in MainActivity.
  * @param navDirections directions bound with safe args
  */
-fun Fragment.doGlobalNavigation(navDirections: NavDirections) {
-    (requireActivity() as MainActivity).doGlobalNavigation(navDirections)
+fun Fragment.doDetailNavigation(navDirections: NavDirections) {
+    (requireActivity() as MainActivity).doDetailNavigation(navDirections)
 }

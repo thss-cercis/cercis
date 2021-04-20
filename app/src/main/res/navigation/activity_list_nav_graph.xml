@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_list_nav_graph"
+    app:startDestination="@id/emptyFragment3">
+
+    <fragment
+        android:id="@+id/emptyFragment3"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.empty.EmptyFragment"
+        android:label="layout_empty"
+        tools:layout="@layout/layout_empty" />
+</navigation>

@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.thss.cercis.repository
 
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
@@ -12,6 +11,7 @@ import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.module.AuthorizedLiveEvent
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 @Singleton
 class UserRepository @Inject constructor(
@@ -40,9 +39,9 @@ class UserRepository @Inject constructor(
      */
     val loggedIn = run {
         val liveData = MutableLiveData(sharedPreferences.getBoolean("logged_in", false))
-        Log.d(TAG, "read logged_in from preferences: ${liveData.value}")
+        Log.d(LOG_TAG, "read logged_in from preferences: ${liveData.value}")
         liveData.observeForever { value ->
-            Log.d(TAG, "write logged_in: $value")
+            Log.d(LOG_TAG, "write logged_in: $value")
             sharedPreferences.edit().putBoolean("logged_in", value).apply()
         }
         authorized.observeForever { value ->
@@ -53,6 +52,11 @@ class UserRepository @Inject constructor(
         liveData
     }
 
+    /**
+     * Currently logged in user id.
+     *
+     * -1 if no previous login.
+     */
     val currentUserId = run {
         val liveData = MutableLiveData(sharedPreferences.getLong("current_user", -1))
         liveData.observeForever { value ->

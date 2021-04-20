@@ -1,16 +1,14 @@
 package cn.edu.tsinghua.thss.cercis.service
 
 import android.app.Service
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import cn.edu.tsinghua.thss.cercis.Constants.WSS_MESSAGES
 import cn.edu.tsinghua.thss.cercis.entity.Chat
 import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
@@ -21,8 +19,6 @@ import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,19 +64,19 @@ class MessageService : Service() {
                 messageRepository.submitConnectionStatus(ConnectionStatus.CONNECTED)
             }
         }, { error ->
-            Log.e(TAG, "Error while observing socket ${error.cause}")
+            Log.e(LOG_TAG, "Error while observing socket ${error.cause}")
         })
 
         disposables += socketService.receiveChatsUpdate().subscribe({ update ->
             insertMessages(update)
         }, { error ->
-            Log.e(TAG, "Error while receiving update ${error.cause}")
+            Log.e(LOG_TAG, "Error while receiving update ${error.cause}")
         })
 
         disposables += socketService.receiveSendMessageResponseMessage().subscribe({ resp ->
 
         }, { error ->
-            Log.e(TAG, "Error while receiving response ${error.cause}")
+            Log.e(LOG_TAG, "Error while receiving response ${error.cause}")
         })
 
         // val dbHelper = ChatDbHelper(this, null);
