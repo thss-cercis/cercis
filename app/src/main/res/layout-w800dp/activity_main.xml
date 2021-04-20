@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/loginPageBackgroundColor"
+        android:background="@color/login_page_background"
         android:fitsSystemWindows="true"
         android:windowSoftInputMode="adjustResize"
         tools:context=".MainActivity">
@@ -31,14 +31,12 @@
             <include layout="@layout/partial_main" android:id="@+id/reused_view" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <!--    <androidx.fragment.app.FragmentContainerView-->
-        <!--        android:id="@+id/main_fragment_container"-->
-        <!--        android:name="androidx.navigation.fragment.NavHostFragment"-->
-        <!--        android:layout_width="360dp"-->
-        <!--        android:layout_height="match_parent"-->
-        <!--        app:defaultNavHost="false"-->
-        <!--        app:layout_constraintStart_toStartOf="parent"-->
-        <!--        app:navGraph="@navigation/master_nav_graph" />-->
+        <View
+            android:id="@+id/master_detail_divider"
+            app:layout_constraintStart_toEndOf="@id/master_view"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/divider" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/detail_view_container"
@@ -46,6 +44,6 @@
             android:layout_height="match_parent"
             app:defaultNavHost="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/master_view" />
+            app:layout_constraintStart_toEndOf="@id/master_detail_divider" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

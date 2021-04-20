@@ -5,8 +5,9 @@
     <color name="cercis_main_dark">#003F8C</color>
     <color name="cercis_accent">#FF3300</color>
 
-    <color name="loginPageBackgroundColor">#FFFFFF</color>
+    <color name="login_page_background">#FFFFFF</color>
+    <color name="fragment_background">#FFFFFF</color>
 
     <color name="black_overlay">#66000000</color>
-    <color name="divider">#CCCCCC</color>
+    <color name="divider">#EEEEEE</color>
 </resources>

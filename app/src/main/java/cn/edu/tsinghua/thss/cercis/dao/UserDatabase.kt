@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thss.cercis.dao
 
 import androidx.room.*
 import cn.edu.tsinghua.thss.cercis.util.UserId
+import cn.edu.tsinghua.thss.cercis.util.mapInPlace
 import kotlinx.coroutines.flow.Flow
 
 @Database(
@@ -17,6 +18,10 @@ abstract class UserDatabase : RoomDatabase() {
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(vararg users: User)
+
+    fun insertUserWithTimestamp(vararg users: User) {
+        insertUser(*((users.map { it.copy(updated = System.currentTimeMillis()) }.toTypedArray())))
+    }
 
     @Query("SELECT * FROM user")
     fun loadAllUsers(): Flow<List<User>>

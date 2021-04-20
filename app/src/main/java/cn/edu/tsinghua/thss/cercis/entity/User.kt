@@ -19,6 +19,7 @@ data class User(
         val chatId: ChatId,
         val avatar: String,
         val bio: String,
+        val updated: Long,
 )
 
 @Entity(

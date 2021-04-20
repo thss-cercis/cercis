@@ -1,111 +1,68 @@
-///*
-// * Copyright (C) 2017 The Android Open Source Project
-// *
-// * Licensed under the Apache License, Version 2.0 (the "License");
-// * you may not use this file except in compliance with the License.
-// * You may obtain a copy of the License at
-// *
-// *      http://www.apache.org/licenses/LICENSE-2.0
-// *
-// * Unless required by applicable law or agreed to in writing, software
-// * distributed under the License is distributed on an "AS IS" BASIS,
-// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// * See the License for the specific language governing permissions and
-// * limitations under the License.
-// */
+/*
+ * https://stackoverflow.com/a/58845665
+ * CC BY-SA 4.0
+ */
 package cn.edu.tsinghua.thss.cercis.util
-//
-//
-//import androidx.annotation.MainThread
-//import androidx.annotation.WorkerThread
-//import androidx.lifecycle.LiveData
-//import androidx.lifecycle.MediatorLiveData
-//import cn.edu.tsinghua.thss.cercis.api.PayloadResponse
-//
-///**
-// * A generic class that can provide a resource backed by both the sqlite database and the network.
-// *
-// *
-// * You can read more about it in the [Architecture
-// * Guide](https://developer.android.com/arch).
-// * @param <ResultType>
-// * @param <RequestType>
-//</RequestType></ResultType> */
-//abstract class NetworkBoundResource<ResultType, RequestType> {
-//
-//    private val result = MediatorLiveData<Resource<ResultType>>()
-//
-//    init {
-//        result.value = Resource.loading(null)
-//        @Suppress("LeakingThis")
-//        val dbSource = loadFromDb()
-//        result.addSource(dbSource) { data ->
-//            result.removeSource(dbSource)
-//            if (shouldFetch(data)) {
-//                fetchFromNetwork(dbSource)
-//            } else {
-//                result.addSource(dbSource) { newData ->
-//                    setValue(Resource.success(newData))
-//                }
-//            }
-//        }
-//    }
-//
-//    @MainThread
-//    private fun setValue(newValue: Resource<ResultType>) {
-//        if (result.value != newValue) {
-//            result.value = newValue
-//        }
-//    }
-//
-//    private fun fetchFromNetwork(dbSource: LiveData<ResultType>) {
-//        val apiResponse = createCall()
-//        // we re-attach dbSource as a new source, it will dispatch its latest value quickly
-//        result.addSource(dbSource) { newData ->
-//            setValue(Resource.loading(newData))
-//        }
-//        result.addSource(apiResponse) { response ->
-//            result.removeSource(apiResponse)
-//            result.removeSource(dbSource)
-//            if (response.successful) {
-//                if (response.payload == null) {
-//                    appExecutors.mainThread().execute {
-//                        // reload from disk whatever we had
-//                        result.addSource(loadFromDb()) { newData ->
-//                            setValue(Resource.success(newData))
-//                        }
-//                    }
-//                } else {
-//                    appExecutors.diskIO().execute {
-//                        saveCallResult(response.payload)
-//                        appExecutors.mainThread().execute {
-//                            // we specially request a new live data,
-//                            // otherwise we will get immediately last cached value,
-//                            // which may not be updated with latest results received from network.
-//                            result.addSource(loadFromDb()) { newData ->
-//                                setValue(Resource.success(newData))
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                onFetchFailed()
-//                result.addSource(dbSource) { newData ->
-//                    setValue(Resource.error(response.errorMessage, newData))
-//                }
-//            }
-//        }
-//    }
-//
-//    protected open fun onFetchFailed() {}
-//
-//    fun asLiveData() = result as LiveData<Resource<ResultType>>
-//
-//    protected abstract fun saveCallResult(item: RequestType)
-//
-//    protected abstract fun shouldFetch(data: ResultType?): Boolean
-//
-//    protected abstract fun loadFromDb(): LiveData<ResultType>
-//
-//    protected abstract fun createCall(): LiveData<PayloadResponse<RequestType>>
-//}
+
+
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
+import cn.edu.tsinghua.thss.cercis.api.PayloadResponse
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+
+/**
+ * A generic class that can provide a resource backed by both the sqlite database and the network.
+ *
+ *
+ * You can read more about it in the [Architecture
+ * Guide](https://developer.android.com/arch).
+ * @param <ResultType>
+ * @param <RequestType>
+</RequestType></ResultType> */
+@FlowPreview
+@ExperimentalCoroutinesApi
+abstract class NetworkBoundResource<ResultType, RequestType> {
+
+    fun asFlow() = flow {
+        emit(Resource.loading(null))
+
+        val dbValue = loadFromDb().first()
+        if (shouldFetch(dbValue)) {
+            emit(Resource.loading(dbValue))
+            val apiResponse = fetchFromNetwork()
+            when (apiResponse.successful) {
+                true -> {
+                    saveNetworkResult(processResponse(apiResponse))
+                    emitAll(loadFromDb().map { Resource.success(it) })
+                }
+                false -> {
+                    onFetchFailed()
+                    emitAll(loadFromDb().map { Resource.error(apiResponse.msg, it) })
+                }
+            }
+        } else {
+            emitAll(loadFromDb().map { Resource.success(it) })
+        }
+    }
+
+    protected open fun onFetchFailed() {
+        // Implement in sub-classes to handle errors
+    }
+
+    @WorkerThread
+    protected open fun processResponse(response: PayloadResponse<RequestType>) = response.payload!!
+
+    @WorkerThread
+    protected abstract suspend fun saveNetworkResult(item: RequestType)
+
+    @MainThread
+    protected abstract fun shouldFetch(data: ResultType?): Boolean
+
+    @MainThread
+    protected abstract fun loadFromDb(): Flow<ResultType>
+
+    @MainThread
+    protected abstract suspend fun fetchFromNetwork(): PayloadResponse<RequestType>
+}

@@ -3,17 +3,17 @@ package cn.edu.tsinghua.thss.cercis.repository
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
+import cn.edu.tsinghua.thss.cercis.dao.User
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.module.AuthorizedLiveEvent
-import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
-import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
-import cn.edu.tsinghua.thss.cercis.util.UserId
+import cn.edu.tsinghua.thss.cercis.util.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +31,7 @@ class UserRepository @Inject constructor(
     private val sharedPreferences: SharedPreferences = run {
         context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     }
+    private val userLiveDataCache = HashMap<UserId, NetworkBoundResource<User, User>>()
 
     /**
      * Checks if a user is logged in.
@@ -69,9 +70,9 @@ class UserRepository @Inject constructor(
         userDao.loadCurrentUsers().asLiveData()
     }
 
-    private val _currentUser: MediatorLiveData<CurrentUser?> = run {
+    private val _currentUser: MediatorLiveData<CurrentUser> by lazy {
         val id: UserId = currentUserId.value!!
-        val mediatorLiveData = MediatorLiveData<CurrentUser?>()
+        val mediatorLiveData = MediatorLiveData<CurrentUser>()
         var liveData = userDao.loadCurrentUser(id).asLiveData()
         mediatorLiveData.addSource(currentUserId) {
             userDao.loadCurrentUser(it)
@@ -85,11 +86,20 @@ class UserRepository @Inject constructor(
     }
 
     /**
+     * Looks up a user with intermediate cache.
+     */
+    @MainThread
+    fun loadUser(userId: UserId): LiveData<Resource<User>> {
+        TODO()
+    }
+
+    /**
      * Gets the current user.
      *
      * This method is idempotent, with the calling always return the save LiveData instance.
      */
-    fun currentUser(scope: CoroutineScope): LiveData<CurrentUser?> {
+    @MainThread
+    fun currentUser(scope: CoroutineScope): LiveData<CurrentUser> {
         scope.launch(Dispatchers.IO) {
             try {
                 val response = httpService.userCurrent()

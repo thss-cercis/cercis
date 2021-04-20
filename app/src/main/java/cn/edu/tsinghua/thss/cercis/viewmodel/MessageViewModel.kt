@@ -1,12 +1,11 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.LiveData
+import cn.edu.tsinghua.thss.cercis.dao.User
 import cn.edu.tsinghua.thss.cercis.entity.Message
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import cn.edu.tsinghua.thss.cercis.util.Resource
 
-class MessageViewModel(val side: Side, val message: Message) {
-    enum class Side {
-        THIS, OTHER
-    }
-}
+data class MessageViewModel(
+        val message: Message,
+        val user: LiveData<Resource<User>>,
+)

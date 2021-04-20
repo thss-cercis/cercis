@@ -1,20 +1,19 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Adapter
 import cn.edu.tsinghua.thss.cercis.Constants
-import cn.edu.tsinghua.thss.cercis.databinding.ChatItemBinding
+import cn.edu.tsinghua.thss.cercis.dao.User
+import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_MULTIPLE
+import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_SINGLE
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
-import dagger.assisted.Assisted
+import cn.edu.tsinghua.thss.cercis.util.Resource
+import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,11 +28,11 @@ class SessionViewModel @Inject constructor(
     private val chatId = savedStateHandle.get<Long>("chatId") ?: -1
     private val chatParticipants = messageRepository.getChatParticipants(chatId)
     val chat = messageRepository.getChat(chatId)
-    fun side(senderId: ChatId) : MessageViewModel.Side = when {
+    fun side(senderId: ChatId) : Side = when {
         senderId != userRepository.currentUserId.value -> {
-            MessageViewModel.Side.OTHER
+            Side.OTHER
         }
-        else -> MessageViewModel.Side.THIS
+        else -> Side.SELF
     }
 
     /**
@@ -51,6 +50,10 @@ class SessionViewModel @Inject constructor(
     private val currentIdStart: MessageId = 0
     private val currentIdEnd: MessageId = 0
 
+    @MainThread
+    fun loadUser(userId: UserId): LiveData<Resource<User>> {
+        return userRepository.loadUser(userId)
+    }
 
     @MainThread
     private fun loadCurrentMessages(count: Long) {
@@ -105,10 +108,11 @@ class SessionViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Exits view
-     */
-    fun navigationOnClickListener(view: View) {
-        TODO("finish this")
+    enum class Side {
+        SELF, OTHER
+    }
+
+    enum class Type {
+        MULTIPLE, SINGLE
     }
 }

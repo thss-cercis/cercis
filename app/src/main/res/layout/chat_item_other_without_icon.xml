@@ -6,17 +6,13 @@
         <import type="cn.edu.tsinghua.thss.cercis.viewmodel.MessageViewModel" />
 
         <variable
-            name="viewModel"
+            name="message"
             type="MessageViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
-
+        android:layout_height="match_parent">
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

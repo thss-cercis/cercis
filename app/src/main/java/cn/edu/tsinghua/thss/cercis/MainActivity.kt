@@ -97,10 +97,10 @@ class MainActivity : AppCompatActivity() {
         )
 
         val listener = NavController.OnDestinationChangedListener { navController, dest, _ ->
-            val isNotEmptyFragmentDest = dest.id != R.id.action_global_emptyFragment && dest.id != R.id.emptyFragment
-            val isNotStackBottom = navController.currentBackStackEntry == null
+//            val isNotEmptyFragmentDest = dest.id != R.id.action_global_emptyFragment && dest.id != R.id.emptyFragment
+            val isStartDest = dest.id == navController.graph.startDestination
             mainActivityViewModel.detailHasNavigationDestination.postValue(
-                    isNotEmptyFragmentDest || isNotStackBottom
+                    !isStartDest
             )
         }
 
@@ -108,6 +108,9 @@ class MainActivity : AppCompatActivity() {
             navController?.let {
                 it.removeOnDestinationChangedListener(listener)
                 it.addOnDestinationChangedListener(listener)
+                if (it.currentBackStackEntry == null) {
+                    mainActivityViewModel.detailHasNavigationDestination.postValue(false)
+                }
             }
         }
 
