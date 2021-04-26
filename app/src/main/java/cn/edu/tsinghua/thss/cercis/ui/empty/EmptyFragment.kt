@@ -12,7 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class EmptyFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (resources.getBoolean(R.bool.masterDetail)) {
+        if (resources.getBoolean(R.bool.is_master_detail)) {
             val binding = LayoutEmptyBinding.inflate(inflater, container, false)
             return binding.root
         }

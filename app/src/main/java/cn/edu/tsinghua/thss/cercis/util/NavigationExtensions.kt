@@ -21,26 +21,29 @@ package cn.edu.tsinghua.thss.cercis.util
 import android.content.Intent
 import android.os.Bundle
 import android.util.SparseArray
+import android.util.SparseIntArray
 import androidx.core.util.forEach
 import androidx.core.util.set
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import androidx.viewpager2.widget.ViewPager2
 import cn.edu.tsinghua.thss.cercis.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * Manages the various graphs needed for a [BottomNavigationView].
+ * Notes: changed by Cercis to adapt to master-detail view with master view being a view pager
  *
  * This sample is a workaround until the Navigation Component supports multiple back stacks.
  */
 fun BottomNavigationView.setupWithNavController(
         navGraphIds: List<Int>,
-        masterNavDestinations: List<NavDirections>,
-        masterNavController: NavController,
+        masterViewPager2: ViewPager2,
         fragmentManager: FragmentManager,
         containerId: Int,
         intent: Intent
@@ -48,7 +51,7 @@ fun BottomNavigationView.setupWithNavController(
 
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
-    val graphIdToNavDirectionMap = SparseArray<NavDirections>()
+    val graphIdToIndexMap = SparseIntArray()
     // Result. Mutable live data with the selected controlled
     val selectedNavController = MutableLiveData<NavController>()
 
@@ -75,7 +78,7 @@ fun BottomNavigationView.setupWithNavController(
 
         // Save to the map
         graphIdToTagMap[graphId] = fragmentTag
-        graphIdToNavDirectionMap[graphId] = masterNavDestinations[index]
+        graphIdToIndexMap[graphId] = index
 
         // Attach or detach nav host fragment depending on whether it's the selected item.
         if (this.selectedItemId == graphId) {
@@ -100,7 +103,7 @@ fun BottomNavigationView.setupWithNavController(
         } else {
             val newlySelectedItemTag = graphIdToTagMap[item.itemId]
             if (selectedItemTag != newlySelectedItemTag) {
-                masterNavController.navigate(graphIdToNavDirectionMap[item.itemId])
+                masterViewPager2.currentItem = graphIdToIndexMap[item.itemId]
 
                 // Pop everything above the first fragment (the "fixed start destination")
                 fragmentManager.popBackStack(firstFragmentTag,

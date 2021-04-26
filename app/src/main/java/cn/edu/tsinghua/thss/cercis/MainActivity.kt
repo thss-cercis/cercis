@@ -3,16 +3,27 @@ package cn.edu.tsinghua.thss.cercis
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsAnimation
 import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import cn.edu.tsinghua.thss.cercis.databinding.ActivityMainBinding
+import cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment
+import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
+import cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment
+import cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
-import cn.edu.tsinghua.thss.cercis.util.NavDirectionsById
+import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.util.setupWithNavController
 import cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel
 import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
@@ -23,7 +34,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
-    private lateinit var masterHost: NavHostFragment
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentNavController: LiveData<NavController>
 
@@ -34,8 +44,6 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = mainActivityViewModel
         setContentView(binding.root)
 
-        masterHost = supportFragmentManager.findFragmentById(R.id.master_view_container) as NavHostFragment
-
         // check login status and automatically jumps to login view
         userViewModel.loggedIn.observe(this) {
             if (it == false) {
@@ -43,7 +51,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (savedInstanceState == null) {
+        binding.reusedView.masterViewContainer.apply {
+            adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+                override fun getItemCount(): Int {
+                    return 4
+                }
+
+                override fun createFragment(position: Int): Fragment {
+                    return when (position) {
+                        0 -> SessionListFragment()
+                        1 -> ContactListFragment()
+                        2 -> ActivityFragment()
+                        3 -> ProfileFragment()
+                        else -> throw IllegalStateException("out of index") // should not happen
+                    }
+                }
+            }
+            isUserInputEnabled = false
+        }
+
+       if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
     }
@@ -76,12 +103,6 @@ class MainActivity : AppCompatActivity() {
                 R.navigation.activity_list_nav_graph,
                 R.navigation.profile_nav_graph,
         )
-        val masterNavDestinations = listOf(
-                NavDirectionsById(R.id.sessionListFragment),
-                NavDirectionsById(R.id.contactListFragment),
-                NavDirectionsById(R.id.activityFragment),
-                NavDirectionsById(R.id.profileFragment),
-        )
         if (navIds[0] == R.id.session_list_nav_graph) {
             Log.e(LOG_TAG, "test")
             Log.e(LOG_TAG, "${navIds[0]} == ${R.id.session_list_nav_graph}")
@@ -89,15 +110,13 @@ class MainActivity : AppCompatActivity() {
 
         val controller = bottomNavigation.setupWithNavController(
                 navGraphIds = navIds,
-                masterNavController = masterHost.navController,
-                masterNavDestinations = masterNavDestinations,
+                masterViewPager2 = binding.reusedView.masterViewContainer,
                 fragmentManager = supportFragmentManager,
                 containerId = R.id.detail_view_container,
                 intent = intent
         )
 
         val listener = NavController.OnDestinationChangedListener { navController, dest, _ ->
-//            val isNotEmptyFragmentDest = dest.id != R.id.action_global_emptyFragment && dest.id != R.id.emptyFragment
             val isStartDest = dest.id == navController.graph.startDestination
             mainActivityViewModel.detailHasNavigationDestination.postValue(
                     !isStartDest
@@ -115,5 +134,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         currentNavController = controller
+    }
+
+    private val isMasterDetail: Boolean by lazy {
+        resources.getBoolean(R.bool.is_master_detail)
     }
 }

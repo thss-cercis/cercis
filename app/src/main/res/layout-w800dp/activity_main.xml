@@ -18,13 +18,12 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:background="@color/login_page_background"
-        android:fitsSystemWindows="true"
-        android:windowSoftInputMode="adjustResize"
         tools:context=".MainActivity">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/master_view"
             android:layout_width="360dp"
+            android:fitsSystemWindows="false"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_height="match_parent">
 
