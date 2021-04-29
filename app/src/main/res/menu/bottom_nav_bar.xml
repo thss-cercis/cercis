@@ -19,5 +19,5 @@
         android:icon="@drawable/ic_account_circle_24"
         android:id="@+id/profile_nav_graph"
         android:enabled="true"
-        android:title="@string/profile" />
+        android:title="@string/tab_profile" />
 </menu>

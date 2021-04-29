@@ -21,17 +21,11 @@ interface CercisHttpService {
     @POST("auth/signup")
     suspend fun logout(): EmptyResponse
 
-    @POST("email/signup")
-    suspend fun emailSignUp(@Body request: MobileSignUpRequest): EmptyResponse
-
-    @POST("email/signup/check")
-    suspend fun emailSignUpCheck(@Body request: EmailSignUpCheckRequest): EmailSignUpCheckResponse
-
     @POST("mobile/signup")
     suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyResponse
 
-    @POST("mobile/signup/check")
-    suspend fun mobileSignUpCheck(@Body request: MobileSignUpCheckRequest): MobileSignUpCheckResponse
+//    @POST("mobile/signup/check")
+//    suspend fun mobileSignUpCheck(@Body request: MobileSignUpCheckRequest): MobileSignUpCheckResponse
 
     @POST("user/current")
     suspend fun userCurrent(): UserCurrentResponse
@@ -46,7 +40,6 @@ data class LoginRequest(
 @JsonClass(generateAdapter = true)
 data class SignUpRequest(
         val nickname: String,
-        val email: String,
         val mobile: String,
         @Json(name = "code") val verificationCode: String,
         val password: String

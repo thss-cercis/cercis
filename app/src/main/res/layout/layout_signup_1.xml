@@ -37,7 +37,7 @@
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.modeHeadline}"
+            android:text="@string/signup_headline_2"
             app:layout_constraintTop_toBottomOf="@id/signup_headline" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -46,16 +46,52 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:hint="@{viewModel.fieldHint}"
+            android:hint="@string/signup_hint_mobile_code"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/signup_headline2"
+            app:layout_constraintTop_toBottomOf="@id/signup_password"
             app:shapeAppearanceOverlay="@style/roundedCorner">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:text="@={viewModel.emailOrMobile}" />
+                android:text="@={viewModel.mobile}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_nickname"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:hint="@string/hint_nickname"
+            app:layout_constraintTop_toBottomOf="@id/signup_headline2"
+            app:shapeAppearanceOverlay="@style/roundedCorner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:text="@={viewModel.nickname}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/signup_password"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:hint="@string/hint_password"
+            app:endIconMode="password_toggle"
+            app:errorEnabled="@{viewModel.passwordError != null}"
+            app:layout_constraintTop_toBottomOf="@id/signup_nickname"
+            app:shapeAppearanceOverlay="@style/roundedCorner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:text="@={viewModel.password}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -64,10 +100,11 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="10dp"
-            android:enabled="@{!viewModel.emailOrMobile.empty}"
+            android:enabled="@{viewModel.canSendCode}"
             android:insetBottom="0dp"
             android:onClick="@{viewModel::onSendCodeButtonClicked}"
-            android:text="@string/signup_send_code"
+            android:text="@{viewModel.countdownText}"
+            android:clickable="@{viewModel.canSendCode}"
             app:layout_constraintBaseline_toBaselineOf="@id/signup_code"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/signup_code" />
@@ -79,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
             android:hint="@string/signup_code"
-            app:errorEnabled="true"
+            app:errorEnabled="@{viewModel.verificationError != null}"
             app:layout_constraintEnd_toStartOf="@id/send_code_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/signup_mobile"
@@ -93,22 +130,22 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/signup_code_next_button"
+            android:id="@+id/signup_submit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:onClick="@{viewModel::onFragment1NextButtonClicked}"
-            android:text="@string/signup_code_next_step"
+            android:clickable="@{viewModel.canSubmit}"
+            android:enabled="@{viewModel.canSubmit}"
+            android:onClick="@{viewModel::onSubmitButtonClicked}"
+            android:text="@string/signup_button_signup"
             app:layout_constraintTop_toBottomOf="@id/signup_code" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+            android:id="@+id/signup_submit_error"
+            android:textColor="@color/cercis_accent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:onClick="@{viewModel::onSwitchViewClicked}"
-            android:text="@{viewModel.switchMessage}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/signup_code_next_button" />
+            app:layout_constraintTop_toBottomOf="@+id/signup_submit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

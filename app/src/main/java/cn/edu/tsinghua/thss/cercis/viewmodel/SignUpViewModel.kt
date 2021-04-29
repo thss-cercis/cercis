@@ -1,8 +1,11 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
+import cn.edu.tsinghua.thss.cercis.Constants
+import cn.edu.tsinghua.thss.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.api.*
 import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
@@ -10,6 +13,7 @@ import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.jvm.Throws
@@ -25,8 +29,6 @@ import kotlin.jvm.Throws
  *      check code
  *  Fragment2:
  *      enter nickname
- *      enter email (optional)
- *          check email used
  *      enter password
  *      enter password confirmation
  *  Fragment3:
@@ -39,89 +41,98 @@ class SignUpViewModel @Inject constructor(
         private val userRepository: UserRepository,
 ) : ViewModel() {
 
-    enum class CodeMode {
-        MOBILE, EMAIL,
-    }
-
     enum class NavAction {
-        FRAGMENT1, FRAGMENT2, FRAGMENT_SUCCESS, LOGIN,
+        FRAGMENT1, FRAGMENT_SUCCESS, LOGIN,
     }
 
     val navAction = MutableLiveData(NavAction.FRAGMENT1)
 
     // SignUpFragment1
-    // use mobile or email to signup
-    val mode = MutableLiveData(CodeMode.MOBILE)
 
     // hint messages for UI
-    val modeHeadline = MutableLiveData(getString(R.string.signup_send_mobile_code))
-    val fieldHint = MutableLiveData(getString(R.string.signup_hint_mobile_code))
-    val switchMessage = MutableLiveData(getString(R.string.signup_switch_to_email_mode))
-
-    val emailOrMobile = MutableLiveData("")
+    val mobile = MutableLiveData("")
     val verificationCode = MutableLiveData("")
     val verificationError = MutableLiveData<String?>(null)
-    val verificationCodeSent = MutableLiveData(false)
-    val verificationCodeCountDown = MutableLiveData(45)
+    val verificationCodeCountDown = MutableLiveData(0)
+    val canSendCode = Transformations.map(PairLiveData(mobile, verificationCodeCountDown)) {
+        it?.let {
+            !it.first.isNullOrEmpty() && it.second == 0
+        } ?: false
+    }
+    val countdownText = Transformations.map(verificationCodeCountDown) {
+        it?.let { if (it == 0) getString(R.string.signup_send_code) else "${getString(R.string.signup_send_code)}(${it})" }
+    }
 
     // SignUpFragment2
     val nickname = MutableLiveData("")
     val password = MutableLiveData("")
+    val passwordVisible = MutableLiveData(false)
     val signUpError = MutableLiveData<String?>(null)
     val signUpSubmittingBusy = MutableLiveData(false)
     val passwordChecker = PasswordChecker(password)
     val canSubmit: LiveData<Boolean> = run {
-        Transformations.map(TripleLiveData(signUpSubmittingBusy, nickname, passwordChecker.result)) {
-            it.first != true && !it.second.isNullOrEmpty() && it.third?.valid != false
+        MediatorLiveData<Boolean>().apply {
+            val checkCanSubmit = { it: Any ->
+                value = !mobile.value.isNullOrEmpty()
+                        && !verificationCode.value.isNullOrEmpty()
+                        && !nickname.value.isNullOrEmpty()
+                        && passwordChecker.result.value?.valid ?: false
+                        && signUpSubmittingBusy.value != true
+            }
+            addSource(mobile, checkCanSubmit)
+            addSource(verificationCode, checkCanSubmit)
+            addSource(nickname, checkCanSubmit)
+            addSource(passwordChecker.result, checkCanSubmit)
+            addSource(signUpSubmittingBusy, checkCanSubmit)
         }
     }
     val passwordError: LiveData<String?> = Transformations.map(passwordChecker.result) {
-        if (it?.emptyOrValid == true) null else getString(R.string.error_password_invalid)
+        it?.let {
+            when {
+                it.emptyOrValid -> null
+                !it.ruleLength -> getString(R.string.error_password_min_8_max_20)
+                !it.ruleAllowedCharacters -> getString(R.string.error_password_invalid_character)
+                    .replace("{}", it.invalidCharacter!!)
+                else -> getString(R.string.error_password_should_3_out_of_4)
+            }
+        }
     }
 
     // SignUpFragment3
     val newUserId: MutableLiveData<UserId> = MutableLiveData(-1)
 
-    fun sendVerificationCode() {
-        // TODO fill with actual logic
-        verificationError.postValue(null)
-        verificationCodeSent.postValue(true)
+    private suspend fun sendVerificationCode() {
+        verificationCodeCountDown.postValue(SEND_CODE_COUNTDOWN)
+        try {
+            verificationError.postValue(null)
+            val resp = userRepository.httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))
+            if (!resp.successful) {
+                verificationError.postValue(resp.msg)
+            } else {
+                for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
+                    delay(1000)
+                    verificationCodeCountDown.postValue(i)
+                }
+            }
+        } catch(t: Throwable) {
+            verificationError.postValue(userRepository.context.getString(R.string.error_network_exception))
+            verificationCodeCountDown.postValue(0)
+        } finally {
+            verificationCodeCountDown.postValue(0)
+        }
     }
 
-
-    /**
-     * Listener on text view for switching how verification code should be sent.
-     */
-    fun onSwitchViewClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        switchMode(when (mode.value) {
-            CodeMode.EMAIL -> CodeMode.MOBILE
-            CodeMode.MOBILE -> CodeMode.EMAIL
-            else -> CodeMode.MOBILE
-        })
-    }
 
     /**
      * Listener on button for sending verification code.
      */
     fun onSendCodeButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        // TODO not implemented yet
-
-    }
-
-    /**
-     * Listener on button for confirming verification code.
-     */
-    fun onFragment1NextButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val successful = checkVerificationCodeCorrectness()
-                if (successful) {
-                    navAction.postValue(NavAction.FRAGMENT2)
-                }
-            } catch (ex: DataFetchException) {
-                verificationError.postValue(ex.message)
+        if (verificationCodeCountDown.value == 0) {
+            viewModelScope.launch(Dispatchers.IO) {
+                sendVerificationCode()
             }
         }
+
     }
 
     /**
@@ -145,41 +156,13 @@ class SignUpViewModel @Inject constructor(
         Log.d(LOG_TAG, "SignUpViewModel destroyed.")
     }
 
-    @Throws(DataFetchException::class)
-    private suspend fun checkVerificationCodeCorrectness(): Boolean {
-        return true
-        @Suppress("UNREACHABLE_CODE")
-        viewModelScope.run {
-            try {
-                val response = userRepository.httpService.mobileSignUpCheck(MobileSignUpCheckRequest(
-                        code = verificationCode.value ?: ""
-                ))
-                if (response.successful && response.payload != null) {
-                    return response.payload.ok
-                }
-                throw DataFetchException(response.msg)
-            } catch (t: Throwable) {
-                throw DataFetchException(userRepository.context.getString(R.string.error_network_exception))
-            }
-        }
-    }
-
-    private suspend fun signUp(): Boolean {
+    private suspend fun signUp() {
         // clear error message
         signUpError.postValue(null)
         signUpSubmittingBusy.postValue(true)
 
         val nickname = this.nickname.value ?: ""
-        val mobile: String = when (this.mode.value) {
-            CodeMode.MOBILE -> this.emailOrMobile.value ?: ""
-            CodeMode.EMAIL -> ""
-            else -> ""
-        }
-        val email: String = when (this.mode.value) {
-            CodeMode.MOBILE -> ""
-            CodeMode.EMAIL -> this.emailOrMobile.value ?: ""
-            else -> ""
-        }
+        val mobile = "+86${this.mobile.value}"
         val password = this.password.value ?: ""
         val verificationCode = this.verificationCode.value ?: ""
 
@@ -187,7 +170,6 @@ class SignUpViewModel @Inject constructor(
             val response = userRepository.httpService.signUp(SignUpRequest(
                     nickname = nickname,
                     mobile = mobile,
-                    email = email,
                     password = password,
                     verificationCode = verificationCode,
             ))
@@ -197,7 +179,6 @@ class SignUpViewModel @Inject constructor(
                         id = response.payload.userId,
                         nickname = nickname,
                         mobile = mobile,
-                        email = email,
                         avatar = "",
                         bio = "",
                 )
@@ -214,27 +195,6 @@ class SignUpViewModel @Inject constructor(
         } finally {
             signUpSubmittingBusy.postValue(false)
         }
-        return false
-    }
-
-    private fun switchMode(mode: CodeMode) {
-        this.mode.postValue(mode)
-        this.modeHeadline.postValue(when (mode) {
-            CodeMode.MOBILE -> getString(R.string.signup_send_mobile_code)
-            CodeMode.EMAIL -> getString(R.string.signup_send_email_code)
-        })
-        this.fieldHint.postValue(when (mode) {
-            CodeMode.MOBILE -> getString(R.string.signup_hint_mobile_code)
-            CodeMode.EMAIL -> getString(R.string.signup_hint_email_code)
-        })
-        this.switchMessage.postValue(when (mode) {
-            CodeMode.MOBILE -> getString(R.string.signup_switch_to_email_mode)
-            CodeMode.EMAIL -> getString(R.string.signup_switch_to_mobile_mode)
-        })
-        this.emailOrMobile.postValue("")
-        this.verificationCode.postValue("")
-        this.verificationError.postValue(null)
-        this.verificationCodeSent.postValue(false)
     }
 
     private fun getString(resId: Int): String {

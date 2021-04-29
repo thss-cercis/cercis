@@ -9,6 +9,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.databinding.LayoutSignup1Binding
+import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,13 +21,24 @@ class SignUpFragment1 : Fragment() {
         val binding = LayoutSignup1Binding.inflate(inflater, container, false)
         binding.viewModel = signUpViewModel
         binding.lifecycleOwner = this
+        binding.signup1RootLayout.enableTransition()
+        signUpViewModel.signUpError.observe(viewLifecycleOwner) {
+            binding.signupSubmitError.text = it
+        }
+        signUpViewModel.passwordError.observe(viewLifecycleOwner) {
+            binding.signupPassword.error = it
+        }
+        signUpViewModel.verificationError.observe(viewLifecycleOwner) {
+            binding.signupCode.error = it
+        }
         signUpViewModel.navAction.observe(viewLifecycleOwner) {
-            when(it) {
-                SignUpViewModel.NavAction.FRAGMENT1 -> Unit
-                SignUpViewModel.NavAction.FRAGMENT2 -> findNavController().navigate(R.id.action_signUpFragment1_to_signUpFragment2)
-                SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> findNavController().navigate(R.id.signUpSuccessFragment)
-                SignUpViewModel.NavAction.LOGIN -> findNavController().navigate(R.id.action_global_loginFragment)
-                else -> Unit
+            it?.let {
+                when (it) {
+                    SignUpViewModel.NavAction.FRAGMENT1 -> Unit
+                    SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> findNavController().navigate(R.id.signUpSuccessFragment)
+                    SignUpViewModel.NavAction.LOGIN -> findNavController().navigate(R.id.action_global_loginFragment)
+                }
+                signUpViewModel.navAction.value = null
             }
         }
         signUpViewModel.verificationError.observe(viewLifecycleOwner) {

@@ -21,12 +21,13 @@ class SignUpSuccessFragment : Fragment() {
         binding.viewModel = signUpViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         signUpViewModel.navAction.observe(viewLifecycleOwner) {
-            when(it) {
-                SignUpViewModel.NavAction.FRAGMENT1 -> Unit
-                SignUpViewModel.NavAction.FRAGMENT2 -> Unit
-                SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> Unit
-                SignUpViewModel.NavAction.LOGIN -> findNavController().navigate(R.id.action_global_loginFragment)
-                else -> Unit
+            it?.let {
+                when (it) {
+                    SignUpViewModel.NavAction.FRAGMENT1 -> Unit
+                    SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> Unit
+                    SignUpViewModel.NavAction.LOGIN -> findNavController().navigate(R.id.action_global_loginFragment)
+                }
+                signUpViewModel.navAction.value = null
             }
         }
         return binding.root

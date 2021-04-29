@@ -8,19 +8,12 @@
         android:id="@+id/signUpFragment1"
         android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment1"
         android:label="layout_signup_1"
-        tools:layout="@layout/layout_signup_1" >
+        tools:layout="@layout/layout_signup_1">
         <action
-            android:id="@+id/action_signUpFragment1_to_signUpFragment2"
-            app:destination="@id/signUpFragment2" />
-    </fragment>
-    <fragment
-        android:id="@+id/signUpFragment2"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment2"
-        android:label="layout_signup_2"
-        tools:layout="@layout/layout_signup_2" >
-        <action
-            android:id="@+id/action_signUpFragment2_to_signUpSuccessFragment"
-            app:destination="@id/signUpSuccessFragment" />
+            android:id="@+id/action_signUpFragment1_to_signUpSuccessFragment"
+            app:destination="@id/signUpSuccessFragment"
+            app:popUpTo="@id/signUpFragment1"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/signUpSuccessFragment"

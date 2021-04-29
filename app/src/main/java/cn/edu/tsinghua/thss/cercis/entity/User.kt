@@ -15,7 +15,6 @@ data class User(
         @PrimaryKey val id: UserId,
         val nickname: String,
         val mobile: String,
-        val email: String,
         val chatId: ChatId,
         val avatar: String,
         val bio: String,
@@ -43,7 +42,6 @@ data class CurrentUser(
         @PrimaryKey val id: UserId,
         val nickname: String,
         val mobile: String,
-        val email: String,
         val avatar: String,
         val bio: String,
 )

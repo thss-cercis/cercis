@@ -64,7 +64,7 @@ class SessionListFragment : Fragment() {
         ) : RecyclerView.ViewHolder(binding.root) {
             init {
                 itemView.setOnClickListener {
-                    doDetailNavigation(SessionFragment.navDirection(getChatId(adapterPosition)))
+                    doDetailNavigation(SessionFragment.navDirection(getChatId(absoluteAdapterPosition)))
                 }
             }
         }

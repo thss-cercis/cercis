@@ -24,9 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-        @ApplicationContext private val context: Context,
-        private val httpService: CercisHttpService,
-        private val userRepository: UserRepository,
+    @ApplicationContext private val context: Context,
+    private val httpService: CercisHttpService,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     val userId: MutableLiveData<String> = MutableLiveData(userRepository.currentUserId.value.let {
         return@let when (it) {
@@ -36,10 +36,10 @@ class LoginViewModel @Inject constructor(
     })
     val password = MutableLiveData("")
     val isUserIdPasswordValid: LiveData<Boolean> =
-            Transformations.map(PairLiveData(userId, password)) {
-                loginError.postValue(null)
-                !it.first.isNullOrEmpty() && !it.second.isNullOrEmpty()
-            }
+        Transformations.map(PairLiveData(userId, password)) {
+            loginError.postValue(null)
+            !it.first.isNullOrEmpty() && !it.second.isNullOrEmpty()
+        }
     val isBusyLogin = MutableLiveData(false)
     val canSubmitLogin = Transformations.map(PairLiveData(isUserIdPasswordValid, isBusyLogin)) {
         it.first == true && it.second == false
@@ -66,7 +66,14 @@ class LoginViewModel @Inject constructor(
         loginError.value = null
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = httpService.login(LoginRequest(userId.value!!, password.value!!))
+                val userIdString = userId.value!!.let {
+                    if (it.matches(Regex("\\d{11}"))) {
+                        "+86${it}"
+                    } else {
+                        it
+                    }
+                }
+                val response = httpService.login(LoginRequest(userIdString, password.value!!))
                 Log.d(LOG_TAG, "login response: $response")
                 if (response.successful) {
                     userRepository.loggedIn.postValue(true)
