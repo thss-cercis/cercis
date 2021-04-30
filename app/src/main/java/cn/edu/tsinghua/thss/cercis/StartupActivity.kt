@@ -18,5 +18,6 @@ class StartupActivity : AppCompatActivity() {
             true -> startActivity(Intent(this, MainActivity::class.java))
             false -> startActivity(Intent(this, AuthActivity::class.java))
         }
+        finish()
     }
 }

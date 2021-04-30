@@ -31,7 +31,7 @@ class UserRepository @Inject constructor(
     private val sharedPreferences: SharedPreferences = run {
         context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     }
-    private val userLiveDataCache = HashMap<UserId, NetworkBoundResource<User, User>>()
+    private val userLiveDataCache = HashMap<UserId, Resource<User>>()
 
     /**
      * Checks if a user is logged in.
