@@ -23,10 +23,10 @@ import javax.inject.Singleton
 
 @Singleton
 class UserRepository @Inject constructor(
-        @ApplicationContext val context: Context,
-        @AuthorizedLiveEvent val authorized: SingleLiveEvent<Boolean?>,
-        val httpService: CercisHttpService,
-        val userDao: UserDao,
+    @ApplicationContext val context: Context,
+    @AuthorizedLiveEvent val authorized: SingleLiveEvent<Boolean?>,
+    val httpService: CercisHttpService,
+    val userDao: UserDao,
 ) {
     private val sharedPreferences: SharedPreferences = run {
         context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -103,16 +103,12 @@ class UserRepository @Inject constructor(
         scope.launch(Dispatchers.IO) {
             try {
                 val response = httpService.userCurrent()
-                if (!response.authorized) {
-                    loggedIn.postValue(false)
-                } else if (response.successful) {
-                    val user = response.payload
-                    if (user != null) {
-                        if (currentUserId.value != user.id) {
-                            currentUserId.postValue(user.id)
-                        }
-                        userDao.insertCurrentUser(user)
+                if (response is NetworkResponse.Success) {
+                    val user = response.data
+                    if (currentUserId.value != user.id) {
+                        currentUserId.postValue(user.id)
                     }
+                    userDao.insertCurrentUser(user)
                 }
             } catch (ignore: Throwable) {
                 /* do nothing */

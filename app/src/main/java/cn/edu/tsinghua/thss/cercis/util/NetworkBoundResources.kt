@@ -7,14 +7,13 @@ package cn.edu.tsinghua.thss.cercis.util
 
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import cn.edu.tsinghua.thss.cercis.api.PayloadResponse
+import cn.edu.tsinghua.thss.cercis.api.PayloadResponseBody
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
 /**
- * A generic class that can provide a resource backed by both the sqlite database and the network.
- *
+ * A generic class that can provide a Response backed by both the sqlite database and the network.
  *
  * You can read more about it in the [Architecture
  * Guide](https://developer.android.com/arch).
@@ -26,24 +25,23 @@ import kotlinx.coroutines.flow.*
 abstract class NetworkBoundResource<ResultType, RequestType> {
 
     fun asFlow() = flow {
-        emit(Resource.loading(null))
+        emit(Resource.Loading(null))
 
         val dbValue = loadFromDb().first()
         if (shouldFetch(dbValue)) {
-            emit(Resource.loading(dbValue))
-            val apiResponse = fetchFromNetwork()
-            when (apiResponse.successful) {
-                true -> {
+            emit(Resource.Loading(dbValue))
+            when (val apiResponse = fetchFromNetwork()) {
+                is NetworkResponse.Success -> {
                     saveNetworkResult(processResponse(apiResponse))
-                    emitAll(loadFromDb().map { Resource.success(it) })
+                    emitAll(loadFromDb().map { Resource.Success(it) })
                 }
-                false -> {
+                is NetworkResponse.Reject -> {
                     onFetchFailed()
-                    emitAll(loadFromDb().map { Resource.error(apiResponse.msg, it) })
+                    emitAll(loadFromDb().map { Resource.Error(apiResponse.code, apiResponse.message, it) })
                 }
             }
         } else {
-            emitAll(loadFromDb().map { Resource.success(it) })
+            emitAll(loadFromDb().map { Resource.Success(it) })
         }
     }
 
@@ -52,7 +50,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
     }
 
     @WorkerThread
-    protected open fun processResponse(response: PayloadResponse<RequestType>) = response.payload!!
+    protected open fun processResponse(networkResponse: NetworkResponse<RequestType>) = (networkResponse as NetworkResponse.Success).data
 
     @WorkerThread
     protected abstract suspend fun saveNetworkResult(item: RequestType)
@@ -64,5 +62,5 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
     protected abstract fun loadFromDb(): Flow<ResultType>
 
     @MainThread
-    protected abstract suspend fun fetchFromNetwork(): PayloadResponse<RequestType>
+    protected abstract suspend fun fetchFromNetwork(): NetworkResponse<RequestType>
 }

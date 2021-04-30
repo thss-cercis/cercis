@@ -12,7 +12,7 @@
         android:id="@+id/contactListFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment"
         android:label="layout_contacts"
-        tools:layout="@layout/layout_contacts" />
+        tools:layout="@layout/fragment_contact_list" />
     <action
         android:id="@+id/action_global_contactListFragment"
         app:destination="@id/contactListFragment" />
@@ -23,7 +23,7 @@
         android:id="@+id/activityFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment"
         android:label="layout_discovery"
-        tools:layout="@layout/layout_activity" />
+        tools:layout="@layout/fragment_activity" />
     <action
         android:id="@+id/action_global_activityFragment"
         app:destination="@id/activityFragment" />
@@ -31,6 +31,6 @@
         android:id="@+id/profileFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment"
         android:label="layout_profile"
-        tools:layout="@layout/layout_profile" /><action android:id="@+id/action_global_profileFragment" app:destination="@id/profileFragment"/>
+        tools:layout="@layout/fragment_profile" /><action android:id="@+id/action_global_profileFragment" app:destination="@id/profileFragment"/>
 </navigation>
 

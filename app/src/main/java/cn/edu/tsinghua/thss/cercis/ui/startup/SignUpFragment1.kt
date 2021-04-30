@@ -5,20 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.databinding.LayoutSignup1Binding
+import cn.edu.tsinghua.thss.cercis.databinding.FragmentSignupBinding
 import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SignUpFragment1 : Fragment() {
-    private val signUpViewModel: SignUpViewModel by hiltNavGraphViewModels(R.id.signup_nav_graph)
+    private val signUpViewModel: SignUpViewModel by viewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val binding = LayoutSignup1Binding.inflate(inflater, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val binding = FragmentSignupBinding.inflate(inflater, container, false)
         binding.viewModel = signUpViewModel
         binding.lifecycleOwner = this
         binding.signup1RootLayout.enableTransition()
@@ -33,12 +39,12 @@ class SignUpFragment1 : Fragment() {
         }
         signUpViewModel.navAction.observe(viewLifecycleOwner) {
             it?.let {
-                when (it) {
+                when (it.first) {
                     SignUpViewModel.NavAction.FRAGMENT1 -> Unit
-                    SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> findNavController().navigate(R.id.signUpSuccessFragment)
-                    SignUpViewModel.NavAction.LOGIN -> findNavController().navigate(R.id.action_global_loginFragment)
+                    SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> findNavController().navigate(
+                        SignUpFragment1Directions.actionSignUpFragment1ToSignUpSuccessFragment(it.second))
+                    SignUpViewModel.NavAction.BACK -> findNavController().popBackStack()
                 }
-                signUpViewModel.navAction.value = null
             }
         }
         signUpViewModel.verificationError.observe(viewLifecycleOwner) {

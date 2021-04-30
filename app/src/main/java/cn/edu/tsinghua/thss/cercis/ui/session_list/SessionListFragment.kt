@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import cn.edu.tsinghua.thss.cercis.databinding.LayoutSessionListBinding
+import cn.edu.tsinghua.thss.cercis.databinding.FragmentSessionListBinding
 import cn.edu.tsinghua.thss.cercis.databinding.MessageSessionListItemBinding
 import cn.edu.tsinghua.thss.cercis.ui.session.SessionFragment
 import cn.edu.tsinghua.thss.cercis.util.ChatId
@@ -71,7 +71,7 @@ class SessionListFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val binding = LayoutSessionListBinding.inflate(inflater, container, false)
+        val binding = FragmentSessionListBinding.inflate(inflater, container, false)
         binding.viewModel = sessionListViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         // bind refresh listener

@@ -1,20 +1,31 @@
 package cn.edu.tsinghua.thss.cercis.module
 
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
 import cn.edu.tsinghua.thss.cercis.Constants
+import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
+import cn.edu.tsinghua.thss.cercis.api.EmptyPayload
+import cn.edu.tsinghua.thss.cercis.api.PayloadResponseBody
 import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
+import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
+import com.squareup.moshi.internal.Util
+import com.squareup.moshi.rawType
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.JavaNetCookieJar
-import okhttp3.OkHttpClient
-import okhttp3.Response
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import java.net.CookieManager
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -40,15 +51,19 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(@AuthorizedLiveEvent authorized: SingleLiveEvent<Boolean?>) = run {
+    fun provideOkHttpClient(
+        @AuthorizedLiveEvent authorized: SingleLiveEvent<Boolean?>,
+        @ApplicationContext context: Context,
+    ) = run {
         val cookieManager = CookieManager()
         val okHttpClient = OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
-                .writeTimeout(5, TimeUnit.SECONDS)
-                .cookieJar(JavaNetCookieJar(cookieManager))
-                .addInterceptor { chain ->
-                    val request = chain.request()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(5, TimeUnit.SECONDS)
+            .writeTimeout(5, TimeUnit.SECONDS)
+            .cookieJar(JavaNetCookieJar(cookieManager))
+            .addInterceptor { chain ->
+                val request = chain.request()
+                try {
                     val response = chain.proceed(request)
                     if (response.code == HttpStatusCode.StatusUnauthorized) {
                         authorized.postValue(false)
@@ -56,26 +71,100 @@ object AppModule {
                         return@addInterceptor response.newBuilder().code(200).build()
                     }
                     return@addInterceptor response
+                } catch (e: Exception) {
+                    Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message(e.message!!)
+                        .body(context.getString(R.string.error_network_exception)
+                            .toResponseBody(ServerErrorMediaType))
+                        .build()
                 }
-                .build()
+            }
+            .build()
         okHttpClient
     }
 
     @Singleton
     @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient, @BaseUrl baseUrl: String): Retrofit {
-        val retrofit = Retrofit.Builder()
-                .client(okHttpClient)
-                .addConverterFactory(MoshiConverterFactory.create())
-                .baseUrl(baseUrl)
-                .build()
-        return retrofit
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        @BaseUrl baseUrl: String,
+        @ApplicationContext context: Context,
+    ): Retrofit {
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .addConverterFactory(object : Converter.Factory() {
+                val moshi = MoshiConverterFactory.create()
+                val serverErrorMsg = context.getString(R.string.error_server_error)
+
+                override fun responseBodyConverter(
+                    type: Type, annotations: Array<Annotation?>, retrofit: Retrofit,
+                ): Converter<ResponseBody?, *>? {
+                    if (type.rawType != NetworkResponse::class.java) {
+                        return moshi.responseBodyConverter(type, annotations, retrofit)
+                    }
+                    val respValueType: Type = (type as ParameterizedType).actualTypeArguments[0]
+                    val moshiResponseConverter =
+                        moshi.responseBodyConverter(Util.ParameterizedTypeImpl(null,
+                            PayloadResponseBody::class.java,
+                            respValueType), annotations, retrofit)
+
+                    return Converter<ResponseBody?, NetworkResponse<Any>> {
+                        it?.let {
+                            if (it.contentType()?.subtype.equals(ServerErrorMediaType.subtype)) {
+                                val errorMsg = it.string()
+                                // FIXME this is absolutely not the best solution. this impl causes unchecked casts
+                                NetworkResponse.NetworkError(errorMsg)
+                            } else {
+                                try {
+                                    val value = moshiResponseConverter?.convert(it)
+                                    if (value == null) {
+                                        NetworkResponse.NetworkError(serverErrorMsg)
+                                    } else {
+                                        val body = value as PayloadResponseBody<*>
+                                        if (body.successful) {
+                                            if (body.payload != null || respValueType.rawType == EmptyPayload::class.java) {
+                                                NetworkResponse.Success(body.payload
+                                                    ?: EmptyPayload())
+                                            } else {
+                                                NetworkResponse.NetworkError(serverErrorMsg)
+                                            }
+                                        } else {
+                                            NetworkResponse.Reject(body.code, body.msg)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    NetworkResponse.NetworkError(serverErrorMsg)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                override fun requestBodyConverter(
+                    type: Type,
+                    parameterAnnotations: Array<Annotation>,
+                    methodAnnotations: Array<Annotation>,
+                    retrofit: Retrofit,
+                ): Converter<*, RequestBody>? {
+                    return moshi.requestBodyConverter(type,
+                        parameterAnnotations,
+                        methodAnnotations,
+                        retrofit)
+                }
+            })
+            .baseUrl(baseUrl)
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideCercisHttpService(retrofit: Retrofit): CercisHttpService = retrofit.create(CercisHttpService::class.java)
+    fun provideCercisHttpService(retrofit: Retrofit): CercisHttpService =
+        retrofit.create(CercisHttpService::class.java)
 
+    val ServerErrorMediaType = "application/server_error".toMediaType()
 }
 
 @Qualifier

@@ -14,6 +14,7 @@ import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
+import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.PairLiveData
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +30,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
     val userId: MutableLiveData<String> = MutableLiveData(userRepository.currentUserId.value.let {
-        return@let when (it) {
+        when (it) {
             -1L, null -> ""
             else -> it.toString()
         }
@@ -66,23 +67,20 @@ class LoginViewModel @Inject constructor(
         loginError.value = null
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val userIdString = userId.value!!.let {
+                val loginRequest = userId.value!!.let {
                     if (it.matches(Regex("\\d{11}"))) {
-                        "+86${it}"
+                        LoginRequest(mobile = "+86${it}", password = password.value!!, id = null)
                     } else {
-                        it
+                        LoginRequest(id = it.toLong(), password = password.value!!, mobile = null)
                     }
                 }
-                val response = httpService.login(LoginRequest(userIdString, password.value!!))
+                val response = httpService.login(loginRequest)
                 Log.d(LOG_TAG, "login response: $response")
-                if (response.successful) {
-                    userRepository.loggedIn.postValue(true)
-                } else {
-                    loginError.postValue(response.msg)
+                when (response) {
+                    is NetworkResponse.Success -> userRepository.loggedIn.postValue(true)
+                    is NetworkResponse.Reject -> loginError.postValue(response.message)
+                    is NetworkResponse.NetworkError -> loginError.postValue(response.message)
                 }
-            } catch (t: Throwable) {
-                Log.e(LOG_TAG, "login error: $t")
-                loginError.postValue(context.getString(R.string.error_network_exception))
             } finally {
                 isBusyLogin.postValue(false)
             }

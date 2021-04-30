@@ -9,7 +9,7 @@
         android:id="@+id/sessionFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.session.SessionFragment"
         android:label="layout_session"
-        tools:layout="@layout/layout_session">
+        tools:layout="@layout/fragment_session">
         <argument
             android:name="chatId"
             android:defaultValue="-1L"
@@ -19,7 +19,7 @@
         android:id="@+id/emptyFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.empty.EmptyFragment"
         android:label="layout_empty"
-        tools:layout="@layout/layout_empty" />
+        tools:layout="@layout/fragment_empty" />
     <action
         android:id="@+id/action_to_sessionFragment"
         app:destination="@id/sessionFragment"

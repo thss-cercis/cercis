@@ -38,14 +38,14 @@ import kotlin.jvm.Throws
  */
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-        private val userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     enum class NavAction {
-        FRAGMENT1, FRAGMENT_SUCCESS, LOGIN,
+        FRAGMENT1, FRAGMENT_SUCCESS, BACK,
     }
 
-    val navAction = MutableLiveData(NavAction.FRAGMENT1)
+    val navAction = MutableLiveData<Pair<NavAction, Long>?>(null)
 
     // SignUpFragment1
 
@@ -98,25 +98,27 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    // SignUpFragment3
-    val newUserId: MutableLiveData<UserId> = MutableLiveData(-1)
-
     private suspend fun sendVerificationCode() {
         verificationCodeCountDown.postValue(SEND_CODE_COUNTDOWN)
         try {
             verificationError.postValue(null)
-            val resp = userRepository.httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))
-            if (!resp.successful) {
-                verificationError.postValue(resp.msg)
-            } else {
-                for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
-                    delay(1000)
-                    verificationCodeCountDown.postValue(i)
+            when (val resp =
+                userRepository.httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
+                is NetworkResponse.Success -> {
+                    for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
+                        delay(1000)
+                        verificationCodeCountDown.postValue(i)
+                    }
+                }
+                is NetworkResponse.Reject -> {
+                    verificationError.postValue(resp.message)
+                    verificationCodeCountDown.postValue(0)
+                }
+                is NetworkResponse.NetworkError -> {
+                    verificationError.postValue(resp.message)
+                    verificationCodeCountDown.postValue(0)
                 }
             }
-        } catch(t: Throwable) {
-            verificationError.postValue(userRepository.context.getString(R.string.error_network_exception))
-            verificationCodeCountDown.postValue(0)
         } finally {
             verificationCodeCountDown.postValue(0)
         }
@@ -144,13 +146,6 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Listener on button for go back to login.
-     */
-    fun onBackToLoginButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        navAction.postValue(NavAction.LOGIN)
-    }
-
     override fun onCleared() {
 //        passwordChecker.clear()
         Log.d(LOG_TAG, "SignUpViewModel destroyed.")
@@ -168,30 +163,30 @@ class SignUpViewModel @Inject constructor(
 
         try {
             val response = userRepository.httpService.signUp(SignUpRequest(
-                    nickname = nickname,
-                    mobile = mobile,
-                    password = password,
-                    verificationCode = verificationCode,
+                nickname = nickname,
+                mobile = mobile,
+                password = password,
+                verificationCode = verificationCode,
             ))
             Log.d(LOG_TAG, "signup resp: $response")
-            if (response.successful && response.payload != null) {
-                val user = CurrentUser(
-                        id = response.payload.userId,
+            when (response) {
+                is NetworkResponse.Success -> {
+                    val user = CurrentUser(
+                        id = response.data.userId,
                         nickname = nickname,
                         mobile = mobile,
                         avatar = "",
                         bio = "",
-                )
-                userRepository.userDao.insertCurrentUser(user)
-                userRepository.currentUserId.postValue(user.id)
-                newUserId.postValue(user.id)
-                navAction.postValue(NavAction.FRAGMENT_SUCCESS)
-            } else {
-                signUpError.postValue(response.msg)
+                    )
+                    userRepository.userDao.insertCurrentUser(user)
+                    userRepository.currentUserId.postValue(user.id)
+                    navAction.postValue(NavAction.FRAGMENT_SUCCESS to user.id)
+                }
+                is NetworkResponse.NetworkError -> signUpError.postValue(response.message)
+                is NetworkResponse.Reject -> {
+                    signUpError.postValue(response.message)
+                }
             }
-        } catch (t: Throwable) {
-            Log.e(LOG_TAG, "signup error: $t")
-            signUpError.postValue(userRepository.context.getString(R.string.error_network_exception))
         } finally {
             signUpSubmittingBusy.postValue(false)
         }

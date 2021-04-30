@@ -4,7 +4,7 @@ import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class PayloadResponse<P>(
+data class PayloadResponseBody<P>(
         val code: Int,
         val msg: String,
         val payload: P?,

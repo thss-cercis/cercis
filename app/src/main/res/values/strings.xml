@@ -12,6 +12,7 @@
     <string name="success_signup">注册成功</string>
     <string name="success_login">登录成功</string>
     <string name="error_network_exception">无法连接到 Cercis 服务器</string>
+    <string name="error_server_error">服务器通信异常</string>
     <string name="unknown_error">发生了未知错误</string>
     <string name="nav_messages">消息</string>
     <string name="nav_contacts">联系人</string>

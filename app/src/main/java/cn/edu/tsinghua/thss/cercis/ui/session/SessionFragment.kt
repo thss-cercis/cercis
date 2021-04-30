@@ -7,21 +7,16 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.dao.User
 import cn.edu.tsinghua.thss.cercis.databinding.*
 import cn.edu.tsinghua.thss.cercis.entity.Chat
 import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_MULTIPLE
 import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_SINGLE
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.util.ChatId
-import cn.edu.tsinghua.thss.cercis.util.Resource
-import cn.edu.tsinghua.thss.cercis.util.UserId
-import cn.edu.tsinghua.thss.cercis.viewmodel.MessageViewModel
 import cn.edu.tsinghua.thss.cercis.viewmodel.SessionViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -124,7 +119,7 @@ class SessionFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val binding = LayoutSessionBinding.inflate(inflater, container, false)
+        val binding = FragmentSessionBinding.inflate(inflater, container, false)
         binding.viewModel = sessionViewModel
         binding.executePendingBindings()
         sessionViewModel.messageListDataSource.observe(viewLifecycleOwner, {

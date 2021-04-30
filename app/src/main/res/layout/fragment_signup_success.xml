@@ -5,14 +5,14 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel" />
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SignUpSuccessViewModel" />
         <variable
             name="viewModel"
-            type="SignUpViewModel" />
+            type="SignUpSuccessViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/singup_success_main_area"
+        android:id="@+id/signup_success_main_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="36dp"
@@ -23,7 +23,7 @@
         tools:context=".ui.startup.SignUpSuccessFragment">
 
         <TextView
-            android:id="@+id/singup_success_headline"
+            android:id="@+id/signup_success_headline"
             style="@style/TextAppearance.MaterialComponents.Headline4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@id/signup_success_submit"
-            app:layout_constraintTop_toBottomOf="@id/singup_success_headline">
+            app:layout_constraintTop_toBottomOf="@id/signup_success_headline">
 
             <com.google.android.material.textview.MaterialTextView
                 style="@style/TextAppearance.MaterialComponents.Body1"
@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingVertical="10dp"
-                android:text="@{viewModel.newUserId.toString()}"
+                android:text="@{String.valueOf(viewModel.userId)}"
                 android:textColor="?attr/colorPrimary" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -66,7 +66,6 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/signup_success_submit"
             style="@style/Widget.MaterialComponents.Button"
-            android:onClick="@{viewModel::onBackToLoginButtonClicked}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

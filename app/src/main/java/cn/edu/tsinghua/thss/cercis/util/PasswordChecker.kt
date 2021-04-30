@@ -88,6 +88,6 @@ class PasswordChecker(val password: LiveData<String>) {
     companion object {
         const val PASSWORD_MIN_LENGTH = 8
         const val PASSWORD_MAX_LENGTH = 20
-        val ALLOWED_SYMBOLS = arrayOf('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~')
+        val ALLOWED_SYMBOLS = """~!@#$%^&*()_\-=+'",.;?[]<>/""".toCharArray()
     }
 }

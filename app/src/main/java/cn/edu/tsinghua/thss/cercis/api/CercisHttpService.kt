@@ -1,31 +1,26 @@
 package cn.edu.tsinghua.thss.cercis.api
 
-import androidx.room.PrimaryKey
 import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
-import cn.edu.tsinghua.thss.cercis.util.ChatId
+import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface CercisHttpService {
 
     @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): EmptyResponse
+    suspend fun login(@Body request: LoginRequest): EmptyNetworkResponse
 
     @POST("auth/signup")
     suspend fun signUp(@Body request: SignUpRequest): SignUpResponse
 
     @POST("auth/signup")
-    suspend fun logout(): EmptyResponse
+    suspend fun logout(): EmptyNetworkResponse
 
     @POST("mobile/signup")
-    suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyResponse
-
-//    @POST("mobile/signup/check")
-//    suspend fun mobileSignUpCheck(@Body request: MobileSignUpCheckRequest): MobileSignUpCheckResponse
+    suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyNetworkResponse
 
     @POST("user/current")
     suspend fun userCurrent(): UserCurrentResponse
@@ -33,7 +28,8 @@ interface CercisHttpService {
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(
-        val id: String,
+        val id: UserId?,
+        var mobile: String?,
         val password: String
 )
 
@@ -50,7 +46,7 @@ data class SignUpResponsePayload(
         @Json(name = "user_id") val userId: Long
 )
 
-typealias SignUpResponse = PayloadResponse<SignUpResponsePayload>
+typealias SignUpResponse = NetworkResponse<SignUpResponsePayload>
 
 @JsonClass(generateAdapter = true)
 data class MobileSignUpRequest(
@@ -68,22 +64,8 @@ data class MobileSignUpCheckRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class EmailSignUpCheckRequest(
-        val code: String
-)
-
-@JsonClass(generateAdapter = true)
-data class MobileSignUpCheckResponsePayload(
-        val ok: Boolean
-)
-
-typealias MobileSignUpCheckResponse = PayloadResponse<MobileSignUpCheckResponsePayload>
-
-@JsonClass(generateAdapter = true)
 data class EmailSignUpCheckResponsePayload(
         val ok: Boolean
 )
 
-typealias EmailSignUpCheckResponse = PayloadResponse<EmailSignUpCheckResponsePayload>
-
-typealias UserCurrentResponse = PayloadResponse<CurrentUser>
+typealias UserCurrentResponse = NetworkResponse<CurrentUser>
