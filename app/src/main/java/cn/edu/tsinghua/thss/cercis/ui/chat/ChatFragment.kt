@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.ui.session
+package cn.edu.tsinghua.thss.cercis.ui.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater

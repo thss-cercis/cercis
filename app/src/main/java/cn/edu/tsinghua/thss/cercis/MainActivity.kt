@@ -16,7 +16,7 @@ import cn.edu.tsinghua.thss.cercis.databinding.ActivityMainBinding
 import cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment
 import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
 import cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment
-import cn.edu.tsinghua.thss.cercis.ui.session_list.ChatListFragment
+import cn.edu.tsinghua.thss.cercis.ui.chatList.ChatListFragment
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.setupWithNavController
 import cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel
@@ -24,7 +24,6 @@ import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint

@@ -5,5 +5,4 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ActivityFragment : Fragment() {
-    // TODO 快上
 }

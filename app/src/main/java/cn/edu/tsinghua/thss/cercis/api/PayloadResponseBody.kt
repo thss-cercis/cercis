@@ -19,4 +19,3 @@ data class PayloadResponseBody<P>(
             return code != HttpStatusCode.StatusUnauthorized
         }
 }
-

@@ -93,7 +93,6 @@ class UserRepository @Inject constructor(
     /**
      * Looks up a user with intermediate cache.
      */
-    @MainThread
     fun loadUser(userId: UserId): LiveData<Resource<User>> {
         TODO()
     }
@@ -103,7 +102,6 @@ class UserRepository @Inject constructor(
      */
     @FlowPreview
     @ExperimentalCoroutinesApi
-    @MainThread
     fun currentUser() =
         object : NetworkBoundResource<CurrentUser, CurrentUser>() {
             override suspend fun saveNetworkResult(item: CurrentUser) {

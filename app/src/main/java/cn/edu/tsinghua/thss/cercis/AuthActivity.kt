@@ -32,6 +32,5 @@ class AuthActivity : AppCompatActivity() {
                 finish()
             }
         }
-
     }
 }

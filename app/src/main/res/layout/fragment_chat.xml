@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"
         android:background="@color/fragment_background"
-        tools:context=".ui.session.ChatFragment">
+        tools:context=".ui.chat.ChatFragment">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"

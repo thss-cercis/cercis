@@ -15,5 +15,4 @@ class HomeViewModel @Inject constructor(
     fun logout() {
         userRepository.loggedIn.postValue(false)
     }
-
 }

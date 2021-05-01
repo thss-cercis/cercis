@@ -53,18 +53,15 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
         // Implement in sub-classes to handle errors
     }
 
-    @WorkerThread
-    protected open fun processResponse(networkResponse: NetworkResponse<RequestType>) = (networkResponse as NetworkResponse.Success).data
+    protected open fun processResponse(networkResponse: NetworkResponse<RequestType>): RequestType {
+        return (networkResponse as NetworkResponse.Success).data
+    }
 
-    @WorkerThread
     protected abstract suspend fun saveNetworkResult(item: RequestType)
 
-    @MainThread
     protected abstract fun shouldFetch(data: ResultType?): Boolean
 
-    @MainThread
     protected abstract fun loadFromDb(): Flow<ResultType?>
 
-    @MainThread
     protected abstract suspend fun fetchFromNetwork(): NetworkResponse<RequestType>
 }

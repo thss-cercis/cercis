@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.ui.session_list
+package cn.edu.tsinghua.thss.cercis.ui.chatList
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.databinding.ChatListItemBinding
 import cn.edu.tsinghua.thss.cercis.databinding.FragmentChatListBinding
-import cn.edu.tsinghua.thss.cercis.ui.session.ChatFragment
+import cn.edu.tsinghua.thss.cercis.ui.chat.ChatFragment
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.doDetailNavigation
 import cn.edu.tsinghua.thss.cercis.viewmodel.ChatListItemData

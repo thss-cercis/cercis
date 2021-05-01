@@ -18,5 +18,4 @@ class UserViewModel @Inject constructor(
      * @see UserRepository.loggedIn
      */
     val loggedIn = userRepository.loggedIn
-
 }

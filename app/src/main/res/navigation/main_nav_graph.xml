@@ -6,7 +6,7 @@
     app:startDestination="@id/sessionListFragment">
     <fragment
         android:id="@+id/sessionListFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.chatList.SessionListFragment"
         android:label="SessionListFragment" />
     <fragment
         android:id="@+id/contactListFragment"
