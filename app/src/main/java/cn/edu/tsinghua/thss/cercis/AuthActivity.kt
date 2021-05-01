@@ -12,7 +12,6 @@ import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-
 @AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels()
@@ -30,6 +29,7 @@ class AuthActivity : AppCompatActivity() {
         userViewModel.loggedIn.observe(this) {
             if (it == true) {
                 startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
         }
 

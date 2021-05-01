@@ -1,9 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/fragment_background"
     tools:context=".ui.profile.ProfileFragment">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <data>
+
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.ProfileViewModel" />
+
+        <variable
+            name="viewModel"
+            type="ProfileViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/fragment_background">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_avatar"
+                avatarImageUrl="@{viewModel.currentUser.avatar}"
+                android:layout_width="@dimen/profile_avatar_size"
+                android:layout_height="@dimen/profile_avatar_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/profile_nickname"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.currentUser.nickname}"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@id/profile_id"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/profile_avatar"
+                app:layout_constraintTop_toTopOf="@id/profile_avatar" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/profile_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{String.format(@string/profile_cercis_id, viewModel.currentUser.id)}"
+                app:layout_constraintBottom_toBottomOf="@id/profile_avatar"
+                app:layout_constraintEnd_toEndOf="@id/profile_nickname"
+                app:layout_constraintStart_toStartOf="@id/profile_nickname"
+                app:layout_constraintTop_toBottomOf="@id/profile_nickname" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.currentUserLoadingStatus}"
+                app:layout_constraintTop_toBottomOf="@id/profile_avatar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

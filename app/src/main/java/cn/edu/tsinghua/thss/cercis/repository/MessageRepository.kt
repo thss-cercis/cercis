@@ -4,16 +4,20 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import cn.edu.tsinghua.thss.cercis.dao.ChatDao
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.dao.MessageDao
 import cn.edu.tsinghua.thss.cercis.dao.User
 import cn.edu.tsinghua.thss.cercis.entity.Chat
 import cn.edu.tsinghua.thss.cercis.entity.ChatType
+import cn.edu.tsinghua.thss.cercis.module.AppModule
 import cn.edu.tsinghua.thss.cercis.service.MessageService
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -37,15 +41,15 @@ class MessageRepository @Inject constructor(
     /**
      * Gets the most recent messages that is newer than messageId.
      */
-    fun getChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): LiveData<List<Message>> {
-        return messageDao.getChatMessagesNewerThan(chatId, messageId).asLiveData()
+    fun getChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): Flow<List<Message>> {
+        return messageDao.getChatMessagesNewerThan(chatId, messageId)
     }
 
     /**
      * Gets all chat message.
      */
-    fun getChatAllMessages(chatId: ChatId): LiveData<List<Message>> {
-        return messageDao.getChatAllMessages(chatId).asLiveData()
+    fun getChatAllMessages(chatId: ChatId): Flow<List<Message>> {
+        return messageDao.getChatAllMessages(chatId)
     }
 
     /**

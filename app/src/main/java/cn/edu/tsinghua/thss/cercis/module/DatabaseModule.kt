@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thss.cercis.module
 import android.content.Context
 import androidx.room.Room
 import cn.edu.tsinghua.thss.cercis.dao.*
+import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +14,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DatabaseModule {
+    @Provides
+    @CurrentUserId
+    fun provideUserId(@ApplicationContext context: Context): UserId =
+        context.getSharedPreferences("auth", Context.MODE_PRIVATE).getLong("current_user", -1)
+
     @Provides
     @Singleton
     fun provideUserDatabase(@ApplicationContext context: Context): UserDatabase =

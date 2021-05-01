@@ -40,5 +40,5 @@ interface ChatDao {
     fun deleteChat(vararg chats: Chat)
 
     @Query("SELECT * FROM chat WHERE id = :chatId")
-    fun getChat(chatId: ChatId): Flow<Chat>
+    fun getChat(chatId: ChatId): Flow<Chat?>
 }

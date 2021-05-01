@@ -1,12 +1,14 @@
 package cn.edu.tsinghua.thss.cercis.module
 
 import android.content.Context
+import android.util.Log
 import cn.edu.tsinghua.thss.cercis.Constants
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.api.EmptyPayload
 import cn.edu.tsinghua.thss.cercis.api.PayloadResponseBody
 import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
 import com.squareup.moshi.internal.Util
@@ -25,7 +27,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.net.CookieManager
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -45,6 +46,7 @@ object AppModule {
      * To check login status, please refer to
      * [cn.edu.tsinghua.thss.cercis.repository.UserRepository.loggedIn]
      */
+    @Singleton
     @Provides
     @AuthorizedLiveEvent
     fun provideAuthorized() = SingleLiveEvent<Boolean?>(null)
@@ -54,9 +56,9 @@ object AppModule {
     fun provideOkHttpClient(
         @AuthorizedLiveEvent authorized: SingleLiveEvent<Boolean?>,
         @ApplicationContext context: Context,
-    ) = run {
+    ): OkHttpClient {
         val cookieManager = CookieManager()
-        val okHttpClient = OkHttpClient.Builder()
+        return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
             .writeTimeout(5, TimeUnit.SECONDS)
@@ -65,17 +67,31 @@ object AppModule {
                 val request = chain.request()
                 try {
                     val response = chain.proceed(request)
-                    if (response.code == HttpStatusCode.StatusUnauthorized) {
-                        authorized.postValue(false)
-                    } else if (response.code >= 400) {
-                        return@addInterceptor response.newBuilder().code(200).build()
+                    when {
+                        response.code == HttpStatusCode.StatusUnauthorized -> {
+                            authorized.postValue(false)
+                            Log.d(LOG_TAG, "401 detected! ${authorized.hashCode()}")
+                            Response.Builder()
+                                .request(request)
+                                .protocol(Protocol.HTTP_1_1)
+                                .code(HttpStatusCode.StatusOK)
+                                .message(context.getString(R.string.error_authorization))
+                                .body(context.getString(R.string.error_authorization)
+                                    .toResponseBody(ServerErrorMediaType))
+                                .build()
+                        }
+                        response.code >= HttpStatusCode.StatusBadRequest -> {
+                            response.newBuilder().code(HttpStatusCode.StatusOK).build()
+                        }
+                        else -> {
+                            response
+                        }
                     }
-                    return@addInterceptor response
                 } catch (e: Exception) {
                     Response.Builder()
                         .request(request)
                         .protocol(Protocol.HTTP_1_1)
-                        .code(200)
+                        .code(HttpStatusCode.StatusOK)
                         .message(e.message!!)
                         .body(context.getString(R.string.error_network_exception)
                             .toResponseBody(ServerErrorMediaType))
@@ -83,7 +99,6 @@ object AppModule {
                 }
             }
             .build()
-        okHttpClient
     }
 
     @Singleton
@@ -115,7 +130,6 @@ object AppModule {
                         it?.let {
                             if (it.contentType()?.subtype.equals(ServerErrorMediaType.subtype)) {
                                 val errorMsg = it.string()
-                                // FIXME this is absolutely not the best solution. this impl causes unchecked casts
                                 NetworkResponse.NetworkError(errorMsg)
                             } else {
                                 try {
@@ -174,3 +188,7 @@ annotation class AuthorizedLiveEvent
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class BaseUrl
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentUserId

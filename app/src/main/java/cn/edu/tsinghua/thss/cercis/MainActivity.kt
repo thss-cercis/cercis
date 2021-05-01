@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         userViewModel.loggedIn.observe(this) {
             if (it == false) {
                 startActivity(Intent(this, AuthActivity::class.java))
+                finish()
             }
         }
 

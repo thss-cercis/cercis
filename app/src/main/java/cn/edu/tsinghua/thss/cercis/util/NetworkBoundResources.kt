@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.*
 @ExperimentalCoroutinesApi
 abstract class NetworkBoundResource<ResultType, RequestType> {
 
-    fun asFlow() = flow {
+    fun asFlow() = flow<Resource<ResultType>> {
         emit(Resource.Loading(null))
 
         val dbValue = loadFromDb().first()
@@ -33,15 +33,19 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
             when (val apiResponse = fetchFromNetwork()) {
                 is NetworkResponse.Success -> {
                     saveNetworkResult(processResponse(apiResponse))
-                    emitAll(loadFromDb().map { Resource.Success(it) })
+                    emitAll(loadFromDb().filterNotNull().map { Resource.Success(it) })
                 }
                 is NetworkResponse.Reject -> {
                     onFetchFailed()
                     emitAll(loadFromDb().map { Resource.Error(apiResponse.code, apiResponse.message, it) })
                 }
+                is NetworkResponse.NetworkError -> {
+                    onFetchFailed()
+                    emitAll(loadFromDb().map { Resource.Error(-1, apiResponse.message, it) })
+                }
             }
         } else {
-            emitAll(loadFromDb().map { Resource.Success(it) })
+            emitAll(loadFromDb().filterNotNull().map { Resource.Success(it) })
         }
     }
 
@@ -59,7 +63,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
     protected abstract fun shouldFetch(data: ResultType?): Boolean
 
     @MainThread
-    protected abstract fun loadFromDb(): Flow<ResultType>
+    protected abstract fun loadFromDb(): Flow<ResultType?>
 
     @MainThread
     protected abstract suspend fun fetchFromNetwork(): NetworkResponse<RequestType>
