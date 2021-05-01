@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SessionViewModel @Inject constructor(
+class ChatViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val messageRepository: MessageRepository,
         private val userRepository: UserRepository,

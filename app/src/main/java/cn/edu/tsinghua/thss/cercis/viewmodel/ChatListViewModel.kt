@@ -4,21 +4,20 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import cn.edu.tsinghua.thss.cercis.util.ChatId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SessionListViewModel @Inject constructor(
+class ChatListViewModel @Inject constructor(
         application: Application,
 ) : AndroidViewModel(application) {
-    val sessions = MutableLiveData(ArrayList<SessionListItemData>())
+    val sessions = MutableLiveData(ArrayList<ChatListItemData>())
 
     fun onRefreshListener() {
         // TODO replace fake data with real ones
         val sessionList = sessions.value ?: ArrayList()
         val newList = ArrayList(LongArray(20) { sessionList.size + it + 0L }.map {
-            SessionListItemData(
+            ChatListItemData(
                     sessionId = it,
                     avatar = "",
                     sessionName = "test session #$it",

@@ -23,21 +23,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.AppBarLayout
-                style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+<!--            <com.google.android.material.appbar.AppBarLayout-->
+<!--                style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content">-->
 
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/topAppBar"
-                    style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:menu="@menu/add_menu"
-                    app:navigationIcon="@drawable/ic_menu_white_24dp"
-                    app:title="test" />
+<!--                <com.google.android.material.appbar.MaterialToolbar-->
+<!--                    android:id="@+id/topAppBar"-->
+<!--                    style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    app:menu="@menu/add_menu"-->
+<!--                    app:navigationIcon="@drawable/ic_menu_white_24dp"-->
+<!--                    app:title="test" />-->
 
-            </com.google.android.material.appbar.AppBarLayout>
+<!--            </com.google.android.material.appbar.AppBarLayout>-->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

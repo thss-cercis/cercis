@@ -6,10 +6,10 @@
     app:startDestination="@id/emptyFragment">
 
     <fragment
-        android:id="@+id/sessionFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.session.SessionFragment"
+        android:id="@+id/chatFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.session.ChatFragment"
         android:label="layout_session"
-        tools:layout="@layout/fragment_session">
+        tools:layout="@layout/fragment_chat">
         <argument
             android:name="chatId"
             android:defaultValue="-1L"
@@ -21,8 +21,8 @@
         android:label="layout_empty"
         tools:layout="@layout/fragment_empty" />
     <action
-        android:id="@+id/action_to_sessionFragment"
-        app:destination="@id/sessionFragment"
+        android:id="@+id/action_to_chatFragment"
+        app:destination="@id/chatFragment"
         app:popUpTo="@id/emptyFragment" />
     <action
         android:id="@+id/action_global_emptyFragment"

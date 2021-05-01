@@ -5,11 +5,11 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SessionViewModel" />
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.ChatViewModel" />
 
         <variable
             name="viewModel"
-            type="SessionViewModel" />
+            type="ChatViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"
         android:background="@color/fragment_background"
-        tools:context=".ui.session.SessionFragment">
+        tools:context=".ui.session.ChatFragment">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"

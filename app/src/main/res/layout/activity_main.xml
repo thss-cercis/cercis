@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel" />
+
         <import type="android.view.View" />
 
         <variable
@@ -22,19 +24,24 @@
         android:windowSoftInputMode="adjustResize"
         tools:context=".MainActivity">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/master_view"
+            android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:orientation="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintStart_toStartOf="parent">
 
-            <include layout="@layout/partial_main" android:id="@+id/reused_view" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <include
+                android:id="@+id/reused_view"
+                layout="@layout/partial_main" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.fragment.app.FragmentContainerView
-            android:visibility="@{viewModel.detailVisible}"
             android:id="@+id/detail_view_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="@{viewModel.detailVisible}"
             app:defaultNavHost="true" />
 
     </FrameLayout>

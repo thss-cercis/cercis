@@ -103,7 +103,7 @@ fun BottomNavigationView.setupWithNavController(
         } else {
             val newlySelectedItemTag = graphIdToTagMap[item.itemId]
             if (selectedItemTag != newlySelectedItemTag) {
-                masterViewPager2.currentItem = graphIdToIndexMap[item.itemId]
+                masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
 
                 // Pop everything above the first fragment (the "fixed start destination")
                 fragmentManager.popBackStack(firstFragmentTag,

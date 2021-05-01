@@ -4,11 +4,11 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SessionListItemData" />
+        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.ChatListItemData" />
 
         <variable
             name="viewModel"
-            type="SessionListItemData" />
+            type="ChatListItemData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,13 +18,13 @@
         android:clickable="true"
         android:focusable="true"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="8dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:src="@{viewModel.avatar}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/roundedCorner" />
@@ -68,14 +68,17 @@
             android:text="@{viewModel.lastUpdate}"
             app:layout_constraintBottom_toTopOf="@+id/unread_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread_inside" />
 
         <TextView
             android:id="@+id/unread_view"
+            style="@style/TextAppearance.Cercis.Messages.Unread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/round_corner"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:paddingHorizontal="8dp"
             android:text="@{String.valueOf(viewModel.unreadCount)}"
             android:textColor="?attr/colorOnPrimary"

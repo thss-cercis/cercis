@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.Resource
 import com.bumptech.glide.Glide
@@ -40,9 +41,11 @@ class ProfileViewModel @Inject constructor(
         @JvmStatic
         @BindingAdapter("avatarImageUrl")
         fun loadImage(view: ShapeableImageView, url: String?) {
-            if (!url.isNullOrEmpty()) {
-                Glide.with(view.context).load(url).into(view)
-            }
+            Glide.with(view.context)
+                .load(url)
+                .fallback(R.drawable.outline_perm_identity_24)
+                .placeholder(R.drawable.outline_perm_identity_24)
+                .into(view)
         }
     }
 }

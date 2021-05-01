@@ -2,7 +2,7 @@ package cn.edu.tsinghua.thss.cercis.viewmodel
 
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 
-class SessionListItemData(
+class ChatListItemData(
         val sessionId: ChatId,
         val avatar: String,
         val sessionName: String,

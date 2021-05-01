@@ -3,14 +3,9 @@ package cn.edu.tsinghua.thss.cercis
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowInsetsAnimation
 import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
@@ -21,16 +16,19 @@ import cn.edu.tsinghua.thss.cercis.databinding.ActivityMainBinding
 import cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment
 import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
 import cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment
-import cn.edu.tsinghua.thss.cercis.ui.session_list.SessionListFragment
+import cn.edu.tsinghua.thss.cercis.ui.session_list.ChatListFragment
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
-import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.util.setupWithNavController
 import cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel
 import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
+@FlowPreview
 class MainActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
@@ -60,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
                 override fun createFragment(position: Int): Fragment {
                     return when (position) {
-                        0 -> SessionListFragment()
+                        0 -> ChatListFragment()
                         1 -> ContactListFragment()
                         2 -> ActivityFragment()
                         3 -> ProfileFragment()
@@ -71,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             isUserInputEnabled = false
         }
 
-       if (savedInstanceState == null) {
+        if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
     }
@@ -99,10 +97,10 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigationBar() {
         val bottomNavigation = binding.reusedView.bottomNavigation
         val navIds = listOf(
-                R.navigation.session_list_nav_graph,
-                R.navigation.contact_list_nav_graph,
-                R.navigation.activity_list_nav_graph,
-                R.navigation.profile_nav_graph,
+            R.navigation.chat_list_nav_graph,
+            R.navigation.contact_list_nav_graph,
+            R.navigation.activity_list_nav_graph,
+            R.navigation.profile_nav_graph,
         )
         if (navIds[0] == R.id.session_list_nav_graph) {
             Log.e(LOG_TAG, "test")
@@ -110,17 +108,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         val controller = bottomNavigation.setupWithNavController(
-                navGraphIds = navIds,
-                masterViewPager2 = binding.reusedView.masterViewContainer,
-                fragmentManager = supportFragmentManager,
-                containerId = R.id.detail_view_container,
-                intent = intent
+            navGraphIds = navIds,
+            masterViewPager2 = binding.reusedView.masterViewContainer,
+            fragmentManager = supportFragmentManager,
+            containerId = R.id.detail_view_container,
+            intent = intent
         )
 
         val listener = NavController.OnDestinationChangedListener { navController, dest, _ ->
             val isStartDest = dest.id == navController.graph.startDestination
             mainActivityViewModel.detailHasNavigationDestination.postValue(
-                    !isStartDest
+                !isStartDest
             )
         }
 

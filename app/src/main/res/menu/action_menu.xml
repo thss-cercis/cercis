@@ -2,13 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title=""
+        app:showAsAction="ifRoom">
+    </item>
+    <item
         android:icon="@drawable/ic_add_white"
         android:title=""
         app:showAsAction="always">
         <menu>
             <item
                 android:enabled="true"
-                android:title="添加好友" />
+                android:id="@+id/action_add_friend"
+                android:title="@string/action_menu_add_friend" />
         </menu>
     </item>
 </menu>

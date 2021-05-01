@@ -17,18 +17,18 @@ import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_MULTIPLE
 import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_SINGLE
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.util.ChatId
-import cn.edu.tsinghua.thss.cercis.viewmodel.SessionViewModel
+import cn.edu.tsinghua.thss.cercis.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SessionFragment : Fragment() {
-    private val sessionViewModel: SessionViewModel by viewModels()
+class ChatFragment : Fragment() {
+    private val chatViewModel: ChatViewModel by viewModels()
 
     companion object {
         fun navDirection(chatId: ChatId): NavDirections {
             return object : NavDirections {
                 override fun getActionId(): Int {
-                    return R.id.action_to_sessionFragment
+                    return R.id.action_to_chatFragment
                 }
 
                 override fun getArguments(): Bundle {
@@ -103,13 +103,13 @@ class SessionFragment : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return when(sessionViewModel.side(messageList[position].senderId)) {
-                SessionViewModel.Side.SELF -> when(chatInfo?.type) {
+            return when(chatViewModel.side(messageList[position].senderId)) {
+                ChatViewModel.Side.SELF -> when(chatInfo?.type) {
                     CHAT_MULTIPLE -> SelfWithIcon
                     null, CHAT_SINGLE -> SelfWithoutIcon
                     else -> SelfWithoutIcon
                 }
-                SessionViewModel.Side.OTHER -> when(chatInfo?.type) {
+                ChatViewModel.Side.OTHER -> when(chatInfo?.type) {
                     CHAT_MULTIPLE -> OtherWithIcon
                     null, CHAT_SINGLE -> OtherWithoutIcon
                     else -> OtherWithoutIcon
@@ -119,15 +119,15 @@ class SessionFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val binding = FragmentSessionBinding.inflate(inflater, container, false)
-        binding.viewModel = sessionViewModel
+        val binding = FragmentChatBinding.inflate(inflater, container, false)
+        binding.viewModel = chatViewModel
         binding.executePendingBindings()
-        sessionViewModel.messageListDataSource.observe(viewLifecycleOwner, {
+        chatViewModel.messageListDataSource.observe(viewLifecycleOwner, {
             it?.let {
                 messageListAdapter.updateMessages(it)
             }
         })
-        sessionViewModel.chat.observe(viewLifecycleOwner, {
+        chatViewModel.chat.observe(viewLifecycleOwner, {
             it?.let {
                 messageListAdapter.updateChatInfo(it)
             }

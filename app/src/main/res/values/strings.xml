@@ -44,4 +44,5 @@
     <string name="signup_headline_2">加入 Cercis</string>
     <string name="tab_profile">我的</string>
     <string name="profile_cercis_id">Cercis ID: %d</string>
+    <string name="action_menu_add_friend">添加好友</string>
 </resources>
