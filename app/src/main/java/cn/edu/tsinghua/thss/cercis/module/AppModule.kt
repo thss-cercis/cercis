@@ -11,6 +11,9 @@ import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
+import com.franmontiel.persistentcookiejar.PersistentCookieJar
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.squareup.moshi.internal.Util
 import com.squareup.moshi.rawType
 import dagger.Module
@@ -26,7 +29,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import java.net.CookieManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -57,12 +59,11 @@ object AppModule {
         @AuthorizedLiveEvent authorized: SingleLiveEvent<Boolean?>,
         @ApplicationContext context: Context,
     ): OkHttpClient {
-        val cookieManager = CookieManager()
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
             .writeTimeout(5, TimeUnit.SECONDS)
-            .cookieJar(JavaNetCookieJar(cookieManager))
+            .cookieJar(PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)))
             .addInterceptor { chain ->
                 val request = chain.request()
                 try {
