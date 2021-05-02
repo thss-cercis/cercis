@@ -4,13 +4,15 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
-import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
+import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.http.LoginRequest
-import cn.edu.tsinghua.thss.cercis.repository.UserRepository
+import cn.edu.tsinghua.thss.cercis.module.AuthorizedLiveEvent
+import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.PairLiveData
+import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,17 +24,15 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class LoginViewModel @Inject constructor(
+    @AuthorizedLiveEvent val authorized: SingleLiveEvent<Boolean?>,
     private val httpService: CercisHttpService,
-    private val authenticationData: AuthenticationData,
-    userRepository: UserRepository,
+    private val authRepository: AuthRepository,
+    userDao: UserDao,
 ) : ViewModel() {
     val loginError = MutableLiveData<String?>(null)
 
-    val userId = MutableLiveData(authenticationData.userId.value.let {
-        when (it) {
-            -1L, null -> ""
-            else -> it.toString()
-        }
+    val userId = MutableLiveData(authRepository.userId.let {
+        if (it == -1L) "" else it.toString()
     })
 
     val password = MutableLiveData("")
@@ -48,14 +48,20 @@ class LoginViewModel @Inject constructor(
         it.first == true && it.second == false
     }
 
-    val currentUserList = userRepository.loginHistory.asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
+    val currentUserList = userDao.loadAllLoginHistory()
+        .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
 
-    // for MainActivity and AuthActivity
-    val loggedIn = authenticationData.loggedIn
-
-    fun onLoginButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) {
-        login()
+    val loggedIn = MutableLiveData(authRepository.loggedIn).apply {
+        Log.d(LOG_TAG, "${authorized.hashCode()}")
+        authorized.observeForever {
+            if (it == false) {
+                authRepository.logout()
+                postValue(false)
+            }
+        }
     }
+
+    fun onLoginButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) = login()
 
     @MainThread
     private fun login() {
@@ -78,8 +84,8 @@ class LoginViewModel @Inject constructor(
                 Log.d(LOG_TAG, "login response: $response")
                 when (response) {
                     is NetworkResponse.Success -> {
-                        authenticationData.loggedIn.postValue(true)
-                        authenticationData.userId.postValue(response.data.userId)
+                        authRepository.userId = response.data.userId
+                        loggedIn.postValue(true)
                     }
                     is NetworkResponse.Reject -> loginError.postValue(response.message)
                     is NetworkResponse.NetworkError -> loginError.postValue(response.message)

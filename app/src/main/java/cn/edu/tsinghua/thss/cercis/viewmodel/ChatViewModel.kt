@@ -3,9 +3,9 @@ package cn.edu.tsinghua.thss.cercis.viewmodel
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.edu.tsinghua.thss.cercis.Constants
-import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.Message
-import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
+import cn.edu.tsinghua.thss.cercis.entity.User
+import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
 import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.ChatId
@@ -25,7 +25,7 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val messageRepository: MessageRepository,
-        private val authenticationData: AuthenticationData,
+        private val authRepository: AuthRepository,
         private val userRepository: UserRepository,
 ) : ViewModel(), LifecycleObserver {
     private val chatId = savedStateHandle.get<Long>("chatId") ?: -1
@@ -33,7 +33,7 @@ class ChatViewModel @Inject constructor(
     val chat = messageRepository.getChat(chatId)
 
     fun side(senderId: ChatId): Side {
-        if (senderId == authenticationData.userId.value) {
+        if (senderId == authRepository.userId) {
             return Side.SELF
         }
         return Side.OTHER

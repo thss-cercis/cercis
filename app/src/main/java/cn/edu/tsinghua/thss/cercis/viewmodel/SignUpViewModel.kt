@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
+import android.app.Application
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
@@ -7,10 +8,10 @@ import cn.edu.tsinghua.thss.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
-import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.http.MobileSignUpRequest
 import cn.edu.tsinghua.thss.cercis.http.SignUpRequest
+import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.PairLiveData
@@ -41,10 +42,11 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
+    application: Application,
     private val httpService: CercisHttpService,
-    private val authenticationData: AuthenticationData,
+    private val authRepository: AuthRepository,
     private val userDao: UserDao,
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     enum class NavAction {
         FRAGMENT1, FRAGMENT_SUCCESS, BACK,
@@ -189,7 +191,7 @@ class SignUpViewModel @Inject constructor(
                         mobile = mobile,
                     ).also {
                         userDao.insertLoginHistory(it)
-                        authenticationData.userId.postValue(it.id)
+                        authRepository.userId = it.id
                         navAction.postValue(NavAction.FRAGMENT_SUCCESS to it.id)
                     }
                 }
@@ -204,6 +206,6 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun getString(resId: Int): String {
-        return authenticationData.context.getString(resId)
+        return getApplication<Application>().getString(resId)
     }
 }

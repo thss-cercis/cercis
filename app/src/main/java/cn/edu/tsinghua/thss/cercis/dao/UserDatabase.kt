@@ -44,8 +44,8 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveUserDetail(userDetail: UserDetail)
 
-    @Query("SELECT * FROM userDetail WHERE id = :userId")
-    fun loadUserDetail(userId: UserId): Flow<UserDetail>
+    @Query("SELECT * FROM userDetail")
+    fun loadUserDetail(): Flow<UserDetail?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLoginHistory(loginHistory: LoginHistory)

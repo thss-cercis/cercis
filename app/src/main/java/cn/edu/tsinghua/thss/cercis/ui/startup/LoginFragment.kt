@@ -16,7 +16,11 @@ import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
     private val loginViewModel: LoginViewModel by activityViewModels()
@@ -40,7 +44,7 @@ class LoginFragment : Fragment() {
             binding.loginUserIdList.setAdapter(ArrayAdapter(
                     requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
-                    it.map { it1 -> it1.id.toString() }
+                    it.map { item -> item.id.toString() }
             ))
         }
         (binding.root as ViewGroup).enableTransition()

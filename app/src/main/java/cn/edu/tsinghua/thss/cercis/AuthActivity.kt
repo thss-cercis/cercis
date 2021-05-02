@@ -22,10 +22,11 @@ class AuthActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val screenLayoutSize =
-            resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
-        if (screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_SMALL || screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+            Configuration.SCREENLAYOUT_SIZE_SMALL,
+            Configuration.SCREENLAYOUT_SIZE_NORMAL -> {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
         }
         val binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)

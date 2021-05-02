@@ -42,11 +42,8 @@ object AppModule {
     fun provideBaseUrl() = Constants.URL_BASE
 
     /**
-     * This value is only to be used by [cn.edu.tsinghua.thss.cercis.http.AuthenticationData]
-     * and [provideOkHttpClient].
-     *
-     * To check login status, please refer to
-     * [cn.edu.tsinghua.thss.cercis.http.AuthenticationData.loggedIn]
+     * This LiveData is set to false when 401 received in [provideOkHttpClient].
+     * It sets [cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel.loggedIn]
      */
     @Singleton
     @Provides
@@ -122,10 +119,11 @@ object AppModule {
                         return moshi.responseBodyConverter(type, annotations, retrofit)
                     }
                     val respValueType: Type = (type as ParameterizedType).actualTypeArguments[0]
-                    val moshiResponseConverter =
-                        moshi.responseBodyConverter(Util.ParameterizedTypeImpl(null,
-                            PayloadResponseBody::class.java,
-                            respValueType), annotations, retrofit)
+                    val moshiResponseConverter = moshi.responseBodyConverter(
+                        Util.ParameterizedTypeImpl(null, PayloadResponseBody::class.java, respValueType),
+                        annotations,
+                        retrofit
+                    )
 
                     return Converter<ResponseBody?, NetworkResponse<Any>> {
                         it?.let {
@@ -141,8 +139,7 @@ object AppModule {
                                         val body = value as PayloadResponseBody<*>
                                         if (body.successful) {
                                             if (body.payload != null || respValueType.rawType == EmptyPayload::class.java) {
-                                                NetworkResponse.Success(body.payload
-                                                    ?: EmptyPayload())
+                                                NetworkResponse.Success(body.payload ?: EmptyPayload())
                                             } else {
                                                 NetworkResponse.NetworkError(serverErrorMsg)
                                             }
