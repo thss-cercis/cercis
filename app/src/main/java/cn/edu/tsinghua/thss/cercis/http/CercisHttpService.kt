@@ -1,6 +1,6 @@
-package cn.edu.tsinghua.thss.cercis.api
+package cn.edu.tsinghua.thss.cercis.http
 
-import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
+import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import com.squareup.moshi.Json
@@ -10,21 +10,20 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface CercisHttpService {
-
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
     @POST("auth/signup")
     suspend fun signUp(@Body request: SignUpRequest): SignUpResponse
 
-    @POST("auth/signup")
-    suspend fun logout(): EmptyNetworkResponse
-
     @POST("mobile/signup")
     suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyNetworkResponse
 
+    @POST("auth/logout")
+    suspend fun logout(): EmptyNetworkResponse
+
     @GET("user/current")
-    suspend fun userCurrent(): UserCurrentResponse
+    suspend fun userDetail(): UserDetailResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -76,4 +75,4 @@ data class EmailSignUpCheckResponsePayload(
         val ok: Boolean
 )
 
-typealias UserCurrentResponse = NetworkResponse<CurrentUser>
+typealias UserDetailResponse = NetworkResponse<UserDetail>

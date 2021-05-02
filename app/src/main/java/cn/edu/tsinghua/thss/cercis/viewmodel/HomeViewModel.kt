@@ -1,18 +1,16 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
+import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-        val userRepository: UserRepository
+    private val authenticationData: AuthenticationData
 ): ViewModel() {
     fun logout() {
-        userRepository.loggedIn.postValue(false)
+        authenticationData.loggedIn.postValue(false)
     }
 }

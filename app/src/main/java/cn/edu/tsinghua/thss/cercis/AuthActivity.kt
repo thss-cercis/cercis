@@ -9,12 +9,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import cn.edu.tsinghua.thss.cercis.databinding.ActivityAuthBinding
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
-import cn.edu.tsinghua.thss.cercis.viewmodel.UserViewModel
+import cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
-    private val userViewModel: UserViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +30,7 @@ class AuthActivity : AppCompatActivity() {
         val binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.d(LOG_TAG, "Loading AuthActivity")
-        userViewModel.loggedIn.observe(this) {
+        loginViewModel.loggedIn.observe(this) {
             if (it == true) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()

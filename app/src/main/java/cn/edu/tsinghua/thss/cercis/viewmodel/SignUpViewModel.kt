@@ -1,22 +1,23 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
-import cn.edu.tsinghua.thss.cercis.Constants
 import cn.edu.tsinghua.thss.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.api.*
-import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
-import cn.edu.tsinghua.thss.cercis.repository.UserRepository
-import cn.edu.tsinghua.thss.cercis.util.*
+import cn.edu.tsinghua.thss.cercis.dao.UserDao
+import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
+import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
+import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
+import cn.edu.tsinghua.thss.cercis.http.MobileSignUpRequest
+import cn.edu.tsinghua.thss.cercis.http.SignUpRequest
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
+import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
+import cn.edu.tsinghua.thss.cercis.util.PairLiveData
+import cn.edu.tsinghua.thss.cercis.util.PasswordChecker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
-import kotlin.jvm.Throws
 
 /**
  * View model for sign up fragment.
@@ -36,9 +37,13 @@ import kotlin.jvm.Throws
  *      add to local users
  *  Back to login
  */
+@FlowPreview
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val httpService: CercisHttpService,
+    private val authenticationData: AuthenticationData,
+    private val userDao: UserDao,
 ) : ViewModel() {
 
     enum class NavAction {
@@ -103,7 +108,7 @@ class SignUpViewModel @Inject constructor(
         try {
             verificationError.postValue(null)
             when (val resp =
-                userRepository.httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
+                httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
                 is NetworkResponse.Success -> {
                     for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
                         delay(1000)
@@ -162,7 +167,7 @@ class SignUpViewModel @Inject constructor(
         val verificationCode = this.verificationCode.value ?: ""
 
         try {
-            val response = userRepository.httpService.signUp(SignUpRequest(
+            val response = httpService.signUp(SignUpRequest(
                 nickname = nickname,
                 mobile = mobile,
                 password = password,
@@ -171,16 +176,22 @@ class SignUpViewModel @Inject constructor(
             Log.d(LOG_TAG, "signup resp: $response")
             when (response) {
                 is NetworkResponse.Success -> {
-                    val user = CurrentUser(
-                        id = response.data.userId,
-                        nickname = nickname,
+//                    val user = UserDetail(
+//                        id = response.data.userId,
+//                        nickname = nickname,
+//                        mobile = mobile,
+//                        avatar = "",
+//                        bio = "",
+//                    )
+//                    userDao.insertCurrentUser(user)
+                    LoginHistory(
+                        userId = response.data.userId,
                         mobile = mobile,
-                        avatar = "",
-                        bio = "",
-                    )
-                    userRepository.userDao.insertCurrentUser(user)
-                    userRepository.currentUserId.postValue(user.id)
-                    navAction.postValue(NavAction.FRAGMENT_SUCCESS to user.id)
+                    ).also {
+                        userDao.insertLoginHistory(it)
+                        authenticationData.userId.postValue(it.id)
+                        navAction.postValue(NavAction.FRAGMENT_SUCCESS to it.id)
+                    }
                 }
                 is NetworkResponse.NetworkError -> signUpError.postValue(response.message)
                 is NetworkResponse.Reject -> {
@@ -193,6 +204,6 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun getString(resId: Int): String {
-        return userRepository.context.getString(resId)
+        return authenticationData.context.getString(resId)
     }
 }

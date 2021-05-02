@@ -1,13 +1,11 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
-import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.edu.tsinghua.thss.cercis.Constants
-import cn.edu.tsinghua.thss.cercis.dao.User
-import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_MULTIPLE
-import cn.edu.tsinghua.thss.cercis.entity.ChatType.CHAT_SINGLE
+import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.Message
+import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
 import cn.edu.tsinghua.thss.cercis.repository.MessageRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.ChatId
@@ -16,23 +14,29 @@ import cn.edu.tsinghua.thss.cercis.util.Resource
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class ChatViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val messageRepository: MessageRepository,
+        private val authenticationData: AuthenticationData,
         private val userRepository: UserRepository,
 ) : ViewModel(), LifecycleObserver {
     private val chatId = savedStateHandle.get<Long>("chatId") ?: -1
     private val chatParticipants = messageRepository.getChatParticipants(chatId)
     val chat = messageRepository.getChat(chatId)
-    fun side(senderId: ChatId) : Side = when {
-        senderId != userRepository.currentUserId.value -> {
-            Side.OTHER
+
+    fun side(senderId: ChatId): Side {
+        if (senderId == authenticationData.userId.value) {
+            return Side.SELF
         }
-        else -> Side.SELF
+        return Side.OTHER
     }
 
     /**
@@ -82,7 +86,7 @@ class ChatViewModel @Inject constructor(
     @MainThread
     private fun preventDoubleSubmitRun(runnable: suspend () -> Unit) {
         if (messageLoading) {
-            return;
+            return
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {

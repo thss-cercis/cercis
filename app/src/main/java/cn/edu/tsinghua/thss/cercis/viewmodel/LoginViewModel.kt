@@ -4,43 +4,54 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
-import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
-import cn.edu.tsinghua.thss.cercis.api.LoginRequest
-import cn.edu.tsinghua.thss.cercis.dao.CurrentUser
+import cn.edu.tsinghua.thss.cercis.http.AuthenticationData
+import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
+import cn.edu.tsinghua.thss.cercis.http.LoginRequest
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.PairLiveData
-import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val httpService: CercisHttpService,
-    private val userRepository: UserRepository,
+    private val authenticationData: AuthenticationData,
+    userRepository: UserRepository,
 ) : ViewModel() {
-    val userId: MutableLiveData<String> = MutableLiveData(userRepository.currentUserId.value.let {
+    val loginError = MutableLiveData<String?>(null)
+
+    val userId = MutableLiveData(authenticationData.userId.value.let {
         when (it) {
             -1L, null -> ""
             else -> it.toString()
         }
     })
+
     val password = MutableLiveData("")
-    val isUserIdPasswordValid: LiveData<Boolean> =
-        Transformations.map(PairLiveData(userId, password)) {
-            loginError.postValue(null)
-            !it.first.isNullOrEmpty() && !it.second.isNullOrEmpty()
-        }
-    val isBusyLogin = MutableLiveData(false)
-    val canSubmitLogin = Transformations.map(PairLiveData(isUserIdPasswordValid, isBusyLogin)) {
+
+    private val isInputValid = Transformations.map(PairLiveData(userId, password)) {
+        loginError.postValue(null)
+        !it.first.isNullOrEmpty() && !it.second.isNullOrEmpty()
+    }
+
+    private val isBusyLogin = MutableLiveData(false)
+
+    val canSubmitLogin = Transformations.map(PairLiveData(isInputValid, isBusyLogin)) {
         it.first == true && it.second == false
     }
-    val loginError = MutableLiveData<String?>(null)
-    val currentUserList: LiveData<List<CurrentUser>> = userRepository.currentUsers.asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
-    val currentUserId: MutableLiveData<UserId> = userRepository.currentUserId
+
+    val currentUserList = userRepository.loginHistory.asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
+
+    // for MainActivity and AuthActivity
+    val loggedIn = authenticationData.loggedIn
 
     fun onLoginButtonClicked(@Suppress("UNUSED_PARAMETER") view: View) {
         login()
@@ -67,8 +78,8 @@ class LoginViewModel @Inject constructor(
                 Log.d(LOG_TAG, "login response: $response")
                 when (response) {
                     is NetworkResponse.Success -> {
-                        userRepository.loggedIn.postValue(true)
-                        currentUserId.postValue(response.data.userId)
+                        authenticationData.loggedIn.postValue(true)
+                        authenticationData.userId.postValue(response.data.userId)
                     }
                     is NetworkResponse.Reject -> loginError.postValue(response.message)
                     is NetworkResponse.NetworkError -> loginError.postValue(response.message)

@@ -2,12 +2,9 @@
  * https://stackoverflow.com/a/58845665
  * CC BY-SA 4.0
  */
+
 package cn.edu.tsinghua.thss.cercis.util
 
-
-import androidx.annotation.MainThread
-import androidx.annotation.WorkerThread
-import cn.edu.tsinghua.thss.cercis.api.PayloadResponseBody
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -15,11 +12,10 @@ import kotlinx.coroutines.flow.*
 /**
  * A generic class that can provide a Response backed by both the sqlite database and the network.
  *
- * You can read more about it in the [Architecture
- * Guide](https://developer.android.com/arch).
+ * You can read more about it in the [Architecture Guide](https://developer.android.com/arch).
  * @param <ResultType>
  * @param <RequestType>
-</RequestType></ResultType> */
+ */
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class NetworkBoundResource<ResultType, RequestType> {

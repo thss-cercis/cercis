@@ -1,7 +1,7 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
 import androidx.lifecycle.LiveData
-import cn.edu.tsinghua.thss.cercis.dao.User
+import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.util.Resource
 

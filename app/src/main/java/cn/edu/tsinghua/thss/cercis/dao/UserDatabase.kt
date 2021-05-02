@@ -1,14 +1,17 @@
 package cn.edu.tsinghua.thss.cercis.dao
 
 import androidx.room.*
+import cn.edu.tsinghua.thss.cercis.entity.FriendEntry
+import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
+import cn.edu.tsinghua.thss.cercis.entity.User
+import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.util.UserId
-import cn.edu.tsinghua.thss.cercis.util.mapInPlace
 import kotlinx.coroutines.flow.Flow
 
 @Database(
-        entities = [User::class, FriendEntry::class, CurrentUser::class],
-        version = 1,
-        exportSchema = false
+    entities = [User::class, FriendEntry::class, UserDetail::class, LoginHistory::class],
+    version = 1,
+    exportSchema = false
 )
 abstract class UserDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
@@ -39,11 +42,14 @@ interface UserDao {
     fun loadAllFriendEntries(): Flow<Array<FriendEntry>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCurrentUser(vararg currentUsers: CurrentUser)
+    fun saveUserDetail(userDetail: UserDetail)
 
-    @Query("SELECT * FROM currentUser WHERE id = :userId")
-    fun loadCurrentUser(userId: UserId): Flow<CurrentUser>
+    @Query("SELECT * FROM userDetail WHERE id = :userId")
+    fun loadUserDetail(userId: UserId): Flow<UserDetail>
 
-    @Query("SELECT * FROM currentUser")
-    fun loadCurrentUsers(): Flow<List<CurrentUser>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertLoginHistory(loginHistory: LoginHistory)
+
+    @Query("SELECT * FROM loginHistory")
+    fun loadAllLoginHistory(): Flow<List<LoginHistory>>
 }

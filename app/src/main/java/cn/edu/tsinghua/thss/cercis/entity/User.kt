@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.dao
+package cn.edu.tsinghua.thss.cercis.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.CommonId
 import cn.edu.tsinghua.thss.cercis.util.UserId
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @Entity
@@ -38,7 +37,7 @@ data class FriendEntry(
 
 @Entity
 @JsonClass(generateAdapter = true)
-data class CurrentUser(
+data class UserDetail(
         @PrimaryKey val id: UserId,
         val nickname: String,
         val mobile: String,

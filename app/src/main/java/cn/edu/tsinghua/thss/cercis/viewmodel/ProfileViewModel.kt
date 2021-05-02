@@ -22,7 +22,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     userRepository: UserRepository,
 ) : ViewModel() {
-    val currentUserResource = userRepository.currentUser().asFlow()
+    private val currentUserResource = userRepository.userDetail().asFlow()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
     val currentUserLoading = Transformations.map(currentUserResource) {
         it?.let { it is Resource.Loading } ?: false

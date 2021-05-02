@@ -1,4 +1,4 @@
-package cn.edu.tsinghua.thss.cercis.api
+package cn.edu.tsinghua.thss.cercis.http
 
 import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
 import com.squareup.moshi.JsonClass

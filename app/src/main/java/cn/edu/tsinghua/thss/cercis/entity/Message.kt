@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import cn.edu.tsinghua.thss.cercis.dao.User
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
 import com.squareup.moshi.Json

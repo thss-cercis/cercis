@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import cn.edu.tsinghua.thss.cercis.Constants
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.api.CercisHttpService
-import cn.edu.tsinghua.thss.cercis.api.EmptyPayload
-import cn.edu.tsinghua.thss.cercis.api.PayloadResponseBody
+import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
+import cn.edu.tsinghua.thss.cercis.http.EmptyPayload
+import cn.edu.tsinghua.thss.cercis.http.PayloadResponseBody
 import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
@@ -42,11 +42,11 @@ object AppModule {
     fun provideBaseUrl() = Constants.URL_BASE
 
     /**
-     * This value is only to be used by [cn.edu.tsinghua.thss.cercis.repository.UserRepository]
+     * This value is only to be used by [cn.edu.tsinghua.thss.cercis.http.AuthenticationData]
      * and [provideOkHttpClient].
      *
      * To check login status, please refer to
-     * [cn.edu.tsinghua.thss.cercis.repository.UserRepository.loggedIn]
+     * [cn.edu.tsinghua.thss.cercis.http.AuthenticationData.loggedIn]
      */
     @Singleton
     @Provides
