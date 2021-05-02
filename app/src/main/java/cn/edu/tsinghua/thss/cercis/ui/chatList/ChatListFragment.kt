@@ -20,23 +20,23 @@ import com.bumptech.glide.Glide
 
 class ChatListFragment : Fragment() {
     private val chatListViewModel: ChatListViewModel by activityViewModels()
-    inner class ChatListAdapter : Adapter<ChatListAdapter.ChatChatViewHolder>() {
+    inner class ChatListAdapter : Adapter<ChatListAdapter.ChatViewHolder>() {
         init {
             setHasStableIds(true)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatChatViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
             val inflater = LayoutInflater.from(parent.context)
             val binding = ChatListItemBinding.inflate(inflater, parent, false)
-            return ChatChatViewHolder(binding = binding)
+            return ChatViewHolder(binding = binding)
         }
 
         override fun getItemCount(): Int {
-            return sessions.size
+            return chats.size
         }
 
-        override fun onBindViewHolder(holder: ChatChatViewHolder, position: Int) {
-            sessions[position].let {
+        override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+            chats[position].let {
                 holder.binding.run {
                     viewModel = it
                     Glide.with(avatar.context)
@@ -50,11 +50,11 @@ class ChatListFragment : Fragment() {
         }
 
         override fun getItemId(position: Int): Long {
-            return sessions[position].sessionId
+            return chats[position].sessionId
         }
 
         fun getChatId(position: Int): ChatId {
-            return sessions[position].sessionId
+            return chats[position].sessionId
         }
 
         /**
@@ -64,13 +64,13 @@ class ChatListFragment : Fragment() {
          * the data changes.
          */
         fun replaceDataWithoutNotify(list: List<ChatListItemData>) {
-            sessions.clear()
-            sessions.addAll(list)
+            chats.clear()
+            chats.addAll(list)
         }
 
-        private val sessions = ArrayList<ChatListItemData>()
+        private val chats = ArrayList<ChatListItemData>()
 
-        inner class ChatChatViewHolder(
+        inner class ChatViewHolder(
             val binding: ChatListItemBinding,
         ) : RecyclerView.ViewHolder(binding.root) {
             init {
@@ -91,7 +91,7 @@ class ChatListFragment : Fragment() {
             binding.scrollRefreshLayout.isRefreshing = false
         }
         // bind item click listener
-        // todo: use real data and somehow refactor this
+        // TODO: use real data and somehow refactor this
         val adapter = ChatListAdapter()
         binding.sessionListView.adapter = adapter
         chatListViewModel.sessions.observe(viewLifecycleOwner) {

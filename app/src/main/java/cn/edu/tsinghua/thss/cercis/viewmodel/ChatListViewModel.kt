@@ -16,18 +16,19 @@ class ChatListViewModel @Inject constructor(
     fun onRefreshListener() {
         // TODO replace fake data with real ones
         val sessionList = sessions.value ?: ArrayList()
-        val newList = ArrayList(LongArray(20) { sessionList.size + it + 0L }.map {
+        sessionList.reverse()
+        sessionList.addAll((1..20).map{ it.toLong() + sessionList.size }.map {
             ChatListItemData(
-                    sessionId = it,
-                    avatar = "",
-                    sessionName = "test session #$it",
-                    latestMessage = "test message #${it * 20}",
-                    lastUpdate = "18:54",
-                    unreadCount = 20,
+                sessionId = it,
+                avatar = "",
+                sessionName = "test session #$it",
+                latestMessage = "test message #${it * 20}",
+                lastUpdate = "18:54",
+                unreadCount = 20,
             )
         })
+        sessionList.reverse()
         Log.d(null, "Some junk data generated!")
-        newList.reverse()
-        sessions.postValue(newList)
+        sessions.postValue(sessionList)
     }
 }
