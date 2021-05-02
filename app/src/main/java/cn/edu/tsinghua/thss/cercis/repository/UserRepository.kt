@@ -1,6 +1,7 @@
 package cn.edu.tsinghua.thss.cercis.repository
 
 import androidx.lifecycle.LiveData
+import cn.edu.tsinghua.thss.cercis.dao.LoginHistoryDao
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.entity.User
@@ -10,17 +11,18 @@ import cn.edu.tsinghua.thss.cercis.util.NetworkBoundResource
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.Resource
 import cn.edu.tsinghua.thss.cercis.util.UserId
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-@Singleton
+@ActivityRetainedScoped
 class UserRepository @Inject constructor(
     val httpService: CercisHttpService,
     val userDao: UserDao,
+    val loginHistoryDao: LoginHistoryDao,
 ) {
     private val userLiveDataCache = HashMap<UserId, Resource<User>>()
 
@@ -36,7 +38,7 @@ class UserRepository @Inject constructor(
      */
     fun userDetail() = object : NetworkBoundResource<UserDetail, UserDetail>() {
         override suspend fun saveNetworkResult(item: UserDetail) {
-            userDao.insertLoginHistory(LoginHistory(userId = item.id, mobile = item.mobile))
+            loginHistoryDao.insertLoginHistory(LoginHistory(userId = item.id, mobile = item.mobile))
             userDao.saveUserDetail(item)
         }
 

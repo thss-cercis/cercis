@@ -21,7 +21,7 @@ import io.reactivex.disposables.Disposable
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
-@AndroidEntryPoint
+//@AndroidEntryPoint
 class MessageService : Service() {
     private val disposables = ArrayList<Disposable>()
     private lateinit var socketService: CercisWebSocketService

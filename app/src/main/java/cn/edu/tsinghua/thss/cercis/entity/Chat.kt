@@ -8,9 +8,10 @@ import com.squareup.moshi.JsonClass
 @Entity
 @JsonClass(generateAdapter = true)
 data class Chat(
-        @PrimaryKey @Json(name = "id") var id: Long,
-        @Json(name = "type") var type: Int,
-        @Json(name = "name") var name: String,
+        @PrimaryKey @Json(name = "id") val id: Long,
+        @Json(name = "type") val type: Int,
+        @Json(name = "name") val name: String,
+        @Json(name = "lastMessage") val lastMessage: String,
 )
 
 object ChatType {

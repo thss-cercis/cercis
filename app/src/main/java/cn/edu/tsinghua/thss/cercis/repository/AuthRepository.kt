@@ -3,6 +3,7 @@ package cn.edu.tsinghua.thss.cercis.repository
 import android.content.Context
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -54,10 +54,17 @@
                 app:layout_constraintTop_toBottomOf="@id/profile_nickname" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/status_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.currentUserLoadingStatus}"
                 app:layout_constraintTop_toBottomOf="@id/profile_avatar" />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/status_bar"
+                android:onClick="@{viewModel::onLogoutClicked}" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

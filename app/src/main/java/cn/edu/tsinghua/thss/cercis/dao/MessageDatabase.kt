@@ -41,4 +41,7 @@ interface ChatDao {
 
     @Query("SELECT * FROM chat WHERE id = :chatId")
     fun getChat(chatId: ChatId): Flow<Chat?>
+
+    @Query("SELECT * FROM chat")
+    fun loadAllChats(): Flow<List<Chat>>
 }

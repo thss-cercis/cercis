@@ -16,7 +16,6 @@ import com.squareup.moshi.JsonClass
 //    )]
 )
 data class LoginHistory(
-    @PrimaryKey(autoGenerate = true) val id: CommonId = 0,
-    val userId: UserId,
+    @PrimaryKey val userId: UserId,
     val mobile: String,
 )

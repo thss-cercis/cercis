@@ -2,6 +2,7 @@ package cn.edu.tsinghua.thss.cercis.module
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import cn.edu.tsinghua.thss.cercis.Constants
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
@@ -48,12 +49,12 @@ object AppModule {
     @Singleton
     @Provides
     @AuthorizedLiveEvent
-    fun provideAuthorized() = SingleLiveEvent<Boolean?>(null)
+    fun provideAuthorized() = MutableLiveData<Boolean?>(null)
 
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        @AuthorizedLiveEvent authorized: SingleLiveEvent<Boolean?>,
+        @AuthorizedLiveEvent authorized: MutableLiveData<Boolean?>,
         @ApplicationContext context: Context,
     ): OkHttpClient {
         return OkHttpClient.Builder()

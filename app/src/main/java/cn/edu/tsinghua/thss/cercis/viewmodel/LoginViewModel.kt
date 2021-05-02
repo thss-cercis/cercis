@@ -4,7 +4,9 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
+import cn.edu.tsinghua.thss.cercis.dao.LoginHistoryDao
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
+import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.http.LoginRequest
 import cn.edu.tsinghua.thss.cercis.module.AuthorizedLiveEvent
@@ -24,10 +26,10 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    @AuthorizedLiveEvent val authorized: SingleLiveEvent<Boolean?>,
+    @AuthorizedLiveEvent val authorized: MutableLiveData<Boolean?>,
     private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
-    userDao: UserDao,
+    loginHistoryDao: LoginHistoryDao,
 ) : ViewModel() {
     val loginError = MutableLiveData<String?>(null)
 
@@ -48,7 +50,7 @@ class LoginViewModel @Inject constructor(
         it.first == true && it.second == false
     }
 
-    val currentUserList = userDao.loadAllLoginHistory()
+    val currentUserList = loginHistoryDao.loadAllLoginHistory()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
 
     val loggedIn = MutableLiveData(authRepository.loggedIn).apply {

@@ -12,17 +12,19 @@ import cn.edu.tsinghua.thss.cercis.entity.ChatType
 import cn.edu.tsinghua.thss.cercis.service.MessageService
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
+import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
+@ActivityRetainedScoped
 class MessageRepository @Inject constructor(
-        private val messageDao: MessageDao,
-        private val chatDao: ChatDao,
-        @ApplicationContext val context: Context,
+    private val messageDao: MessageDao,
+    private val chatDao: ChatDao,
+    @ApplicationContext val context: Context,
 ) {
     val connectionStatus = MutableLiveData(MessageService.ConnectionStatus.DISCONNECTED)
 
@@ -60,11 +62,18 @@ class MessageRepository @Inject constructor(
      * @param messageId Message ID as a baseline
      * @param previousCount loads [previousCount] more messages before messageId
      */
-    suspend fun getChatMessagesNewerThanWithPreviousMessages(chatId: ChatId, messageId: MessageId, previousCount: Long): LiveData<List<Message>> {
+    suspend fun getChatMessagesNewerThanWithPreviousMessages(
+        chatId: ChatId,
+        messageId: MessageId,
+        previousCount: Long,
+    ): LiveData<List<Message>> {
         TODO("finish this")
     }
 
-    suspend fun getChatRecentMessages(chatId: ChatId, previousCount: Long): LiveData<List<Message>> {
+    suspend fun getChatRecentMessages(
+        chatId: ChatId,
+        previousCount: Long,
+    ): LiveData<List<Message>> {
         TODO("finish this")
     }
 
@@ -73,9 +82,10 @@ class MessageRepository @Inject constructor(
      */
     fun getChat(chatId: ChatId): LiveData<Chat> {
         return MutableLiveData(Chat(
-                id = chatId,
-                name = "Chat $chatId",
-                type = ChatType.CHAT_SINGLE,
+            id = chatId,
+            name = "Chat $chatId",
+            type = ChatType.CHAT_SINGLE,
+            lastMessage = "test",
         ))
 //        return chatDao.getChat(chatId).asLiveData()
     }
@@ -108,7 +118,11 @@ class MessageRepository @Inject constructor(
     /**
      * A rpc method telling if new messages should be fetched from server.
      */
-    private suspend fun shouldDownloadNewMessages(chatId: ChatId, messageId: MessageId, previousCount: Long): Boolean {
+    private suspend fun shouldDownloadNewMessages(
+        chatId: ChatId,
+        messageId: MessageId,
+        previousCount: Long,
+    ): Boolean {
         try {
             val liable = liableOldestMessageId.getOrDefault(chatId, 0)
             if (liable == 0L) {
@@ -123,7 +137,11 @@ class MessageRepository @Inject constructor(
     /**
      * Informs the service to fetch new messages.
      */
-    private fun informFetchPreviousMessages(chatId: ChatId, messageId: MessageId, previousCount: Long) {
+    private fun informFetchPreviousMessages(
+        chatId: ChatId,
+        messageId: MessageId,
+        previousCount: Long,
+    ) {
         TODO("Finish this")
     }
 }

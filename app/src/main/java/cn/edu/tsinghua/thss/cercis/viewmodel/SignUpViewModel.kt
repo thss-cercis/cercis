@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.*
 import cn.edu.tsinghua.thss.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.edu.tsinghua.thss.cercis.R
+import cn.edu.tsinghua.thss.cercis.dao.LoginHistoryDao
 import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
@@ -45,7 +46,7 @@ class SignUpViewModel @Inject constructor(
     application: Application,
     private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
-    private val userDao: UserDao,
+    private val loginHistoryDao: LoginHistoryDao,
 ) : AndroidViewModel(application) {
 
     enum class NavAction {
@@ -190,9 +191,9 @@ class SignUpViewModel @Inject constructor(
                         userId = response.data.userId,
                         mobile = mobile,
                     ).also {
-                        userDao.insertLoginHistory(it)
-                        authRepository.userId = it.id
-                        navAction.postValue(NavAction.FRAGMENT_SUCCESS to it.id)
+                        loginHistoryDao.insertLoginHistory(it)
+                        authRepository.userId = it.userId
+                        navAction.postValue(NavAction.FRAGMENT_SUCCESS to it.userId)
                     }
                 }
                 is NetworkResponse.NetworkError -> signUpError.postValue(response.message)

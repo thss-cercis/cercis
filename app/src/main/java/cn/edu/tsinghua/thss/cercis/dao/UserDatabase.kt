@@ -9,7 +9,7 @@ import cn.edu.tsinghua.thss.cercis.util.UserId
 import kotlinx.coroutines.flow.Flow
 
 @Database(
-    entities = [User::class, FriendEntry::class, UserDetail::class, LoginHistory::class],
+    entities = [User::class, FriendEntry::class, UserDetail::class],
     version = 1,
     exportSchema = false
 )
@@ -46,10 +46,4 @@ interface UserDao {
 
     @Query("SELECT * FROM userDetail")
     fun loadUserDetail(): Flow<UserDetail?>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertLoginHistory(loginHistory: LoginHistory)
-
-    @Query("SELECT * FROM loginHistory")
-    fun loadAllLoginHistory(): Flow<List<LoginHistory>>
 }

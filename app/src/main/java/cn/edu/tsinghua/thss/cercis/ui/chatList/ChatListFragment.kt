@@ -94,7 +94,7 @@ class ChatListFragment : Fragment() {
         // TODO: use real data and somehow refactor this
         val adapter = ChatListAdapter()
         binding.sessionListView.adapter = adapter
-        chatListViewModel.sessions.observe(viewLifecycleOwner) {
+        chatListViewModel.chatListItemList.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.replaceDataWithoutNotify(it)
                 adapter.notifyDataSetChanged()
