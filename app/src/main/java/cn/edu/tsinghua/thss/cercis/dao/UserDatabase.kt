@@ -2,7 +2,6 @@ package cn.edu.tsinghua.thss.cercis.dao
 
 import androidx.room.*
 import cn.edu.tsinghua.thss.cercis.entity.FriendEntry
-import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.util.UserId

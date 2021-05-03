@@ -16,7 +16,6 @@ import com.tinder.scarlet.messageadapter.moshi.MoshiMessageAdapter
 import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
 import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
 import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.Disposable
 import okhttp3.OkHttpClient
 import javax.inject.Inject
@@ -98,7 +97,7 @@ class MessageService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY;
+        return START_STICKY
     }
 
     /**

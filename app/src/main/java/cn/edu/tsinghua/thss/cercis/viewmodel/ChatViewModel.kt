@@ -33,7 +33,7 @@ class ChatViewModel @Inject constructor(
     val chat = messageRepository.getChat(chatId)
 
     fun side(senderId: ChatId): Side {
-        if (senderId == authRepository.userId) {
+        if (senderId == authRepository.currentUserId) {
             return Side.SELF
         }
         return Side.OTHER

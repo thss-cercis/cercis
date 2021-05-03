@@ -7,7 +7,6 @@ import androidx.lifecycle.*
 import cn.edu.tsinghua.thss.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.dao.LoginHistoryDao
-import cn.edu.tsinghua.thss.cercis.dao.UserDao
 import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.http.MobileSignUpRequest
@@ -110,8 +109,7 @@ class SignUpViewModel @Inject constructor(
         verificationCodeCountDown.postValue(SEND_CODE_COUNTDOWN)
         try {
             verificationError.postValue(null)
-            when (val resp =
-                httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
+            when (val resp = httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
                 is NetworkResponse.Success -> {
                     for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
                         delay(1000)
@@ -170,31 +168,25 @@ class SignUpViewModel @Inject constructor(
         val verificationCode = this.verificationCode.value ?: ""
 
         try {
-            val response = httpService.signUp(SignUpRequest(
+            val signUpRequest = SignUpRequest(
                 nickname = nickname,
                 mobile = mobile,
                 password = password,
                 verificationCode = verificationCode,
-            ))
-            Log.d(LOG_TAG, "signup resp: $response")
+            )
+            val response = authRepository.signUp(signUpRequest)
+            Log.d(LOG_TAG, "sign up resp: $response")
             when (response) {
                 is NetworkResponse.Success -> {
-//                    val user = UserDetail(
-//                        id = response.data.userId,
-//                        nickname = nickname,
-//                        mobile = mobile,
-//                        avatar = "",
-//                        bio = "",
-//                    )
-//                    userDao.insertCurrentUser(user)
-                    LoginHistory(
-                        userId = response.data.userId,
+                    val userId = response.data.userId
+                    val loginHistory = LoginHistory(
+                        userId = userId,
                         mobile = mobile,
-                    ).also {
-                        loginHistoryDao.insertLoginHistory(it)
-                        authRepository.userId = it.userId
-                        navAction.postValue(NavAction.FRAGMENT_SUCCESS to it.userId)
-                    }
+//                        nickname = nickname,
+//                        avatar = "",
+                    )
+                    loginHistoryDao.insertLoginHistory(loginHistory)
+                    navAction.postValue(NavAction.FRAGMENT_SUCCESS to userId)
                 }
                 is NetworkResponse.NetworkError -> signUpError.postValue(response.message)
                 is NetworkResponse.Reject -> {

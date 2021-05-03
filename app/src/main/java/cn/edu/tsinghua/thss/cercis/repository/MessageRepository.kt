@@ -4,21 +4,19 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import cn.edu.tsinghua.thss.cercis.dao.ChatDao
-import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.dao.MessageDao
-import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.Chat
 import cn.edu.tsinghua.thss.cercis.entity.ChatType
+import cn.edu.tsinghua.thss.cercis.entity.Message
+import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.service.MessageService
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.util.MessageId
-import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @ActivityRetainedScoped
 class MessageRepository @Inject constructor(

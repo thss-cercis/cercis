@@ -5,15 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.databinding.FragmentSignupBinding
 import cn.edu.tsinghua.thss.cercis.databinding.FragmentSignupSuccessBinding
 import cn.edu.tsinghua.thss.cercis.viewmodel.SignUpSuccessViewModel
-import cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

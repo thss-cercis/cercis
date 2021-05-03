@@ -14,13 +14,12 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import cn.edu.tsinghua.thss.cercis.databinding.ActivityMainBinding
 import cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment
+import cn.edu.tsinghua.thss.cercis.ui.chatList.ChatListFragment
 import cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment
 import cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment
-import cn.edu.tsinghua.thss.cercis.ui.chatList.ChatListFragment
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.setupWithNavController
 import cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel
-import cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -29,7 +28,6 @@ import kotlinx.coroutines.FlowPreview
 @AndroidEntryPoint
 @FlowPreview
 class MainActivity : AppCompatActivity() {
-    private val loginViewModel: LoginViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentNavController: LiveData<NavController>
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // check login status and automatically jumps to login view
-        loginViewModel.loggedIn.observe(this) {
+        mainActivityViewModel.loggedIn.observe(this) {
             if (it == false) {
                 startActivity(Intent(this, AuthActivity::class.java))
                 finish()

@@ -54,8 +54,8 @@ class ChatListViewModel @Inject constructor(
                 Chat(
                     id = it,
                     type = CHAT_SINGLE,
-                    name = "TEST CHAT $it",
-                    lastMessage = "${authRepository.userId} @ ${generateTimeString()}"
+                    name = "Test $it",
+                    lastMessage = "${authRepository.currentUserId} @ ${generateTimeString()}"
                 )
             }.toTypedArray())
             Log.d(null, "Some junk data generated!")

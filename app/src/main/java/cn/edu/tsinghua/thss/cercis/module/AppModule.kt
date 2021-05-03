@@ -11,7 +11,6 @@ import cn.edu.tsinghua.thss.cercis.http.PayloadResponseBody
 import cn.edu.tsinghua.thss.cercis.util.HttpStatusCode
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
-import cn.edu.tsinghua.thss.cercis.util.SingleLiveEvent
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor

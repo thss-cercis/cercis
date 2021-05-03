@@ -7,14 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import cn.edu.tsinghua.thss.cercis.R
-import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
 import cn.edu.tsinghua.thss.cercis.util.Resource
 import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @FlowPreview
@@ -22,7 +24,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     userRepository: UserRepository,
-    private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val currentUserResource = userRepository.userDetail().asFlow()
@@ -42,8 +43,7 @@ class ProfileViewModel @Inject constructor(
 
     fun onLogoutClicked(@Suppress("UNUSED_PARAMETER") view: View) {
         viewModelScope.launch(Dispatchers.IO) {
-            httpService.logout()
-            httpService.userDetail()
+            authRepository.logout()
         }
     }
 
