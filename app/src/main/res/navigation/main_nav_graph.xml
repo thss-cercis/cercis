@@ -6,11 +6,11 @@
     app:startDestination="@id/chatListFragment">
     <fragment
         android:id="@+id/chatListFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.chatList.ChatListFragment"
+        android:name="cn.cercis.ui.chatList.ChatListFragment"
         android:label="ChatListFragment" />
     <fragment
         android:id="@+id/contactListFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment"
+        android:name="cn.cercis.ui.contacts.ContactListFragment"
         android:label="layout_contacts"
         tools:layout="@layout/fragment_contact_list" />
     <action
@@ -21,7 +21,7 @@
         app:destination="@id/chatListFragment" />
     <fragment
         android:id="@+id/activityFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment"
+        android:name="cn.cercis.ui.activity.ActivityFragment"
         android:label="layout_discovery"
         tools:layout="@layout/fragment_activity" />
     <action
@@ -29,7 +29,7 @@
         app:destination="@id/activityFragment" />
     <fragment
         android:id="@+id/profileFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.profile.ProfileFragment"
+        android:name="cn.cercis.ui.profile.ProfileFragment"
         android:label="layout_profile"
         tools:layout="@layout/fragment_profile" /><action android:id="@+id/action_global_profileFragment" app:destination="@id/profileFragment"/>
 </navigation>

@@ -6,7 +6,7 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel" />
+        <import type="cn.cercis.viewmodel.LoginViewModel" />
 
         <variable
             name="viewModel"

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/emptyFragment4"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.empty.EmptyFragment"
+        android:name="cn.cercis.ui.empty.EmptyFragment"
         android:label="layout_empty"
         tools:layout="@layout/fragment_empty" />
 </navigation>

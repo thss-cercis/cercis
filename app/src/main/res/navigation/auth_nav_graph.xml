@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SplashFragment"
+        android:name="cn.cercis.ui.startup.SplashFragment"
         android:label="SplashFragment">
         <action
             android:id="@+id/action_splashFragment_to_loginFragment"
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.LoginFragment"
+        android:name="cn.cercis.ui.startup.LoginFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_signUpFragment1"
@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/signUpFragment1"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpFragment1"
+        android:name="cn.cercis.ui.startup.SignUpFragment1"
         android:label="layout_signup_1"
         tools:layout="@layout/fragment_signup">
         <action
@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/signUpSuccessFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.startup.SignUpSuccessFragment"
+        android:name="cn.cercis.ui.startup.SignUpSuccessFragment"
         android:label="layout_signup_success"
         tools:layout="@layout/fragment_signup_success" >
         <argument

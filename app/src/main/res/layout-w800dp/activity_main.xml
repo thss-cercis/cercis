@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.MainActivityViewModel" />
+        <import type="cn.cercis.viewmodel.MainActivityViewModel" />
 
         <import type="android.view.View" />
 

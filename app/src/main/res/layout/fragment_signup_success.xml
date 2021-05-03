@@ -5,7 +5,7 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.SignUpSuccessViewModel" />
+        <import type="cn.cercis.viewmodel.SignUpSuccessViewModel" />
         <variable
             name="viewModel"
             type="SignUpSuccessViewModel" />

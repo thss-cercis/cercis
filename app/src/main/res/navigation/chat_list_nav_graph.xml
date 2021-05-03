@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/chatFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.chat.ChatFragment"
+        android:name="cn.cercis.ui.chat.ChatFragment"
         android:label="layout_chat"
         tools:layout="@layout/fragment_chat">
         <argument
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/emptyFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.empty.EmptyFragment"
+        android:name="cn.cercis.ui.empty.EmptyFragment"
         android:label="layout_empty"
         tools:layout="@layout/fragment_empty" />
     <action

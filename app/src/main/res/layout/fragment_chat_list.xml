@@ -6,7 +6,7 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.ChatListViewModel" />
+        <import type="cn.cercis.viewmodel.ChatListViewModel" />
 
         <variable
             name="viewModel"

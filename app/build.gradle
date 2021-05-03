@@ -9,7 +9,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "cn.edu.tsinghua.thss.cercis"
+        applicationId "cn.cercis"
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 1

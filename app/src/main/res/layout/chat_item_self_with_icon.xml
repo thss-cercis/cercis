@@ -3,7 +3,7 @@
 
     <data>
 
-        <import type="cn.edu.tsinghua.thss.cercis.viewmodel.MessageViewModel" />
+        <import type="cn.cercis.viewmodel.MessageViewModel" />
 
         <variable
             name="message"
