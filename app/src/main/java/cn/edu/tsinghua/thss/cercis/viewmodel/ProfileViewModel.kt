@@ -26,7 +26,7 @@ class ProfileViewModel @Inject constructor(
     userRepository: UserRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val currentUserResource = userRepository.userDetail().asFlow()
+    private val currentUserResource = userRepository.getUserDetail().asFlow()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
     val currentUserLoading = Transformations.map(currentUserResource) {
         it?.let { it is Resource.Loading } ?: false

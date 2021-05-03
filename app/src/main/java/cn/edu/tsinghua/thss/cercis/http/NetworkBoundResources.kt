@@ -3,8 +3,10 @@
  * CC BY-SA 4.0
  */
 
-package cn.edu.tsinghua.thss.cercis.util
+package cn.edu.tsinghua.thss.cercis.http
 
+import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
+import cn.edu.tsinghua.thss.cercis.util.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -33,7 +35,11 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
                 }
                 is NetworkResponse.Reject -> {
                     onFetchFailed()
-                    emitAll(loadFromDb().map { Resource.Error(apiResponse.code, apiResponse.message, it) })
+                    emitAll(loadFromDb().map {
+                        Resource.Error(apiResponse.code,
+                            apiResponse.message,
+                            it)
+                    })
                 }
                 is NetworkResponse.NetworkError -> {
                     onFetchFailed()

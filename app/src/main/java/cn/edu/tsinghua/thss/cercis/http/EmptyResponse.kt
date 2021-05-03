@@ -6,5 +6,4 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 class EmptyPayload
 
-typealias EmptyResponse = PayloadResponseBody<EmptyPayload>
 typealias EmptyNetworkResponse = NetworkResponse<EmptyPayload>

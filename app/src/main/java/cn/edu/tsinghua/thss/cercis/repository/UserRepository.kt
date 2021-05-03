@@ -7,7 +7,7 @@ import cn.edu.tsinghua.thss.cercis.entity.LoginHistory
 import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
-import cn.edu.tsinghua.thss.cercis.util.NetworkBoundResource
+import cn.edu.tsinghua.thss.cercis.http.NetworkBoundResource
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.Resource
 import cn.edu.tsinghua.thss.cercis.util.UserId
@@ -36,7 +36,7 @@ class UserRepository @Inject constructor(
     /**
      * Gets the current user.
      */
-    fun userDetail() = object : NetworkBoundResource<UserDetail, UserDetail>() {
+    fun getUserDetail() = object : NetworkBoundResource<UserDetail, UserDetail>() {
         override suspend fun saveNetworkResult(item: UserDetail) {
             loginHistoryDao.insertLoginHistory(LoginHistory(userId = item.id, mobile = item.mobile))
             userDao.saveUserDetail(item)
@@ -48,7 +48,7 @@ class UserRepository @Inject constructor(
 
         override suspend fun fetchFromNetwork(): NetworkResponse<UserDetail> {
             // TODO handle user_id inconsistency, or just ignore it
-            return httpService.userDetail()
+            return httpService.getUserDetail()
         }
     }
 }

@@ -14,6 +14,7 @@ import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
+import com.squareup.moshi.Types
 import com.squareup.moshi.internal.Util
 import com.squareup.moshi.rawType
 import dagger.Module
@@ -113,44 +114,43 @@ object AppModule {
                 val serverErrorMsg = context.getString(R.string.error_server_error)
 
                 override fun responseBodyConverter(
-                    type: Type, annotations: Array<Annotation?>, retrofit: Retrofit,
+                    type: Type,
+                    annotations: Array<Annotation?>,
+                    retrofit: Retrofit,
                 ): Converter<ResponseBody?, *>? {
                     if (type.rawType != NetworkResponse::class.java) {
                         return moshi.responseBodyConverter(type, annotations, retrofit)
                     }
-                    val respValueType: Type = (type as ParameterizedType).actualTypeArguments[0]
-                    val moshiResponseConverter = moshi.responseBodyConverter(
-                        Util.ParameterizedTypeImpl(null, PayloadResponseBody::class.java, respValueType),
+                    val responseType = (type as ParameterizedType).actualTypeArguments[0]
+                    val responseBodyConverter = moshi.responseBodyConverter(
+                        Types.newParameterizedType(
+                            PayloadResponseBody::class.java,
+                            responseType
+                        ),
                         annotations,
                         retrofit
                     )
 
                     return Converter<ResponseBody?, NetworkResponse<Any>> {
-                        it?.let {
-                            if (it.contentType()?.subtype.equals(ServerErrorMediaType.subtype)) {
-                                val errorMsg = it.string()
-                                NetworkResponse.NetworkError(errorMsg)
-                            } else {
-                                try {
-                                    val value = moshiResponseConverter?.convert(it)
-                                    if (value == null) {
-                                        NetworkResponse.NetworkError(serverErrorMsg)
-                                    } else {
-                                        val body = value as PayloadResponseBody<*>
-                                        if (body.successful) {
-                                            if (body.payload != null || respValueType.rawType == EmptyPayload::class.java) {
-                                                NetworkResponse.Success(body.payload ?: EmptyPayload())
-                                            } else {
-                                                NetworkResponse.NetworkError(serverErrorMsg)
-                                            }
-                                        } else {
-                                            NetworkResponse.Reject(body.code, body.msg)
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    NetworkResponse.NetworkError(serverErrorMsg)
-                                }
+                        it ?: return@Converter null
+                        if (it.contentType()?.subtype.equals(ServerErrorMediaType.subtype)) {
+                            val errorMsg = it.string()
+                            return@Converter NetworkResponse.NetworkError(errorMsg)
+                        }
+                        try {
+                            val value = responseBodyConverter?.convert(it)
+                                ?: return@Converter NetworkResponse.NetworkError(serverErrorMsg)
+                            val body = value as PayloadResponseBody<*>
+                            if (!body.successful) {
+                                return@Converter NetworkResponse.Reject(body.code, body.msg)
                             }
+                            if (body.payload != null || responseType.rawType == EmptyPayload::class.java) {
+                                NetworkResponse.Success(body.payload ?: EmptyPayload())
+                            } else {
+                                NetworkResponse.NetworkError(serverErrorMsg)
+                            }
+                        } catch (e: Exception) {
+                            NetworkResponse.NetworkError(serverErrorMsg)
                         }
                     }
                 }
@@ -161,10 +161,12 @@ object AppModule {
                     methodAnnotations: Array<Annotation>,
                     retrofit: Retrofit,
                 ): Converter<*, RequestBody>? {
-                    return moshi.requestBodyConverter(type,
+                    return moshi.requestBodyConverter(
+                        type,
                         parameterAnnotations,
                         methodAnnotations,
-                        retrofit)
+                        retrofit
+                    )
                 }
             })
             .baseUrl(baseUrl)

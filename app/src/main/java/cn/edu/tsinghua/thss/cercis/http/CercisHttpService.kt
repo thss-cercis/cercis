@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thss.cercis.http
 
+import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.UserId
@@ -8,6 +9,7 @@ import com.squareup.moshi.JsonClass
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 
 interface CercisHttpService {
     @POST("auth/login")
@@ -23,7 +25,17 @@ interface CercisHttpService {
     suspend fun logout(): EmptyNetworkResponse
 
     @GET("user/current")
-    suspend fun userDetail(): UserDetailResponse
+    suspend fun getUserDetail(): UserDetailResponse
+
+    @PUT("user/modify")
+    suspend fun updateUserDetail(@Body request: UpdateUserDetailRequest): EmptyNetworkResponse
+
+    @PUT("user/password")
+    suspend fun updateUserPassword(@Body request: UpdateUserPasswordRequest): EmptyNetworkResponse
+
+    // TODO: unwrap user field
+    @GET("user/info")
+    suspend fun getUserProfile(): UserProfileResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -42,37 +54,43 @@ typealias LoginResponse = NetworkResponse<LoginResponsePayload>
 
 @JsonClass(generateAdapter = true)
 data class SignUpRequest(
-        val nickname: String,
-        val mobile: String,
-        @Json(name = "code") val verificationCode: String,
-        val password: String
+    val nickname: String,
+    val mobile: String,
+    @Json(name = "code") val verificationCode: String,
+    val password: String
 )
 
 @JsonClass(generateAdapter = true)
 data class SignUpResponsePayload(
-        @Json(name = "user_id") val userId: UserId
+    @Json(name = "user_id") val userId: UserId
 )
 
 typealias SignUpResponse = NetworkResponse<SignUpResponsePayload>
 
 @JsonClass(generateAdapter = true)
 data class MobileSignUpRequest(
-        val mobile: String
-)
-
-@JsonClass(generateAdapter = true)
-data class EmailSignUpRequest(
-        val email: String
-)
-
-@JsonClass(generateAdapter = true)
-data class MobileSignUpCheckRequest(
-        val code: String
-)
-
-@JsonClass(generateAdapter = true)
-data class EmailSignUpCheckResponsePayload(
-        val ok: Boolean
+    val mobile: String
 )
 
 typealias UserDetailResponse = NetworkResponse<UserDetail>
+
+@JsonClass(generateAdapter = true)
+data class UpdateUserDetailRequest(
+    val nickname: String?,
+    val mobile: String?,
+    val avatar: String?,
+    val bio: String?,
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateUserPasswordRequest(
+    @Json(name = "old_pwd") val oldPassword: String,
+    @Json(name = "new_pwd") val newPassword: String
+)
+
+@JsonClass(generateAdapter = true)
+data class UserProfileRequest(
+    @Json(name = "id") val userId: UserId
+)
+
+typealias UserProfileResponse = NetworkResponse<User>
