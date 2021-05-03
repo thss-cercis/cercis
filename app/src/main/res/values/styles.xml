@@ -27,7 +27,7 @@
     </style>
 
     <style name="TextAppearance.Cercis.Messages.Username" parent="TextAppearance.MaterialComponents.Body1">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">17sp</item>
     </style>
 
     <style name="TextAppearance.Cercis.Messages.Preview" parent="TextAppearance.MaterialComponents.Caption">
@@ -40,6 +40,11 @@
 
     <style name="TextAppearance.Cercis.Messages.Unread" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.ListItem.Text" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">17sp</item>
+        <item name="android:background">@color/list_background</item>
     </style>
 
 </resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="text"
+            type="java.lang.String" />
+    </data>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/plain_text_list_item_root"
+        style="@style/TextAppearance.Cercis.ListItem.Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:selectableItemBackground"
+        android:drawableEnd="@drawable/outline_keyboard_arrow_right_24"
+        android:drawableTint="@color/icon_on_background"
+        android:focusable="true"
+        android:maxLines="1"
+        android:paddingVertical="16dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="18dp"
+        android:text="@{text}"
+        tools:text="好友请求" />
+</layout>

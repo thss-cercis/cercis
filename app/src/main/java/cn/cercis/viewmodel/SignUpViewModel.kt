@@ -97,10 +97,10 @@ class SignUpViewModel @Inject constructor(
         it?.let {
             when {
                 it.emptyOrValid -> null
-                !it.ruleLength -> getString(R.string.error_password_min_8_max_20)
-                !it.ruleAllowedCharacters -> getString(R.string.error_password_invalid_character)
+                !it.ruleLength -> getString(R.string.signup_error_password_min_8_max_20)
+                !it.ruleAllowedCharacters -> getString(R.string.signup_error_password_invalid_character)
                     .replace("{}", it.invalidCharacter!!)
-                else -> getString(R.string.error_password_should_3_out_of_4)
+                else -> getString(R.string.signup_error_password_should_3_out_of_4)
             }
         }
     }

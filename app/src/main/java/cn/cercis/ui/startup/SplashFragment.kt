@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SplashFragment : Fragment() {
     private val splashViewModel: SplashViewModel by activityViewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentSplashBinding.inflate(inflater, container, false)
         binding.viewModel = splashViewModel
         Log.d(LOG_TAG, "Switched to splash fragment.")

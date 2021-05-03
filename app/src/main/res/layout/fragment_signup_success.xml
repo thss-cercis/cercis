@@ -27,7 +27,7 @@
             style="@style/TextAppearance.MaterialComponents.Headline4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/headline_signup_success"
+            android:text="@string/signup_success_headline"
             android:textColor="?android:textColorPrimary"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -72,7 +72,7 @@
             android:padding="10dp"
             android:paddingHorizontal="20dp"
             android:scaleType="center"
-            android:text="@string/button_back_to_login"
+            android:text="@string/signup_button_back_to_login"
             android:textSize="18sp"
             app:iconPadding="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

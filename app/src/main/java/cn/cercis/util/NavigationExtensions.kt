@@ -102,7 +102,6 @@ fun BottomNavigationView.setupWithNavController(
         } else {
             val newlySelectedItemTag = graphIdToTagMap[item.itemId]
             if (selectedItemTag != newlySelectedItemTag) {
-                Log.d(LOG_TAG, "begin switching from ${selectedNavController.value}")
                 masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
 
                 // Pop everything above the first fragment (the "fixed start destination")
@@ -131,7 +130,6 @@ fun BottomNavigationView.setupWithNavController(
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
                 selectedNavController.value = selectedFragment.navController
-                Log.d(LOG_TAG, "end switching to ${selectedFragment.navController}")
                 true
             } else {
                 false

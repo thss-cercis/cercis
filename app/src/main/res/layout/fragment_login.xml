@@ -63,7 +63,7 @@
                         android:id="@+id/login_user_id_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/hint_user_id"
+                        android:hint="@string/login_hint_user_id"
                         android:inputType="text"
                         android:text="@={viewModel.userId}" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -85,7 +85,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/hint_password"
+                        android:hint="@string/login_hint_password"
                         android:inputType="textPassword"
                         android:text="@={viewModel.password}" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -127,7 +127,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/link_reset_password"
+                    android:text="@string/login_link_reset_password"
                     android:textAlignment="center" />
 
                 <View
@@ -140,7 +140,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/link_user_signup"
+                    android:text="@string/login_link_user_signup"
                     android:textAlignment="center" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

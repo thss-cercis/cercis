@@ -47,16 +47,4 @@ class ProfileViewModel @Inject constructor(
             authRepository.logout()
         }
     }
-
-    companion object {
-        @JvmStatic
-        @BindingAdapter("avatarImageUrl")
-        fun loadImage(view: ShapeableImageView, url: String?) {
-            Glide.with(view.context)
-                .load(url)
-                .fallback(R.drawable.outline_perm_identity_24)
-                .placeholder(R.drawable.outline_perm_identity_24)
-                .into(view)
-        }
-    }
 }

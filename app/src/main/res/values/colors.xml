@@ -7,7 +7,11 @@
 
     <color name="login_page_background">#FFFFFF</color>
     <color name="fragment_background">#FFFFFF</color>
+    <color name="fragment_contact_list_background">#F4F5F9</color>
+    <!-- Color used for views displaying list. i.e. RecyclerView -->
+    <color name="list_background">#FFFFFF</color>
 
     <color name="black_overlay">#66000000</color>
-    <color name="divider">#EEEEEE</color>
+    <color name="divider">#EEE</color>
+    <color name="icon_on_background">#888</color>
 </resources>
