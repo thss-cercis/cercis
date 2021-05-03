@@ -1,6 +1,5 @@
 package cn.edu.tsinghua.thss.cercis.module
 
-import android.content.Context
 import androidx.room.Room
 import cn.edu.tsinghua.thss.cercis.dao.*
 import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
@@ -8,34 +7,27 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
-class UserDatabaseModule {
+object UserDatabaseModule {
     @Provides
     @ActivityRetainedScoped
-    fun provideUserDatabase(
-        @ApplicationContext context: Context,
-        authRepository: AuthRepository,
-    ): UserDatabase =
+    fun provideUserDatabase(authRepository: AuthRepository) =
         Room.databaseBuilder(
-            context,
+            authRepository.context,
             UserDatabase::class.java,
-            "${authRepository.userId}_users"
+            authRepository.getUserDatabaseAbsolutePath("users")
         ).build()
 
     @Provides
     @ActivityRetainedScoped
-    fun provideMessageDatabase(
-        @ApplicationContext context: Context,
-        authRepository: AuthRepository,
-    ): MessageDatabase =
+    fun provideMessageDatabase(authRepository: AuthRepository) =
         Room.databaseBuilder(
-            context,
+            authRepository.context,
             MessageDatabase::class.java,
-            "${authRepository.userId}_messages"
+            authRepository.getUserDatabaseAbsolutePath("messages")
         ).build()
 
     @Provides

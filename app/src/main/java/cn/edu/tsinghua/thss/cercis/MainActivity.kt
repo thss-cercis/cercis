@@ -101,9 +101,9 @@ class MainActivity : AppCompatActivity() {
             R.navigation.activity_list_nav_graph,
             R.navigation.profile_nav_graph,
         )
-        if (navIds[0] == R.id.session_list_nav_graph) {
+        if (navIds[0] == R.id.chat_list_nav_graph) {
             Log.e(LOG_TAG, "test")
-            Log.e(LOG_TAG, "${navIds[0]} == ${R.id.session_list_nav_graph}")
+            Log.e(LOG_TAG, "${navIds[0]} == ${R.id.chat_list_nav_graph}")
         }
 
         val controller = bottomNavigation.setupWithNavController(

@@ -14,7 +14,11 @@ import cn.edu.tsinghua.thss.cercis.databinding.FragmentSignupBinding
 import cn.edu.tsinghua.thss.cercis.util.enableTransition
 import cn.edu.tsinghua.thss.cercis.viewmodel.SignUpViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class SignUpFragment1 : Fragment() {
     private val signUpViewModel: SignUpViewModel by viewModels()

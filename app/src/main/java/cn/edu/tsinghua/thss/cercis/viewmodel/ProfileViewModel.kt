@@ -40,7 +40,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun onLogoutClicked(view: View) {
+    fun onLogoutClicked(@Suppress("UNUSED_PARAMETER") view: View) {
         viewModelScope.launch(Dispatchers.IO) {
             httpService.logout()
             httpService.userDetail()

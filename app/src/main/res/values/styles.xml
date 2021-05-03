@@ -25,7 +25,7 @@
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>
-    
+
     <style name="TextAppearance.Cercis.Messages.Username" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">20sp</item>
     </style>

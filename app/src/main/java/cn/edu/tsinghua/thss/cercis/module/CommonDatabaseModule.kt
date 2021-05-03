@@ -2,7 +2,7 @@ package cn.edu.tsinghua.thss.cercis.module
 
 import android.content.Context
 import androidx.room.Room
-import cn.edu.tsinghua.thss.cercis.dao.*
+import cn.edu.tsinghua.thss.cercis.dao.CommonDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,14 +12,14 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class CommonDatabaseModule {
+object CommonDatabaseModule {
     @Provides
     @Singleton
     fun providesCommonDatabase(@ApplicationContext context: Context): CommonDatabase =
         Room.databaseBuilder(
             context,
             CommonDatabase::class.java,
-            "messages"
+            "common"
         ).build()
 
     @Provides

@@ -30,14 +30,14 @@
             app:shapeAppearanceOverlay="@style/roundedCorner" />
 
         <TextView
-            android:id="@+id/session_name"
+            android:id="@+id/chat_name"
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{viewModel.sessionName}"
+            android:text="@{viewModel.chatName}"
             android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
@@ -58,7 +58,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@+id/session_name" />
+            app:layout_constraintTop_toBottomOf="@+id/chat_name" />
 
         <TextView
             android:id="@+id/time_view"

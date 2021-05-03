@@ -25,48 +25,40 @@ class ChatListViewModel @Inject constructor(
         private val chatDao: ChatDao,
         private val authRepository: AuthRepository,
 ) : AndroidViewModel(application) {
-    val sessions = chatDao.loadAllChats().asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
-    val chatListItemList = Transformations.map(sessions) {
-        it?.map {
+    private val chats = chatDao.loadAllChats()
+        .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
+
+    val chatListItems = Transformations.map(chats) {
+        it?.map { item ->
             ChatListItemData(
-                sessionId = it.id,
+                chatId = item.id,
                 avatar = "",
-                sessionName = it.name,
-                latestMessage = generateTimeString(),
-                lastUpdate = "18:54",
+                chatName = item.name,
+                latestMessage = item.lastMessage,
+                lastUpdate = "00:00",
                 unreadCount = 20,
             )
         }
     }
 
-    fun generateTimeString(): String {
-        val pattern = "yyyy-MM-dd HH:mm:ss"
-        val simpleDateFormat = SimpleDateFormat(pattern)
-        val date: String = simpleDateFormat.format(Date())
-        return date
+    private fun generateTimeString(): String {
+        val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.US)
+        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        return dateFormat.format(Date())
     }
 
     fun onRefreshListener() {
         // TODO replace fake data with real ones
         viewModelScope.launch(Dispatchers.IO) {
-            chatDao.insertChat(*(1..20).map { it.toLong() }.map {
-                ChatListItemData(
-                    sessionId = it,
-                    avatar = "",
-                    sessionName = "${authRepository.userId} #$it",
-                    latestMessage = generateTimeString(),
-                    lastUpdate = "18:54",
-                    unreadCount = 20,
-                )
-            }.map {
+            chatDao.insertChat(*(1L..20L).map {
                 Chat(
-                    id = it.sessionId,
+                    id = it,
                     type = CHAT_SINGLE,
-                    name = it.sessionName,
-                    lastMessage = it.latestMessage
+                    name = "TEST CHAT $it",
+                    lastMessage = "${authRepository.userId} @ ${generateTimeString()}"
                 )
             }.toTypedArray())
+            Log.d(null, "Some junk data generated!")
         }
-        Log.d(null, "Some junk data generated!")
     }
 }

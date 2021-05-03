@@ -172,8 +172,8 @@ object AppModule {
             .build()
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideCercisHttpService(retrofit: Retrofit): CercisHttpService =
         retrofit.create(CercisHttpService::class.java)
 
@@ -187,7 +187,3 @@ annotation class AuthorizedLiveEvent
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class BaseUrl
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class CurrentUserId

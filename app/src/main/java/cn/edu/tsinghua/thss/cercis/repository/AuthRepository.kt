@@ -3,13 +3,12 @@ package cn.edu.tsinghua.thss.cercis.repository
 import android.content.Context
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepository @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext val context: Context
 ) {
     private val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
@@ -22,4 +21,7 @@ class AuthRepository @Inject constructor(
     val loggedIn get() = userId != -1L
 
     fun logout() { userId = -1L }
+
+    fun getUserDatabaseAbsolutePath(name: String) =
+        "${context.getDatabasePath(userId.toString()).absolutePath}/$name"
 }

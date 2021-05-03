@@ -17,7 +17,11 @@ import cn.edu.tsinghua.thss.cercis.util.doDetailNavigation
 import cn.edu.tsinghua.thss.cercis.viewmodel.ChatListItemData
 import cn.edu.tsinghua.thss.cercis.viewmodel.ChatListViewModel
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class ChatListFragment : Fragment() {
     private val chatListViewModel: ChatListViewModel by activityViewModels()
     inner class ChatListAdapter : Adapter<ChatListAdapter.ChatViewHolder>() {
@@ -50,15 +54,15 @@ class ChatListFragment : Fragment() {
         }
 
         override fun getItemId(position: Int): Long {
-            return chats[position].sessionId
+            return chats[position].chatId
         }
 
         fun getChatId(position: Int): ChatId {
-            return chats[position].sessionId
+            return chats[position].chatId
         }
 
         /**
-         * Replaces all data within the message session adapter, but does not notify the changes.
+         * Replaces all data within the message chat adapter, but does not notify the changes.
          *
          * To update the view, call [Adapter.notifyItemChanged] and other similar functions to inform
          * the data changes.
@@ -93,8 +97,8 @@ class ChatListFragment : Fragment() {
         // bind item click listener
         // TODO: use real data and somehow refactor this
         val adapter = ChatListAdapter()
-        binding.sessionListView.adapter = adapter
-        chatListViewModel.chatListItemList.observe(viewLifecycleOwner) {
+        binding.chatListView.adapter = adapter
+        chatListViewModel.chatListItems.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.replaceDataWithoutNotify(it)
                 adapter.notifyDataSetChanged()

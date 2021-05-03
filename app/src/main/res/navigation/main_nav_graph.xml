@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_graph"
-    app:startDestination="@id/sessionListFragment">
+    app:startDestination="@id/chatListFragment">
     <fragment
-        android:id="@+id/sessionListFragment"
-        android:name="cn.edu.tsinghua.thss.cercis.ui.chatList.SessionListFragment"
-        android:label="SessionListFragment" />
+        android:id="@+id/chatListFragment"
+        android:name="cn.edu.tsinghua.thss.cercis.ui.chatList.ChatListFragment"
+        android:label="ChatListFragment" />
     <fragment
         android:id="@+id/contactListFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.contacts.ContactListFragment"
@@ -17,8 +17,8 @@
         android:id="@+id/action_global_contactListFragment"
         app:destination="@id/contactListFragment" />
     <action
-        android:id="@+id/action_global_sessionListFragment"
-        app:destination="@id/sessionListFragment" />
+        android:id="@+id/action_global_chatListFragment"
+        app:destination="@id/chatListFragment" />
     <fragment
         android:id="@+id/activityFragment"
         android:name="cn.edu.tsinghua.thss.cercis.ui.activity.ActivityFragment"

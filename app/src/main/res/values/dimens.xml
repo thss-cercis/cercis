@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="session_list_avatar_size">56dp</dimen>
+    <dimen name="chat_list_avatar_size">56dp</dimen>
     <dimen name="chat_avatar_size">56dp</dimen>
     <dimen name="chat_no_avatar_padding_start">72dp</dimen>
 

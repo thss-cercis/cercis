@@ -19,7 +19,11 @@ import cn.edu.tsinghua.thss.cercis.entity.Message
 import cn.edu.tsinghua.thss.cercis.util.ChatId
 import cn.edu.tsinghua.thss.cercis.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
     private val chatViewModel: ChatViewModel by viewModels()
@@ -83,7 +87,7 @@ class ChatFragment : Fragment() {
 //            val msg = messageList[position]
 //            val vm = MessageViewModel(
 //                    message = msg,
-//                    user = sessionViewModel.
+//                    user = chatViewModel.
 //            )
 //            when (getItemViewType(position)) {
 //                OtherWithIcon -> (holder.binding as ChatItemOtherWithIconBinding).message = msg

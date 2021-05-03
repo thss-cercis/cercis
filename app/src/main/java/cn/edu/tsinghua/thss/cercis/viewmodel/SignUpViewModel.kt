@@ -80,7 +80,7 @@ class SignUpViewModel @Inject constructor(
     val passwordChecker = PasswordChecker(password)
     val canSubmit: LiveData<Boolean> = run {
         MediatorLiveData<Boolean>().apply {
-            val checkCanSubmit = { it: Any ->
+            val checkCanSubmit = { _: Any ->
                 value = !mobile.value.isNullOrEmpty()
                         && !verificationCode.value.isNullOrEmpty()
                         && !nickname.value.isNullOrEmpty()

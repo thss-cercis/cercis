@@ -42,6 +42,6 @@ interface ChatDao {
     @Query("SELECT * FROM chat WHERE id = :chatId")
     fun getChat(chatId: ChatId): Flow<Chat?>
 
-    @Query("SELECT * FROM chat")
+    @Query("SELECT * FROM chat ORDER BY id DESC")
     fun loadAllChats(): Flow<List<Chat>>
 }

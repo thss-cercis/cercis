@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.chatList.SessionListFragment">
+    tools:context=".ui.chatList.ChatListFragment">
 
     <data>
 
@@ -48,7 +48,7 @@
                 android:orientation="vertical">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/session_list_view"
+                    android:id="@+id/chat_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
