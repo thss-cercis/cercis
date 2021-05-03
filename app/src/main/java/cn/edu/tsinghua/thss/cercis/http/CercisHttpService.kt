@@ -1,15 +1,11 @@
 package cn.edu.tsinghua.thss.cercis.http
 
-import cn.edu.tsinghua.thss.cercis.entity.User
 import cn.edu.tsinghua.thss.cercis.entity.UserDetail
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.UserId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
+import retrofit2.http.*
 
 interface CercisHttpService {
     @POST("auth/login")
@@ -33,9 +29,8 @@ interface CercisHttpService {
     @PUT("user/password")
     suspend fun updateUserPassword(@Body request: UpdateUserPasswordRequest): EmptyNetworkResponse
 
-    // TODO: unwrap user field
     @GET("user/info")
-    suspend fun getUserProfile(): UserProfileResponse
+    suspend fun getUserProfile(@Query("id") userId: UserId): UserProfileResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -89,8 +84,17 @@ data class UpdateUserPasswordRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class UserProfileRequest(
-    @Json(name = "id") val userId: UserId
-)
+data class UserWrapper(
+    val user: UserProfile
+) {
+    @JsonClass(generateAdapter = true)
+    data class UserProfile(
+        val nickname: String,
+        val email: String,
+        val mobile: String,
+        val avatar: String,
+        val bio: String,
+    )
+}
 
-typealias UserProfileResponse = NetworkResponse<User>
+typealias UserProfileResponse = NetworkResponse<UserWrapper>

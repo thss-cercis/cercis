@@ -15,7 +15,6 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.squareup.moshi.Types
-import com.squareup.moshi.internal.Util
 import com.squareup.moshi.rawType
 import dagger.Module
 import dagger.Provides
@@ -48,13 +47,13 @@ object AppModule {
      */
     @Singleton
     @Provides
-    @AuthorizedLiveEvent
-    fun provideAuthorized() = MutableLiveData<Boolean?>(null)
+    @AuthorizedEvent
+    fun provideAuthorizedEvent() = MutableLiveData<Boolean?>(null)
 
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        @AuthorizedLiveEvent authorized: MutableLiveData<Boolean?>,
+        @AuthorizedEvent authorized: MutableLiveData<Boolean?>,
         @ApplicationContext context: Context,
     ): OkHttpClient {
         return OkHttpClient.Builder()
@@ -150,6 +149,7 @@ object AppModule {
                                 NetworkResponse.NetworkError(serverErrorMsg)
                             }
                         } catch (e: Exception) {
+                            Log.d(LOG_TAG, e.stackTraceToString())
                             NetworkResponse.NetworkError(serverErrorMsg)
                         }
                     }
@@ -183,7 +183,7 @@ object AppModule {
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class AuthorizedLiveEvent
+annotation class AuthorizedEvent
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

@@ -1,5 +1,3 @@
-package cn.edu.tsinghua.thss.cercis.util
-
 /*
  *  Copyright 2017 Google Inc.
  *
@@ -16,13 +14,14 @@ package cn.edu.tsinghua.thss.cercis.util
  *  limitations under the License.
  */
 
+package cn.edu.tsinghua.thss.cercis.util
+
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import java.util.concurrent.atomic.AtomicBoolean
-
 
 /**
  * A lifecycle-aware observable that sends only new updates after subscription, used for events like
@@ -49,7 +48,7 @@ class SingleLiveEvent<T> : MutableLiveData<T> {
         }
 
         // Observe the internal MutableLiveData
-        super.observe(owner, { t ->
+        super.observe(owner, { t: T? ->
             if (mPending.compareAndSet(true, false)) {
                 observer.onChanged(t)
             }

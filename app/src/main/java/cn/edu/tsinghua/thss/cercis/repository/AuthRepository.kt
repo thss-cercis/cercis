@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import cn.edu.tsinghua.thss.cercis.http.CercisHttpService
 import cn.edu.tsinghua.thss.cercis.http.LoginRequest
 import cn.edu.tsinghua.thss.cercis.http.SignUpRequest
-import cn.edu.tsinghua.thss.cercis.module.AuthorizedLiveEvent
+import cn.edu.tsinghua.thss.cercis.module.AuthorizedEvent
 import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.NetworkResponse
 import cn.edu.tsinghua.thss.cercis.util.UserId
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     @ApplicationContext val context: Context,
-    @AuthorizedLiveEvent val authorized: MutableLiveData<Boolean?>,
+    @AuthorizedEvent val authorized: MutableLiveData<Boolean?>,
     private val httpService: CercisHttpService,
 ) {
     private val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -33,7 +33,8 @@ class AuthRepository @Inject constructor(
         authorized.observeForever {
             if (it == false) {
                 currentUserId = -1L
-                postValue(false)
+                value = false
+                authorized.value = null
             }
         }
     }

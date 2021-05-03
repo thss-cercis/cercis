@@ -1,5 +1,6 @@
 package cn.edu.tsinghua.thss.cercis.viewmodel
 
+import android.util.Log
 import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Transformations
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import cn.edu.tsinghua.thss.cercis.R
 import cn.edu.tsinghua.thss.cercis.repository.AuthRepository
 import cn.edu.tsinghua.thss.cercis.repository.UserRepository
+import cn.edu.tsinghua.thss.cercis.util.LOG_TAG
 import cn.edu.tsinghua.thss.cercis.util.Resource
 import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
@@ -23,10 +25,10 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    userRepository: UserRepository,
+    private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val currentUserResource = userRepository.getUserDetail().asFlow()
+    private val currentUserResource = userRepository.getCurrentUserDetail().asFlow()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
     val currentUserLoading = Transformations.map(currentUserResource) {
         it?.let { it is Resource.Loading } ?: false
