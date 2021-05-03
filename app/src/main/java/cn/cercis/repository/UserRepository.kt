@@ -22,23 +22,7 @@ class UserRepository @Inject constructor(
     val userDao: UserDao,
     val loginHistoryDao: LoginHistoryDao,
 ) {
-    fun getCurrentUserDetail() = object : NetworkBoundResource<UserDetail, UserDetail>() {
-        override suspend fun saveNetworkResult(item: UserDetail) {
-            loginHistoryDao.insertLoginHistory(LoginHistory(userId = item.id, mobile = item.mobile))
-            userDao.saveUserDetail(item)
-        }
-
-        override fun shouldFetch(data: UserDetail?) = true
-
-        override fun loadFromDb() = userDao.loadUserDetail()
-
-        override suspend fun fetchFromNetwork(): NetworkResponse<UserDetail> {
-            // TODO handle user_id inconsistency, or just ignore it
-            return httpService.getUserDetail()
-        }
-    }
-
-    suspend fun getUserProfile(userId: UserId): UserProfileResponse {
+    suspend fun getUser(userId: UserId): UserProfileResponse {
         return httpService.getUserProfile(userId)
     }
 }

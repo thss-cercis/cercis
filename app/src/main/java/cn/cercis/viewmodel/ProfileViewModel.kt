@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import cn.cercis.R
 import cn.cercis.repository.AuthRepository
+import cn.cercis.repository.ProfileRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.Resource
 import com.bumptech.glide.Glide
@@ -23,10 +24,10 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val profileRepository: ProfileRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val currentUserResource = userRepository.getCurrentUserDetail().asFlow()
+    private val currentUserResource = profileRepository.getCurrentUserDetail().asFlow()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
     val currentUserLoading = Transformations.map(currentUserResource) {
         it?.let { it is Resource.Loading } ?: false
