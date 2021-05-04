@@ -3,13 +3,14 @@ package cn.cercis.repository
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import cn.cercis.common.LOG_TAG
+import cn.cercis.common.NO_USER
+import cn.cercis.common.UserId
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.LoginRequest
 import cn.cercis.http.SignUpRequest
 import cn.cercis.module.AuthorizedEvent
-import cn.cercis.util.LOG_TAG
 import cn.cercis.util.NetworkResponse
-import cn.cercis.util.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,16 +24,16 @@ class AuthRepository @Inject constructor(
     private val sharedPreferences = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
     var currentUserId: UserId
-        get() = sharedPreferences.getLong("user_id", -1L)
+        get() = sharedPreferences.getLong("user_id", NO_USER)
         set(value) {
             sharedPreferences.edit().putLong("user_id", value).apply()
         }
 
-    val loggedIn = MutableLiveData(currentUserId != -1L).apply {
+    val loggedIn = MutableLiveData(currentUserId != NO_USER).apply {
         Log.d(LOG_TAG, "${authorized.hashCode()}")
         authorized.observeForever {
             if (it == false) {
-                currentUserId = -1L
+                currentUserId = NO_USER
                 value = false
                 authorized.value = null
             }
@@ -55,7 +56,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun logout() = httpService.logout().also {
         if (it is NetworkResponse.Success) {
-            currentUserId = -1L
+            currentUserId = NO_USER
             loggedIn.postValue(false)
         }
     }

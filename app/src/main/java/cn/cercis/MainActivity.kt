@@ -12,12 +12,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityMainBinding
 import cn.cercis.ui.activity.ActivityFragment
 import cn.cercis.ui.chatList.ChatListFragment
 import cn.cercis.ui.contacts.ContactListFragment
 import cn.cercis.ui.profile.ProfileFragment
-import cn.cercis.util.LOG_TAG
 import cn.cercis.util.setupWithNavController
 import cn.cercis.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint

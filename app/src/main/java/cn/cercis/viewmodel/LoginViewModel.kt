@@ -3,10 +3,11 @@ package cn.cercis.viewmodel
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
+import cn.cercis.common.LOG_TAG
+import cn.cercis.common.NO_USER
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.http.LoginRequest
 import cn.cercis.repository.AuthRepository
-import cn.cercis.util.LOG_TAG
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.PairLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +26,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     val loginError = MutableLiveData<String?>(null)
     val userId = MutableLiveData(authRepository.currentUserId.let {
-        if (it == -1L) "" else it.toString()
+        if (it == NO_USER) "" else it.toString()
     })
     val password = MutableLiveData("")
     private val isInputValid = Transformations.map(PairLiveData(userId, password)) {
@@ -36,7 +37,7 @@ class LoginViewModel @Inject constructor(
     val canSubmitLogin = Transformations.map(PairLiveData(isInputValid, isBusyLogin)) {
         it.first == true && it.second == false
     }
-    val currentUserList = loginHistoryDao.loadAllLoginHistory()
+    val currentUserList = loginHistoryDao.loadLoginHistoryList()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
 
     // used by AuthActivity

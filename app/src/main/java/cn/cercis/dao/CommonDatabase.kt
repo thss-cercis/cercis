@@ -16,8 +16,8 @@ abstract class CommonDatabase : RoomDatabase() {
 @Dao
 interface LoginHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertLoginHistory(loginHistory: LoginHistory)
+    fun saveLoginHistory(loginHistory: LoginHistory)
 
     @Query("SELECT * FROM loginHistory")
-    fun loadAllLoginHistory(): Flow<List<LoginHistory>>
+    fun loadLoginHistoryList(): Flow<List<LoginHistory>>
 }

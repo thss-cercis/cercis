@@ -1,9 +1,9 @@
 package cn.cercis.service
 
-import cn.cercis.util.ChatId
-import cn.cercis.util.MessageId
-import cn.cercis.util.SerialId
-import cn.cercis.util.UserId
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
+import cn.cercis.common.SerialId
+import cn.cercis.common.UserId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket
@@ -42,19 +42,19 @@ data class InitMessageFromServer(
 
 @JsonClass(generateAdapter = true)
 data class InitMessageFromServerFriend(
-        @Json(name = "user_id") val userId: UserId,
-        @Json(name = "chat_id") val chatId: ChatId,
-        @Json(name = "alias") val alias: String,
+    @Json(name = "user_id") val userId: UserId,
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "alias") val alias: String,
 )
 
 @JsonClass(generateAdapter = true)
 data class InitMessageFromServerGroup(
-        @Json(name = "id") val chatId: ChatId,
+    @Json(name = "id") val chatId: ChatId,
 )
 
 @JsonClass(generateAdapter = true)
 data class InitMessageFromClient(
-        @Json(name = "latest") val latestMessageId: MessageId,
+    @Json(name = "latest") val latestMessageId: MessageId,
 )
 
 @JsonClass(generateAdapter = true)
@@ -65,31 +65,31 @@ data class ChatsUpdateMessage(
 
 @JsonClass(generateAdapter = true)
 data class ChatsUpdateMessageChat(
-        @Json(name = "id") val chatId: ChatId,
-        @Json(name = "messages") val messages: List<ChatUpdateMessage>,
+    @Json(name = "id") val chatId: ChatId,
+    @Json(name = "messages") val messages: List<ChatUpdateMessage>,
 )
 
 @JsonClass(generateAdapter = true)
 data class ChatUpdateMessage(
-        @Json(name = "id") val messageId: MessageId,
-        @Json(name = "type") val type: String,
-        @Json(name = "content") val content: String,
+    @Json(name = "id") val messageId: MessageId,
+    @Json(name = "type") val type: String,
+    @Json(name = "content") val content: String,
 )
 
 @JsonClass(generateAdapter = true)
 data class SendMessageRequestMessage(
-        /**
+    /**
          * Client generated serial number.
          * Used to receive corresponding response.
          */
         @Json(name = "serial") val serial: SerialId,
-        @Json(name = "chat_id") val chatId: ChatId,
-        @Json(name = "type") val type: String,
-        @Json(name = "content") val content: String,
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "type") val type: String,
+    @Json(name = "content") val content: String,
 )
 
 @JsonClass(generateAdapter = true)
 data class SendMessageResponseMessage(
-        @Json(name = "serial") val serial: SerialId,
-        @Json(name = "message_id") val messageId: MessageId,
+    @Json(name = "serial") val serial: SerialId,
+    @Json(name = "message_id") val messageId: MessageId,
 )

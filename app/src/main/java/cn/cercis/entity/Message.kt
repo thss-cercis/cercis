@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import cn.cercis.util.ChatId
-import cn.cercis.util.MessageId
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -20,10 +20,10 @@ import com.squareup.moshi.JsonClass
 )
 @JsonClass(generateAdapter = true)
 data class Message(
-        @PrimaryKey
+    @PrimaryKey
         @Json(name = "id") val id: MessageId,
-        @Json(name = "chat_id") val chatId: ChatId,
-        @Json(name = "type") val type: String,
-        @Json(name = "content") val content: String,
-        @Json(name = "sender_id") var senderId: Long,
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "type") val type: String,
+    @Json(name = "content") val content: String,
+    @Json(name = "sender_id") var senderId: Long,
 )

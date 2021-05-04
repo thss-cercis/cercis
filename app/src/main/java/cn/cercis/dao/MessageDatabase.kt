@@ -1,10 +1,10 @@
 package cn.cercis.dao
 
 import androidx.room.*
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
 import cn.cercis.entity.Chat
 import cn.cercis.entity.Message
-import cn.cercis.util.ChatId
-import cn.cercis.util.MessageId
 import kotlinx.coroutines.flow.Flow
 
 @Database(entities = [Message::class, Chat::class], version = 1, exportSchema = false)

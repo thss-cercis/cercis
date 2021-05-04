@@ -1,0 +1,199 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 536870912 bytes for Failed to commit area from 0x0000000601200000 to 0x0000000621200000 of length 536870912.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (./src/hotspot/os/windows/os_windows.cpp:3303), pid=5328, tid=27396
+#
+# JRE version:  (11.0.8+10) (build )
+# Java VM: OpenJDK 64-Bit Server VM (11.0.8+10-b944.6842174, mixed mode, sharing, tiered, compressed oops, g1 gc, windows-amd64)
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: org.jetbrains.kotlin.cli.jvm.K2JVMCompiler @C:\Users\Rhacoal\source\android\cercis\app\build\20210430_6480682387220563213.compiler.options
+
+Host: AMD Ryzen 5 2600X Six-Core Processor           , 12 cores, 31G,  Windows 10 , 64 bit Build 19041 (10.0.19041.928)
+Time: Fri Apr 30 19:16:10 2021 中国标准时间 elapsed time: 0 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000029b9143b000):  JavaThread "Unknown thread" [_thread_in_vm, id=27396, stack(0x000000a020e00000,0x000000a020f00000)]
+
+Stack: [0x000000a020e00000,0x000000a020f00000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x5de50a]
+V  [jvm.dll+0x7122f5]
+V  [jvm.dll+0x71384d]
+V  [jvm.dll+0x713f03]
+V  [jvm.dll+0x23e728]
+V  [jvm.dll+0x5db9a4]
+V  [jvm.dll+0x5d0ae5]
+V  [jvm.dll+0x2fb20b]
+V  [jvm.dll+0x2fb17a]
+V  [jvm.dll+0x2fb052]
+V  [jvm.dll+0x2fff16]
+V  [jvm.dll+0x348743]
+V  [jvm.dll+0x348e46]
+V  [jvm.dll+0x348843]
+V  [jvm.dll+0x2d5d68]
+V  [jvm.dll+0x2d6f07]
+V  [jvm.dll+0x6f11f7]
+V  [jvm.dll+0x6f29ec]
+V  [jvm.dll+0x355cb9]
+V  [jvm.dll+0x6d4ade]
+V  [jvm.dll+0x3bdfe3]
+V  [jvm.dll+0x3c0201]
+C  [jli.dll+0x5373]
+C  [ucrtbase.dll+0x21bb2]
+C  [KERNEL32.DLL+0x17034]
+C  [ntdll.dll+0x52651]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x0000029b8eff9980, length=0, elements={
+}
+
+Java Threads: ( => current thread )
+
+Other Threads:
+  0x0000029b91452000 GCTaskThread "GC Thread#0" [stack: 0x000000a020f00000,0x000000a021000000] [id=32264]
+  0x0000029b914ba000 ConcurrentGCThread "G1 Main Marker" [stack: 0x000000a021000000,0x000000a021100000] [id=13524]
+  0x0000029b914bc800 ConcurrentGCThread "G1 Conc#0" [stack: 0x000000a021100000,0x000000a021200000] [id=36072]
+
+[error occurred during error reporting (printing all threads), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007ffef34c6357]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x0000029b91436b20] Heap_lock - owner thread: 0x0000029b9143b000
+
+Heap address: 0x0000000601200000, size: 8174 MB, Compressed Oops mode: Non-zero based: 0x0000000601200000
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 0
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (1 events):
+Event: 0.011 Loaded shared library C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\zip.dll
+
+
+Dynamic libraries:
+0x00007ff747160000 - 0x00007ff74716a000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\java.exe
+0x00007fff81770000 - 0x00007fff81965000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007fff80920000 - 0x00007fff809dd000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007fff7f2e0000 - 0x00007fff7f5a8000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007fff7eeb0000 - 0x00007fff7efb0000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007fff38730000 - 0x00007fff38749000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\jli.dll
+0x00007fff365b0000 - 0x00007fff365c7000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\VCRUNTIME140.dll
+0x00007fff7fc50000 - 0x00007fff7fdf0000 	C:\WINDOWS\System32\USER32.dll
+0x00007fff6b180000 - 0x00007fff6b41a000 	C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.19041.844_none_ca00b6081b84eb1d\COMCTL32.dll
+0x00007fff7f720000 - 0x00007fff7f742000 	C:\WINDOWS\System32\win32u.dll
+0x00007fff81690000 - 0x00007fff8172e000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007fff7f7d0000 - 0x00007fff7f7fa000 	C:\WINDOWS\System32\GDI32.dll
+0x00007fff7f610000 - 0x00007fff7f71b000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007fff7efb0000 - 0x00007fff7f04d000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007fff81260000 - 0x00007fff81290000 	C:\WINDOWS\System32\IMM32.DLL
+0x00007fff24870000 - 0x00007fff2489b000 	C:\Program Files\MacType\MacType64.dll
+0x00007fff7f800000 - 0x00007fff7f8ac000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007fff81290000 - 0x00007fff8132b000 	C:\WINDOWS\System32\sechost.dll
+0x00007fff7f990000 - 0x00007fff7fabb000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007fff25f00000 - 0x00007fff25f56000 	C:\Program Files\MacType\Easyhk64.dll
+0x00007fff24610000 - 0x00007fff2471e000 	C:\Program Files\MacType\MacType64.Core.dll
+0x00007fff7b450000 - 0x00007fff7ba10000 	C:\WINDOWS\SYSTEM32\d2d1.dll
+0x00007fff73d80000 - 0x00007fff73fff000 	C:\WINDOWS\SYSTEM32\dwrite.dll
+0x0000029b8f2d0000 - 0x0000029b8f350000 	C:\WINDOWS\System32\bcryptPrimitives.dll
+0x00007fff185d0000 - 0x00007fff1866d000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\msvcp140.dll
+0x00007ffef31e0000 - 0x00007ffef3c9c000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\server\jvm.dll
+0x00007fff80a40000 - 0x00007fff80a48000 	C:\WINDOWS\System32\PSAPI.DLL
+0x00007fff5efa0000 - 0x00007fff5efa9000 	C:\WINDOWS\SYSTEM32\WSOCK32.dll
+0x00007fff77f30000 - 0x00007fff77f3a000 	C:\WINDOWS\SYSTEM32\VERSION.dll
+0x00007fff74000000 - 0x00007fff74027000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007fff80780000 - 0x00007fff807eb000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007fff7cd30000 - 0x00007fff7cd42000 	C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+0x00007fff73b70000 - 0x00007fff73b81000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\verify.dll
+0x00007fff77320000 - 0x00007fff77504000 	C:\WINDOWS\SYSTEM32\DBGHELP.DLL
+0x00007fff65600000 - 0x00007fff6562c000 	C:\WINDOWS\SYSTEM32\dbgcore.DLL
+0x00007fff57d80000 - 0x00007fff57da9000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\java.dll
+0x00007fff79040000 - 0x00007fff7904b000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\jimage.dll
+0x00007fff5f2b0000 - 0x00007fff5f2c8000 	C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\zip.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin;C:\WINDOWS\SYSTEM32;C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.19041.844_none_ca00b6081b84eb1d;C:\Program Files\MacType;C:\Users\Rhacoal\AppData\Local\JetBrains\Toolbox\apps\AndroidStudio\ch-0\202.7231092\jre\bin\server
+
+VM Arguments:
+java_command: org.jetbrains.kotlin.cli.jvm.K2JVMCompiler @C:\Users\Rhacoal\source\android\cercis\app\build\20210430_6480682387220563213.compiler.options
+java_class_path (initial): C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-compiler-embeddable\1.4.30\320bc62a2dfa19a24bc1613894ae0eabc909052c\kotlin-compiler-embeddable-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-reflect\1.4.30\a9116fbe28a0514671787df95133f28e65fdac25\kotlin-reflect-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\1.4.30\d10d1e10f47006ee08162dde039e38ac487de4ac\kotlin-stdlib-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-script-runtime\1.4.30\b9c2a1fab9217623fc0fbadf6190e77eed6f054d\kotlin-script-runtime-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-daemon-embeddable\1.4.30\bc024798c5378570ded42ffe3db82ca8ac86dabc\kotlin-daemon-embeddable-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.intellij.deps\trove4j\1.0.20181211\216c2e14b070f334479d800987affe4054cd563f\trove4j-1.0.20181211.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib-common\1.4.30\bb9a3173350f55732416ee27956ea8f9b81f4dbb\kotlin-stdlib-common-1.4.30.jar;C:\Users\Rhacoal\.gradle\caches\modules-2\files-2.1\org.jetbrains\annotations\13.0\919f0dfe192fb4e063e7dacadee7f8bb9a2672a9\annotations-13.0.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 4                                         {product} {ergonomic}
+     uint ConcGCThreads                            = 3                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 10                                        {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 2097152                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 536870912                                 {product} {ergonomic}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 8571060224                                {product} {ergonomic}
+   size_t MinHeapDeltaBytes                        = 2097152                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 5836300                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122910970                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122910970                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+     bool UseCompressedClassPointers               = true                                 {lp64_product} {ergonomic}
+     bool UseCompressedOops                        = true                                 {lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags
+ #1: stderr all=off uptime,level,tags
+
+Environment Variables:
+PATH=C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\VulkanSDK\1.2.148.1\Bin;C:\Program Files\ImageMagick-7.0.10-Q16-HDRI;C:\ProgramData\DockerDesktop\version-bin;C:\Program Files\Docker\Docker\Resources\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\libnvvp;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.3.0\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\dotnet\;C:\Program Files\Calibre2\;C:\Program Files\Meson\;C:\Program Files\LLVM\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Users\Rhacoal\.pyenv\pyenv-win\bin;C:\Users\Rhacoal\.pyenv\pyenv-win\shims;C:\Users\Rhacoal\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Rhacoal\AppData\Local\Programs\Python\Python37\;C:\Users\Rhacoal\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Bandizip\;C:\Users\Rhacoal\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Rhacoal\AppData\Roaming\npm;C:\Users\Rhacoal\.dotnet\tools;C:\texlive\2020\bin\win32;C:\Tools\path;
+USERNAME=Rhacoal
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10 , 64 bit Build 19041 (10.0.19041.928)
+OS uptime: 6 days 0:20 hours
+
+CPU:total 12 (initial active 12) (12 cores per cpu, 2 threads per core) family 23 model 8 stepping 2, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, mmxext, 3dnowpref, lzcnt, sse4a, ht, tsc, tscinvbit, tscinv, bmi1, bmi2, adx, sha, fma
+
+Memory: 4k page, system-wide physical 32694M (9793M free)
+TotalPageFile size 49078M (AvailPageFile size 344M)
+current process WorkingSet (physical memory assigned to process): 12M, peak: 12M
+current process commit charge ("private bytes"): 66M, peak: 578M
+
+vm_info: OpenJDK 64-Bit Server VM (11.0.8+10-b944.6842174) for windows-amd64 JRE (11.0.8+10-b944.6842174), built on Sep 19 2020 01:11:42 by "builder" with MS VC++ 14.0 (VS2015)
+
+END.

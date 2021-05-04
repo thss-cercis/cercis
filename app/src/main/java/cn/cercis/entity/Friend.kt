@@ -2,33 +2,30 @@ package cn.cercis.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import cn.cercis.util.ApplyId
-import cn.cercis.util.CommonId
-import cn.cercis.util.Timestamp
-import cn.cercis.util.UserId
-import com.facebook.stetho.json.annotation.JsonValue
+import cn.cercis.common.ApplyId
+import cn.cercis.common.CommonId
+import cn.cercis.common.Timestamp
+import cn.cercis.common.UserId
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import com.squareup.moshi.JsonQualifier
 
 @Entity
 data class FriendEntry(
-    @PrimaryKey val id: CommonId,
+    @PrimaryKey(autoGenerate = true) val id: CommonId = 0,
     @ColumnInfo(index = true) val friendUserId: UserId,
     val remark: String,
-    @Json(name = "alias") val displayName: String,
+    val displayName: String,
 )
 
 @Entity
 @JsonClass(generateAdapter = true)
 data class FriendRequest(
     @PrimaryKey @Json(name = "apply_id") val applyId: ApplyId,
-    val fromId: UserId,
-    val toId: UserId,
+    @Json(name = "from_id") val fromId: UserId,
+    @Json(name = "to_id") val toId: UserId,
+    @Json(name = "alias") val displayName: String?,
     val state: Int,
-    @Json(name = "alias") val requestedDisplayName: String,
     val remark: String,
     @Json(name = "created_at") val createdAt: Timestamp,
 ) {

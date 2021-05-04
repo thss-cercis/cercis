@@ -3,15 +3,16 @@ package cn.cercis.viewmodel
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.cercis.Constants
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
+import cn.cercis.common.NO_USER
+import cn.cercis.common.UserId
 import cn.cercis.entity.Message
 import cn.cercis.entity.User
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
-import cn.cercis.util.ChatId
-import cn.cercis.util.MessageId
 import cn.cercis.util.Resource
-import cn.cercis.util.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,12 +24,12 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-        savedStateHandle: SavedStateHandle,
-        private val messageRepository: MessageRepository,
-        private val authRepository: AuthRepository,
-        private val userRepository: UserRepository,
+    savedStateHandle: SavedStateHandle,
+    private val messageRepository: MessageRepository,
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel(), LifecycleObserver {
-    private val chatId = savedStateHandle.get<Long>("chatId") ?: -1
+    private val chatId = savedStateHandle.get<Long>("chatId") ?: NO_USER
     private val chatParticipants = messageRepository.getChatParticipants(chatId)
     val chat = messageRepository.getChat(chatId)
 
@@ -104,9 +105,9 @@ class ChatViewModel @Inject constructor(
     private fun loadMorePreviousMessage(count: Long) {
         preventDoubleSubmitRun {
             val newData = messageRepository.getChatMessagesNewerThanWithPreviousMessages(
-                    chatId,
-                    currentIdStart,
-                    Constants.REFRESH_COUNT,
+                chatId,
+                currentIdStart,
+                Constants.REFRESH_COUNT,
             )
             messageLoading = false
         }

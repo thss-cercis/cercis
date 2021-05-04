@@ -20,7 +20,6 @@ package cn.cercis.util
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.util.SparseArray
 import android.util.SparseIntArray
 import androidx.core.util.set

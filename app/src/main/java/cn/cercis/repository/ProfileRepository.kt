@@ -7,11 +7,12 @@ import cn.cercis.entity.UserDetail
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.http.NetworkBoundResource
-import cn.cercis.util.ChatId
+import cn.cercis.http.UpdateUserDetailRequest
 import cn.cercis.util.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @FlowPreview
@@ -22,28 +23,34 @@ class ProfileRepository @Inject constructor(
     val userDao: UserDao,
     val loginHistoryDao: LoginHistoryDao,
 ) {
-    fun getCurrentUserDetail() = object : NetworkBoundResource<UserDetail, UserDetail>() {
-        override suspend fun saveNetworkResult(item: UserDetail) {
-            loginHistoryDao.insertLoginHistory(LoginHistory(userId = item.id, mobile = item.mobile))
-            userDao.saveUserDetail(item)
-        }
-
-        override fun shouldFetch(data: UserDetail?) = true
-
-        override fun loadFromDb() = userDao.loadUserDetail()
-
+    fun getCurrentUserDetail() = object : NetworkBoundResource<UserDetail>() {
         override suspend fun fetchFromNetwork(): NetworkResponse<UserDetail> {
             // TODO handle user_id inconsistency, or just ignore it
             return httpService.getUserDetail()
         }
+
+        override suspend fun saveNetworkResult(data: UserDetail) {
+            loginHistoryDao.saveLoginHistory(LoginHistory(userId = data.id, mobile = data.mobile))
+            userDao.saveUserDetail(data)
+        }
+
+        override fun loadFromDb(): Flow<UserDetail?> {
+            return userDao.loadUserDetail()
+        }
     }
 
-    fun updateCurrentUserDetail(
+    suspend fun updateCurrentUserDetail(
         nickname: String? = null,
         avatar: String? = null,
         bio: String? = null,
         email: String? = null,
     ): EmptyNetworkResponse {
-        TODO("httpApi")
+        val request = UpdateUserDetailRequest(
+            nickname = nickname,
+            email = email,
+            avatar = avatar,
+            bio = bio,
+        )
+        return httpService.updateUserDetail(request)
     }
 }

@@ -6,9 +6,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.os.IBinder
 import android.util.Log
 import cn.cercis.Constants.WSS_MESSAGES
+import cn.cercis.common.*
 import cn.cercis.entity.Chat
 import cn.cercis.repository.MessageRepository
-import cn.cercis.util.LOG_TAG
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.lifecycle.android.AndroidLifecycle

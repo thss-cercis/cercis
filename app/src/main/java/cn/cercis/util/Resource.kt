@@ -18,6 +18,16 @@ sealed class NetworkResponse<out T> {
      * Failed to connect to server due to possible network issues.
      */
     data class NetworkError<out T>(val message: String) : NetworkResponse<T>()
+
+    fun <ToType> use(block: T.() -> ToType) : NetworkResponse<ToType> {
+        return when (this) {
+            is Success -> Success(data.block())
+            is Reject -> Reject(code, message)
+            is NetworkError -> NetworkError(message)
+        }
+    }
+
+    fun <ToType> convert(transform: (T) -> ToType) = use(transform)
 }
 
 /**

@@ -3,6 +3,8 @@ package cn.cercis.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
 import cn.cercis.dao.ChatDao
 import cn.cercis.dao.MessageDao
 import cn.cercis.entity.Chat
@@ -10,8 +12,6 @@ import cn.cercis.entity.ChatType
 import cn.cercis.entity.Message
 import cn.cercis.entity.User
 import cn.cercis.service.MessageService
-import cn.cercis.util.ChatId
-import cn.cercis.util.MessageId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow

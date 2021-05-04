@@ -1,4 +1,4 @@
-package cn.cercis.util
+package cn.cercis.common
 
 typealias CommonId = Long
 typealias UserId = Long
