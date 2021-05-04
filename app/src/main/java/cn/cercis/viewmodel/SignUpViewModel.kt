@@ -6,13 +6,13 @@ import android.view.View
 import androidx.lifecycle.*
 import cn.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.cercis.R
+import cn.cercis.common.*
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.MobileSignUpRequest
 import cn.cercis.http.SignUpRequest
 import cn.cercis.repository.AuthRepository
-import cn.cercis.util.LOG_TAG
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.PairLiveData
 import cn.cercis.util.PasswordChecker
@@ -185,7 +185,7 @@ class SignUpViewModel @Inject constructor(
 //                        nickname = nickname,
 //                        avatar = "",
                     )
-                    loginHistoryDao.insertLoginHistory(loginHistory)
+                    loginHistoryDao.saveLoginHistory(loginHistory)
                     navAction.postValue(NavAction.FRAGMENT_SUCCESS to userId)
                 }
                 is NetworkResponse.NetworkError -> signUpError.postValue(response.message)

@@ -11,12 +11,12 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import cn.cercis.R
+import cn.cercis.common.ChatId
 import cn.cercis.databinding.*
 import cn.cercis.entity.Chat
 import cn.cercis.entity.ChatType.CHAT_MULTIPLE
 import cn.cercis.entity.ChatType.CHAT_SINGLE
 import cn.cercis.entity.Message
-import cn.cercis.util.ChatId
 import cn.cercis.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

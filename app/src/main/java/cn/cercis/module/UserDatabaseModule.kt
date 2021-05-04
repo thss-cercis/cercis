@@ -23,23 +23,35 @@ object UserDatabaseModule {
 
     @Provides
     @ActivityRetainedScoped
+    fun provideFriendDatabase(authRepository: AuthRepository) =
+            Room.databaseBuilder(
+                    authRepository.context,
+                    FriendDatabase::class.java,
+                    authRepository.getUserDatabaseAbsolutePath("friends")
+            ).build()
+
+    @Provides
+    @ActivityRetainedScoped
     fun provideMessageDatabase(authRepository: AuthRepository) =
-        Room.databaseBuilder(
-            authRepository.context,
-            MessageDatabase::class.java,
-            authRepository.getUserDatabaseAbsolutePath("messages")
-        ).build()
+            Room.databaseBuilder(
+                    authRepository.context,
+                    MessageDatabase::class.java,
+                    authRepository.getUserDatabaseAbsolutePath("messages")
+            ).build()
 
     @Provides
     @ActivityRetainedScoped
-    fun providesUserDao(userDatabase: UserDatabase): UserDao = userDatabase.userDao()
+    fun providesUserDao(userDatabase: UserDatabase) = userDatabase.userDao()
 
     @Provides
     @ActivityRetainedScoped
-    fun providesMessageDao(messageDatabase: MessageDatabase): MessageDao =
-        messageDatabase.MessageDao()
+    fun providesFriendDao(friendDatabase: FriendDatabase) = friendDatabase.friendDao()
 
     @Provides
     @ActivityRetainedScoped
-    fun providesChatDao(messageDatabase: MessageDatabase): ChatDao = messageDatabase.ChatDao()
+    fun providesMessageDao(messageDatabase: MessageDatabase) = messageDatabase.MessageDao()
+
+    @Provides
+    @ActivityRetainedScoped
+    fun providesChatDao(messageDatabase: MessageDatabase) = messageDatabase.ChatDao()
 }

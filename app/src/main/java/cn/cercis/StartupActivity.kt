@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import cn.cercis.util.LOG_TAG
+import cn.cercis.common.LOG_TAG
 import cn.cercis.util.PreferencesHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

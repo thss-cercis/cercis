@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
+import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentSplashBinding
-import cn.cercis.util.LOG_TAG
 import cn.cercis.viewmodel.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

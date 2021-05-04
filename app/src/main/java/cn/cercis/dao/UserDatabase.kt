@@ -1,14 +1,13 @@
 package cn.cercis.dao
 
 import androidx.room.*
-import cn.cercis.entity.FriendEntry
+import cn.cercis.common.UserId
 import cn.cercis.entity.User
 import cn.cercis.entity.UserDetail
-import cn.cercis.util.UserId
 import kotlinx.coroutines.flow.Flow
 
 @Database(
-    entities = [User::class, FriendEntry::class, UserDetail::class],
+    entities = [User::class, UserDetail::class],
     version = 1,
     exportSchema = false
 )
@@ -19,26 +18,17 @@ abstract class UserDatabase : RoomDatabase() {
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUser(vararg users: User)
+    fun saveUser(vararg users: User)
 
-    fun insertUserWithTimestamp(vararg users: User) {
-        insertUser(*((users.map { it.copy(updated = System.currentTimeMillis()) }.toTypedArray())))
+    fun saveUserList(users: List<User>) {
+        saveUser(*users.toTypedArray())
     }
-
-    @Query("SELECT * FROM user")
-    fun loadAllUsers(): Flow<List<User>>
 
     @Query("SELECT * FROM user WHERE id = :userId")
     fun loadUser(userId: UserId): Flow<User>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertFriend(vararg friends: FriendEntry)
-
-    @Delete
-    fun deleteFriend(vararg friends: FriendEntry)
-
-    @Query("SELECT * FROM friendEntry")
-    fun loadAllFriendEntries(): Flow<Array<FriendEntry>>
+    @Query("SELECT * FROM user")
+    fun loadUserList(): Flow<List<User>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveUserDetail(userDetail: UserDetail)

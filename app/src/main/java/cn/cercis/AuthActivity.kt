@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityAuthBinding
-import cn.cercis.util.LOG_TAG
 import cn.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

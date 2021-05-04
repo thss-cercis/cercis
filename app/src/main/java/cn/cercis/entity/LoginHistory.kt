@@ -2,7 +2,7 @@ package cn.cercis.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import cn.cercis.util.UserId
+import cn.cercis.common.UserId
 
 @Entity
 data class LoginHistory(

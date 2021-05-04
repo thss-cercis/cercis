@@ -3,13 +3,13 @@ package cn.cercis.module
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import cn.cercis.Constants
+import cn.cercis.Constants.URL_BASE
 import cn.cercis.R
+import cn.cercis.common.*
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyPayload
 import cn.cercis.http.PayloadResponseBody
 import cn.cercis.util.HttpStatusCode
-import cn.cercis.util.LOG_TAG
 import cn.cercis.util.NetworkResponse
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -36,14 +36,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @BaseUrl
-    fun provideBaseUrl() = Constants.URL_BASE
-
     /**
      * This LiveData is set to false when 401 received in [provideOkHttpClient].
-     * It sets [cn.edu.tsinghua.thss.cercis.viewmodel.LoginViewModel.loggedIn]
+     * It sets [cn.cercis.repository.AuthRepository.loggedIn]
      */
     @Singleton
     @Provides
@@ -103,7 +98,6 @@ object AppModule {
     @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        @BaseUrl baseUrl: String,
         @ApplicationContext context: Context,
     ): Retrofit {
         return Retrofit.Builder()
@@ -169,7 +163,7 @@ object AppModule {
                     )
                 }
             })
-            .baseUrl(baseUrl)
+            .baseUrl(URL_BASE)
             .build()
     }
 
@@ -184,7 +178,3 @@ object AppModule {
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthorizedEvent
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class BaseUrl

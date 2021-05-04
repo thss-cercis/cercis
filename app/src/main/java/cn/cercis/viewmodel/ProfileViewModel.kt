@@ -1,18 +1,13 @@
 package cn.cercis.viewmodel
 
 import android.view.View
-import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import cn.cercis.R
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
-import cn.cercis.repository.UserRepository
 import cn.cercis.util.Resource
-import com.bumptech.glide.Glide
-import com.google.android.material.imageview.ShapeableImageView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

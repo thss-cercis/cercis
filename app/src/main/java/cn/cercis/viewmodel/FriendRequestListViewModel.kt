@@ -2,14 +2,17 @@ package cn.cercis.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
+import cn.cercis.common.ApplyId
+import cn.cercis.common.LOG_TAG
+import cn.cercis.common.Timestamp
+import cn.cercis.common.UserId
 import cn.cercis.entity.FriendRequest
 import cn.cercis.entity.FriendRequest.Companion.STATE_PENDING
 import cn.cercis.entity.User
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
-import cn.cercis.util.*
+import cn.cercis.util.Resource
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.concurrent.atomic.AtomicInteger
@@ -52,7 +55,7 @@ class FriendRequestListViewModel @Inject constructor(
                         fromId = it,
                         toId = it,
                         state = 0,
-                        requestedDisplayName = "$it",
+                        displayName = "$it",
                         remark = "$it",
                         createdAt = it,
                     )
@@ -88,7 +91,7 @@ class FriendRequestListViewModel @Inject constructor(
                     fromId = friendEntry.fromId,
                     toId = friendEntry.toId,
                     state = friendEntry.state,
-                    requestedDisplayName = friendEntry.requestedDisplayName,
+                    requestedDisplayName = friendEntry.displayName!!,
                     remark = friendEntry.remark,
                     createdAt = friendEntry.createdAt,
                     updateMark = updateMark,

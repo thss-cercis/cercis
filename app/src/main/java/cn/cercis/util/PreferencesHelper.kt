@@ -10,7 +10,7 @@ object PreferencesHelper {
         }
 
         /**
-         * Called in [cn.edu.tsinghua.thss.cercis.StartupActivity]
+         * Called in [cn.cercis.StartupActivity]
          */
         fun isLoggedIn(context: Context): Boolean {
             return getAuthPreferences(context).getBoolean("logged_in", false)
