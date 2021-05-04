@@ -44,4 +44,9 @@
     <string name="contact_list_action_show_requests">好友请求</string>
     <string name="contact_list_action_show_group_notifications">群通知</string>
     <string name="contact_list_title">联系人</string>
+    <string name="contact_list_friend_request_remark_on_line">验证消息: %s</string>
+    <string name="friend_request_accept">同意</string>
+    <string name="friend_request_accept_retry">重试</string>
+    <string name="friend_request_pending">待确认</string>
+    <string name="friend_request_finished">已确认</string>
 </resources>

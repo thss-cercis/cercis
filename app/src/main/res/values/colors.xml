@@ -10,8 +10,23 @@
     <color name="fragment_contact_list_background">#F4F5F9</color>
     <!-- Color used for views displaying list. i.e. RecyclerView -->
     <color name="list_background">#FFFFFF</color>
+    <color name="list_delimiter">#EEE</color>
+    <color name="list_delimiter_text">#444</color>
 
     <color name="black_overlay">#66000000</color>
     <color name="divider">#EEE</color>
     <color name="icon_on_background">#888</color>
+
+    <!-- snackbars -->
+    <color name="snackbar_success_background">#4CAF50</color>
+    <color name="snackbar_success_text">#ffffff</color>
+
+    <color name="snackbar_warning_background">#FF9800</color>
+    <color name="snackbar_warning_text">#ffffff</color>
+
+    <color name="snackbar_error_background">#F44336</color>
+    <color name="snackbar_error_text">#FFFFFF</color>
+
+    <color name="snackbar_information_background">#2196F3</color>
+    <color name="snackbar_information_text">#ffffff</color>
 </resources>

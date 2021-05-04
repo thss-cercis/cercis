@@ -63,6 +63,7 @@ class ContactListFragment : Fragment() {
                             holder.binding.user = currentList[position].let {
                                 contactListViewModel.getUserInfo(it.friendUserId, it)
                             }
+                            holder.binding.executePendingBindings()
                         }
                     }.apply {
                         submitList(contactListViewModel.friendList.value ?: listOf())

@@ -5,11 +5,27 @@
 
     <data>
 
+        <import type="cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.FriendRequestWithUpdateMark" />
+
+        <import type="cn.cercis.entity.User" />
+
         <import type="androidx.lifecycle.LiveData" />
 
         <variable
             name="user"
-            type="LiveData&lt;cn.cercis.viewmodel.ContactListViewModel.Friend>" />
+            type="LiveData&lt;User>" />
+
+        <variable
+            name="request"
+            type="FriendRequestWithUpdateMark" />
+
+        <variable
+            name="onAcceptClicked"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onDetailClicked"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,6 +34,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
+        android:onClick="@{onDetailClicked}"
         android:orientation="horizontal"
         android:paddingHorizontal="10dp"
         android:paddingVertical="8dp">
@@ -33,37 +50,49 @@
             tools:src="@drawable/outline_perm_identity_24" />
 
         <TextView
-            android:id="@+id/contact_list_friend_nickname"
+            android:id="@+id/contact_list_request_nickname"
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{user.displayName()}"
+            android:text="@{user.nickname}"
             android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@+id/contact_list_friend_bio"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/contact_list_request_remark"
+            app:layout_constraintEnd_toStartOf="@id/contact_list_request_accept_button"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread"
             tools:text="Example displayName" />
 
         <TextView
-            android:id="@+id/contact_list_friend_bio"
+            android:id="@+id/contact_list_request_remark"
             style="@style/TextAppearance.Cercis.Messages.Preview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{user.bio}"
+            android:text="@{String.format(@string/contact_list_friend_request_remark_on_line, request.remark)}"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/contact_list_request_nickname"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@id/contact_list_friend_nickname"
-            tools:text="Example bio" />
+            app:layout_constraintTop_toBottomOf="@id/contact_list_request_nickname"
+            tools:text="@string/contact_list_friend_request_remark_on_line" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/contact_list_request_accept_button"
+            style="@style/Widget.Cercis.ListItem.ActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{onAcceptClicked}"
+            android:text="@string/friend_request_accept"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

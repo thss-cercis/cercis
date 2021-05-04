@@ -10,4 +10,15 @@
         android:name="cn.cercis.ui.empty.EmptyFragment"
         android:label="layout_empty"
         tools:layout="@layout/fragment_empty" />
+    <action android:id="@+id/action_global_emptyFragment2" app:destination="@id/emptyFragment2" />
+    <fragment
+        android:id="@+id/friendRequestListFragment"
+        android:name="cn.cercis.ui.contacts.FriendRequestListFragment"
+        android:label="fragment_friend_request_list"
+        tools:layout="@layout/fragment_friend_request_list" />
+    <action
+        android:id="@+id/action_global_friendRequestListFragment"
+        app:destination="@id/friendRequestListFragment"
+        app:popUpTo="@id/emptyFragment2"
+        app:popUpToInclusive="false" />
 </navigation>
