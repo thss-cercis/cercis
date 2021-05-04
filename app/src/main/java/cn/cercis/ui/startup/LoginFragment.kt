@@ -38,7 +38,7 @@ class LoginFragment : Fragment() {
             Toast.makeText(context, "暂不支持密码重置", Toast.LENGTH_SHORT).show()
         }
         binding.linkUserSignup.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment1)
+            findNavController().navigate(R.id.signUpFragment)
         }
         loginViewModel.currentUserList.observe(viewLifecycleOwner) {
             binding.loginUserIdList.setAdapter(ArrayAdapter(

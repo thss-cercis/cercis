@@ -17,7 +17,7 @@ import kotlinx.coroutines.FlowPreview
 @FlowPreview
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SignUpFragment1 : Fragment() {
+class SignUpFragment : Fragment() {
     private val signUpViewModel: SignUpViewModel by viewModels()
 
     override fun onCreateView(
@@ -41,9 +41,9 @@ class SignUpFragment1 : Fragment() {
         signUpViewModel.navAction.observe(viewLifecycleOwner) {
             it?.let {
                 when (it.first) {
-                    SignUpViewModel.NavAction.FRAGMENT1 -> Unit
+                    SignUpViewModel.NavAction.FRAGMENT -> Unit
                     SignUpViewModel.NavAction.FRAGMENT_SUCCESS -> findNavController().navigate(
-                        SignUpFragment1Directions.actionSignUpFragment1ToSignUpSuccessFragment(it.second))
+                        SignUpFragmentDirections.actionSignUpFragmentToSignUpSuccessFragment(it.second))
                     SignUpViewModel.NavAction.BACK -> findNavController().popBackStack()
                 }
             }

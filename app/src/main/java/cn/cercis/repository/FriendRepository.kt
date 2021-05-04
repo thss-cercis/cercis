@@ -1,6 +1,7 @@
 package cn.cercis.repository
 
 import cn.cercis.common.ApplyId
+import cn.cercis.common.UserId
 import cn.cercis.dao.FriendDao
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.FriendRequest
@@ -39,6 +40,18 @@ class FriendRepository @Inject constructor(
         }
     }
 
+    suspend fun sendFriendRequest(
+        id: UserId,
+        remark: String? = null,
+        displayName: String? = null,
+    ) = httpService.addFriend(
+        AddFriendRequest(
+            id = id,
+            remark = remark,
+            displayName = displayName,
+        )
+    )
+
     fun getFriendRequestSentList() = object : NetworkBoundResource<List<FriendRequest>>() {
         override suspend fun saveNetworkResult(data: List<FriendRequest>) {
             friendDao.saveFriendRequestList(data)
@@ -70,17 +83,29 @@ class FriendRepository @Inject constructor(
     suspend fun acceptFriendRequest(
         applyId: ApplyId,
         displayName: String? = null,
-    ): EmptyNetworkResponse {
-        return httpService.acceptAddingFriend(
-            AcceptAddingFriendRequest(applyId = applyId, displayName = displayName)
+    ) = httpService.acceptAddingFriend(
+        AcceptAddingFriendRequest(
+            applyId = applyId,
+            displayName = displayName
         )
-    }
+    )
 
-    suspend fun rejectFriendRequest(
-        applyId: ApplyId,
-    ): EmptyNetworkResponse {
-        return httpService.rejectAddingFriend(
-            RejectAddingFriendRequest(applyId = applyId)
+    suspend fun rejectFriendRequest(applyId: ApplyId) =
+        httpService.rejectAddingFriend(RejectAddingFriendRequest(applyId))
+
+    suspend fun updateFriendRemark(
+        id: UserId,
+        remark: String? = null,
+        displayName: String? = null,
+    ) =
+        httpService.updateFriendRemark(
+            UpdateFriendRemarkRequest(
+                id = id,
+                remark = remark,
+                displayName = displayName,
+            )
         )
-    }
+
+    suspend fun deleteFriend(id: UserId) =
+        httpService.deleteFriend(DeleteFriendRequest(id))
 }

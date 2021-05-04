@@ -10,14 +10,14 @@ import com.squareup.moshi.JsonClass
 import retrofit2.http.*
 
 interface CercisHttpService {
-    @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): NetworkResponse<LoginPayload>
+    @POST("mobile/signup")
+    suspend fun sendSignUpSms(@Body request: SendSmsRequest): EmptyNetworkResponse
 
     @POST("auth/signup")
     suspend fun signUp(@Body request: SignUpRequest): NetworkResponse<SignUpPayload>
 
-    @POST("mobile/signup")
-    suspend fun mobileSignUp(@Body request: MobileSignUpRequest): EmptyNetworkResponse
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): NetworkResponse<LoginPayload>
 
     @POST("auth/logout")
     suspend fun logout(): EmptyNetworkResponse
@@ -37,29 +37,38 @@ interface CercisHttpService {
     @GET("friend/")
     suspend fun getFriendList(): NetworkResponse<WrappedFriendListPayload>
 
+    @POST("friend/send")
+    suspend fun addFriend(@Body request: AddFriendRequest): EmptyNetworkResponse
+
     @GET("friend/send")
-    suspend fun getFriendRequestSentList(): NetworkResponse<WrappedFriendRequestReceivedListPayload>
+    suspend fun getFriendRequestSentList(): NetworkResponse<WrappedFriendRequestListPayload>
 
     @GET("friend/receive")
-    suspend fun getFriendRequestReceivedList(): NetworkResponse<WrappedFriendRequestReceivedListPayload>
+    suspend fun getFriendRequestReceivedList(): NetworkResponse<WrappedFriendRequestListPayload>
 
     @POST("friend/accept")
     suspend fun acceptAddingFriend(@Body request: AcceptAddingFriendRequest): EmptyNetworkResponse
 
     @POST("friend/reject")
     suspend fun rejectAddingFriend(@Body request: RejectAddingFriendRequest): EmptyNetworkResponse
+
+    @PUT("friend/")
+    suspend fun updateFriendRemark(@Body request: UpdateFriendRemarkRequest): EmptyNetworkResponse
+
+    @DELETE("friend/")
+    suspend fun deleteFriend(@Body request: DeleteFriendRequest): EmptyNetworkResponse
 }
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(
     val id: UserId?,
-    var mobile: String?,
+    val mobile: String?,
     val password: String,
 )
 
 @JsonClass(generateAdapter = true)
 data class LoginPayload(
-    @Json(name = "id") val userId: UserId,
+    val id: UserId,
 )
 
 @JsonClass(generateAdapter = true)
@@ -72,11 +81,11 @@ data class SignUpRequest(
 
 @JsonClass(generateAdapter = true)
 data class SignUpPayload(
-    @Json(name = "user_id") val userId: UserId,
+    @Json(name = "user_id") val id: UserId,
 )
 
 @JsonClass(generateAdapter = true)
-data class MobileSignUpRequest(
+data class SendSmsRequest(
     val mobile: String,
 )
 
@@ -120,12 +129,7 @@ data class WrappedFriendListPayload(
 }
 
 @JsonClass(generateAdapter = true)
-data class WrappedFriendRequestSentListPayload(
-    @Json(name = "applies") val requests: List<FriendRequest>,
-)
-
-@JsonClass(generateAdapter = true)
-data class WrappedFriendRequestReceivedListPayload(
+data class WrappedFriendRequestListPayload(
     @Json(name = "applies") val requests: List<FriendRequest>,
 )
 
@@ -138,4 +142,23 @@ data class AcceptAddingFriendRequest(
 @JsonClass(generateAdapter = true)
 data class RejectAddingFriendRequest(
     @Json(name = "apply_id") val applyId: ApplyId,
+)
+
+@JsonClass(generateAdapter = true)
+data class AddFriendRequest(
+    @Json(name = "to_id") val id: UserId,
+    val remark: String?,
+    @Json(name = "alias") val displayName: String?,
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateFriendRemarkRequest(
+    @Json(name = "friend_id") val id: UserId,
+    val remark: String?,
+    @Json(name = "alias") val displayName: String?,
+)
+
+@JsonClass(generateAdapter = true)
+data class DeleteFriendRequest(
+    @Json(name = "friend_id") val id: UserId,
 )

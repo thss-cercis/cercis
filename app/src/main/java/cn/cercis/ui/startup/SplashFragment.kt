@@ -26,7 +26,7 @@ class SplashFragment : Fragment() {
             findNavController().navigate(R.id.loginFragment)
         }
         binding.splashButtonGotoUserSignup.setOnClickListener {
-            findNavController().navigate(R.id.signUpFragment1)
+            findNavController().navigate(R.id.signUpFragment)
         }
         return binding.root
     }

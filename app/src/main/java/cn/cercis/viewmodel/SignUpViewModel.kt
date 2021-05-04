@@ -9,9 +9,6 @@ import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
-import cn.cercis.http.CercisHttpService
-import cn.cercis.http.MobileSignUpRequest
-import cn.cercis.http.SignUpRequest
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.PairLiveData
@@ -25,7 +22,7 @@ import javax.inject.Inject
  * SignUpViewModel is shared across all sign up fragments.
  *
  * Procedure:
- *  Fragment1:
+ *  Fragment:
  *      enter mobile
  *      send code
  *      check code
@@ -43,18 +40,17 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     application: Application,
-    private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
     private val loginHistoryDao: LoginHistoryDao,
 ) : AndroidViewModel(application) {
 
     enum class NavAction {
-        FRAGMENT1, FRAGMENT_SUCCESS, BACK,
+        FRAGMENT, FRAGMENT_SUCCESS, BACK,
     }
 
     val navAction = MutableLiveData<Pair<NavAction, Long>?>(null)
 
-    // SignUpFragment1
+    // SignUpFragment
 
     // hint messages for UI
     val mobile = MutableLiveData("")
@@ -109,7 +105,7 @@ class SignUpViewModel @Inject constructor(
         verificationCodeCountDown.postValue(SEND_CODE_COUNTDOWN)
         try {
             verificationError.postValue(null)
-            when (val resp = httpService.mobileSignUp(MobileSignUpRequest("+86${mobile.value}"))) {
+            when (val resp = authRepository.sendSignUpSms("+86${mobile.value}")) {
                 is NetworkResponse.Success -> {
                     for (i in SEND_CODE_COUNTDOWN - 1 downTo 0) {
                         delay(1000)
@@ -168,17 +164,16 @@ class SignUpViewModel @Inject constructor(
         val verificationCode = this.verificationCode.value ?: ""
 
         try {
-            val signUpRequest = SignUpRequest(
+            val response = authRepository.signUp(
                 nickname = nickname,
                 mobile = mobile,
                 password = password,
                 verificationCode = verificationCode,
             )
-            val response = authRepository.signUp(signUpRequest)
             Log.d(LOG_TAG, "sign up resp: $response")
             when (response) {
                 is NetworkResponse.Success -> {
-                    val userId = response.data.userId
+                    val userId = response.data.id
                     val loginHistory = LoginHistory(
                         userId = userId,
                         mobile = mobile,

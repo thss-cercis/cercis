@@ -9,6 +9,7 @@ import cn.cercis.common.UserId
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.LoginRequest
 import cn.cercis.http.SignUpRequest
+import cn.cercis.http.SendSmsRequest
 import cn.cercis.module.AuthorizedEvent
 import cn.cercis.util.NetworkResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,16 +41,36 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun signUp(signUpRequest: SignUpRequest) = httpService.signUp(signUpRequest).also {
-        if (it is NetworkResponse.Success) {
-            currentUserId = it.data.userId
-            loggedIn.postValue(true)
-        }
-    }
+    suspend fun sendSignUpSms(mobile: String) =
+        httpService.sendSignUpSms(SendSmsRequest(mobile))
 
-    suspend fun login(loginRequest: LoginRequest) = httpService.login(loginRequest).also {
+    suspend fun signUp(
+        nickname: String,
+        mobile: String,
+        verificationCode: String,
+        password: String,
+    ) = httpService.signUp(
+        SignUpRequest(
+            nickname = nickname,
+            mobile = mobile,
+            verificationCode = verificationCode,
+            password = password,
+        )
+    )
+
+    suspend fun login(
+        id: UserId?,
+        mobile: String?,
+        password: String,
+    ) = httpService.login(
+        LoginRequest(
+            id = id,
+            mobile = mobile,
+            password = password,
+        )
+    ).also {
         if (it is NetworkResponse.Success) {
-            currentUserId = it.data.userId
+            currentUserId = it.data.id
             loggedIn.postValue(true)
         }
     }

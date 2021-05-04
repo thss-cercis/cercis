@@ -18,6 +18,7 @@ import cn.cercis.util.DataBindingViewHolder
 import cn.cercis.util.DiffRecyclerViewAdapter
 import cn.cercis.util.doDetailNavigation
 import cn.cercis.viewmodel.ContactListViewModel
+import cn.cercis.viewmodel.ContactListViewModel.FriendEntryWithUpdateMark
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,40 +43,20 @@ class ContactListFragment : Fragment() {
         binding.contactListPager.adapter =
             object : RecyclerView.Adapter<DataBindingViewHolder<ContactListRecyclerViewBinding>>() {
                 val friendAdapter by lazy {
-                    object :
-                        DiffRecyclerViewAdapter<ContactListViewModel.FriendEntryWithUpdateMark, DataBindingViewHolder<ContactListFriendItemBinding>>(
-                            { oldItem, newItem ->
-                                oldItem.friendUserId == newItem.friendUserId
-                            }, Objects::equals) {
-                        override fun onCreateViewHolder(
-                            parent: ViewGroup,
-                            viewType: Int,
-                        ): DataBindingViewHolder<ContactListFriendItemBinding> {
-                            return DataBindingViewHolder(ContactListFriendItemBinding.inflate(
-                                LayoutInflater.from(parent.context),
-                                parent,
-                                false).apply {
-                                this.lifecycleOwner = this@ContactListFragment.viewLifecycleOwner
-                            })
-                        }
-
-                        override fun onBindViewHolder(
-                            holder: DataBindingViewHolder<ContactListFriendItemBinding>,
-                            position: Int,
-                        ) {
+                    DiffRecyclerViewAdapter.getInstance(
+                        contactListViewModel.friendList,
+                        { viewLifecycleOwner },
+                        itemIndex = { friendUserId },
+                        contentsSameCallback = Objects::equals,
+                        inflater = { inflater, parent, _ ->
+                            ContactListFriendItemBinding.inflate(inflater, parent, false)
+                        },
+                        onBindViewHolderWithExecution = { holder, position ->
                             holder.binding.user = currentList[position].let {
                                 contactListViewModel.getUserInfo(it.friendUserId, it)
                             }
-                            holder.binding.executePendingBindings()
                         }
-                    }.apply {
-                        submitList(contactListViewModel.friendList.value ?: listOf())
-                        contactListViewModel.friendList.observe(viewLifecycleOwner) { list ->
-                            list?.let {
-                                submitList(it)
-                            }
-                        }
-                    }
+                    )
                 }
 
                 override fun onCreateViewHolder(
@@ -122,14 +103,6 @@ class ContactListFragment : Fragment() {
                     return TAB_COUNT
                 }
 
-//                override fun createFragment(position: Int): Fragment {
-//                    return when (position) {
-//                        TAB_FRIENDS -> FriendRequestsFragment()
-//                        TAB_GROUPS -> FriendRequestsFragment()
-//                        else -> throw IllegalStateException("unexpected position")
-//                    }
-//                }
-
                 override fun getItemViewType(position: Int): Int {
                     // prevent view reuse
                     return position
@@ -172,7 +145,7 @@ class ContactListFragment : Fragment() {
         binding.buttonShowFriendRequests.root.setOnClickListener {
             doDetailNavigation(R.id.action_global_friendRequestListFragment)
         }
-        binding.buttonShowGroupNotifications.root.setOnClickListener({ })
+        binding.buttonShowGroupNotifications.root.setOnClickListener { /* TODO */ }
         return binding.root
     }
 

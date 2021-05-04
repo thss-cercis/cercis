@@ -1,4 +1,4 @@
-package cn.cercis.ui.chatList
+package cn.cercis.ui.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +12,6 @@ import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.databinding.ChatListItemBinding
 import cn.cercis.databinding.FragmentChatListBinding
-import cn.cercis.ui.chat.ChatFragment
 import cn.cercis.util.doDetailNavigation
 import cn.cercis.viewmodel.ChatListItemData
 import cn.cercis.viewmodel.ChatListViewModel

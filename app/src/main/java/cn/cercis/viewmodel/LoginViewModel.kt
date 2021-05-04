@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.*
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.NO_USER
+import cn.cercis.common.UserId
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.http.LoginRequest
 import cn.cercis.repository.AuthRepository
@@ -52,14 +53,20 @@ class LoginViewModel @Inject constructor(
         loginError.value = null
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val loginRequest = userId.value!!.let {
+                var id: UserId? = null
+                var mobile: String? = null
+                userId.value!!.let {
                     if (it.matches(Regex("""\d{11}"""))) {
-                        LoginRequest(mobile = "+86${it}", password = password.value!!, id = null)
+                        mobile = "+86${it}"
                     } else {
-                        LoginRequest(id = it.toLong(), password = password.value!!, mobile = null)
+                        id = it.toLong()
                     }
                 }
-                val response = authRepository.login(loginRequest)
+                val response = authRepository.login(
+                    id = id,
+                    mobile = mobile,
+                    password = password.value!!
+                )
                 Log.d(LOG_TAG, "login response: $response")
                 when (response) {
                     is NetworkResponse.Success -> {}

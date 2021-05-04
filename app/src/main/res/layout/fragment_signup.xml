@@ -21,7 +21,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="36dp"
-        tools:context=".ui.startup.SignUpFragment1">
+        tools:context=".ui.startup.SignUpFragment">
 
         <TextView
             android:id="@+id/signup_headline"

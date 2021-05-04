@@ -15,7 +15,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityMainBinding
 import cn.cercis.ui.activity.ActivityFragment
-import cn.cercis.ui.chatList.ChatListFragment
+import cn.cercis.ui.chat.ChatListFragment
 import cn.cercis.ui.contacts.ContactListFragment
 import cn.cercis.ui.profile.ProfileFragment
 import cn.cercis.util.setupWithNavController

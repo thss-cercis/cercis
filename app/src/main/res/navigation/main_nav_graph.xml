@@ -6,7 +6,7 @@
     app:startDestination="@id/chatListFragment">
     <fragment
         android:id="@+id/chatListFragment"
-        android:name="cn.cercis.ui.chatList.ChatListFragment"
+        android:name="cn.cercis.ui.chat.ChatListFragment"
         android:label="ChatListFragment" />
     <fragment
         android:id="@+id/contactListFragment"
