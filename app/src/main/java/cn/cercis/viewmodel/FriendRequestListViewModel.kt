@@ -16,6 +16,7 @@ import cn.cercis.util.*
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_0
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_1
 import cn.cercis.util.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @FlowPreview
-@ActivityRetainedScoped
 @ExperimentalCoroutinesApi
+@HiltViewModel
 class FriendRequestListViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
@@ -68,29 +69,29 @@ class FriendRequestListViewModel @Inject constructor(
 
                 // TODO replace with real data
                 // ********
-                MutableLiveData(Resource.Success((0L..10L).map {
-                    FriendRequest(
-                        applyId = it,
-                        fromId = it,
-                        toId = it,
-                        state = 0,
-                        displayName = "$it",
-                        remark = "$it",
-                        createdAt = it,
-                    )
-                }) as Resource<List<FriendRequest>>).let { newSource ->
-                    source = newSource
-                    liveData.addSource(newSource) {
-                        liveData.value = it
-                    }
-                }
-                // * replace the code above with the following code to enable real data
-//                source = friendRepository.getFriendRequestList().asFlow()
-//                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
-//                        liveData.addSource(this) {
-//                            liveData.value = it
-//                        }
+//                MutableLiveData(Resource.Success((0L..10L).map {
+//                    FriendRequest(
+//                        applyId = it,
+//                        fromId = it,
+//                        toId = it,
+//                        state = 0,
+//                        displayName = "$it",
+//                        remark = "$it",
+//                        createdAt = it,
+//                    )
+//                }) as Resource<List<FriendRequest>>).let { newSource ->
+//                    source = newSource
+//                    liveData.addSource(newSource) {
+//                        liveData.value = it
 //                    }
+//                }
+                // * replace the code above with the following code to enable real data
+                source = friendRepository.getFriendRequestReceivedList().asFlow()
+                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
+                        liveData.addSource(this) {
+                            liveData.value = it
+                        }
+                    }
                 // ********
             }
 
@@ -148,21 +149,21 @@ class FriendRequestListViewModel @Inject constructor(
         // TODO replace with real data
         return users.computeIfAbsent(userId) {
             // ********
-            MutableLiveData(User(
-                id = userId,
-                nickname = "$userId",
-                mobile = "12345$userId",
-                avatar = "",
-                bio = "${System.currentTimeMillis()}",
-                chatId = 0,
-                updated = 0,
-            ))
+//            MutableLiveData(User(
+//                id = userId,
+//                nickname = "$userId",
+//                mobile = "12345$userId",
+//                avatar = "",
+//                bio = "${System.currentTimeMillis()}",
+//                chatId = 0,
+//                updated = 0,
+//            ))
             // * replace the code above with the following code to enable real data
-//            Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
-//                viewModelScope.coroutineContext + Dispatchers.IO
-//            )) { user ->
-//                user?.data?
-//            }
+            Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
+                viewModelScope.coroutineContext + Dispatchers.IO
+            )) { user ->
+                user?.data
+            }
             // ********
         }
     }

@@ -59,7 +59,7 @@ class FriendRequestListFragment : Fragment() {
                     TYPE_DELIMITER -> FriendRequestListDelimiterBinding
                         .inflate(inflater1, parent, false)
                     else -> throw IllegalStateException("should not reach here")
-                }
+                }.apply { lifecycleOwner = this@FriendRequestListFragment.viewLifecycleOwner }
                 return DataBindingViewHolder(binding1)
             }
 
@@ -73,10 +73,10 @@ class FriendRequestListFragment : Fragment() {
                         (currentList[position] as FriendRequestListViewModel.RecyclerData.FriendRequestWithUpdateMark).let {
                             requestListItemBinding.apply {
                                 request = it
-                                user = friendRequestListViewModel.getUserInfo(it.toId)
-                                onAcceptClicked = View.OnClickListener {
-                                    if (this.request.loading.value != true) {
-                                        friendRequestListViewModel.acceptRequest(this.request)
+                                user = friendRequestListViewModel.getUserInfo(it.fromId)
+                                onAcceptClicked = View.OnClickListener { _ ->
+                                    if (it.loading.value != true) {
+                                        friendRequestListViewModel.acceptRequest(it)
                                     }
                                 }
                                 executePendingBindings()
@@ -103,6 +103,11 @@ class FriendRequestListFragment : Fragment() {
             }
         }.apply {
             submitList(friendRequestListViewModel.requests.value ?: listOf())
+            friendRequestListViewModel.requests.observe(viewLifecycleOwner) { list ->
+                list?.let {
+                    submitList(it)
+                }
+            }
         }
 
         friendRequestListViewModel.errorMessage.observe(viewLifecycleOwner) {
@@ -114,15 +119,41 @@ class FriendRequestListFragment : Fragment() {
                             .setAction(R.string.friend_request_accept_retry) {
                                 friendRequestListViewModel.acceptRequest(req)
                             }
+                            .setBackgroundTint(requireContext().getColor(R.color.snackbar_error_background))
+                            .setTextColor(requireContext().getColor(R.color.snackbar_error_text))
                             .show()
                     }
-                    is NetworkResponse.Reject -> TODO()
-                    is NetworkResponse.Success -> TODO()
-
+                    is NetworkResponse.Reject -> {
+                        Snackbar.make(binding.root, resp.message, Snackbar.LENGTH_SHORT)
+                            .setAction(R.string.friend_request_accept_retry) {
+                                friendRequestListViewModel.acceptRequest(req)
+                            }
+                            .setBackgroundTint(requireContext().getColor(R.color.snackbar_error_background))
+                            .setTextColor(requireContext().getColor(R.color.snackbar_error_text))
+                            .show()
+                    }
+                    is NetworkResponse.Success -> {
+                        Snackbar.make(binding.root, R.string.friend_request_accept_success, Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(requireContext().getColor(R.color.snackbar_success_background))
+                            .setTextColor(requireContext().getColor(R.color.snackbar_success_text))
+                            .show()
+                    }
                 }
             }
         }
 
+        binding.friendRequestListSwipe.setOnRefreshListener {
+            friendRequestListViewModel.refreshRequestList()
+            val observer = object : androidx.lifecycle.Observer<Boolean> {
+                override fun onChanged(t: Boolean?) {
+                    if (t == false) {
+                        binding.friendRequestListSwipe.isRefreshing = false
+                    }
+                    friendRequestListViewModel.requestListLoading.removeObserver(this)
+                }
+            }
+            friendRequestListViewModel.requestListLoading.observe(viewLifecycleOwner, observer)
+        }
         return binding.root
     }
 }

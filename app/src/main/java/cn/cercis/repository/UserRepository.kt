@@ -1,5 +1,7 @@
 package cn.cercis.repository
 
+import android.util.Log
+import cn.cercis.common.LOG_TAG
 import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
 import cn.cercis.dao.UserDao
@@ -40,6 +42,7 @@ class UserRepository @Inject constructor(
         }
 
         override fun loadFromDb(): Flow<User?> {
+            Log.d(LOG_TAG, "fetch user $userId from ${this.hashCode()}")
             return userDao.loadUser(userId)
         }
     }

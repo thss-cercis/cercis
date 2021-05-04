@@ -5,6 +5,8 @@
 
 package cn.cercis.http
 
+import android.util.Log
+import cn.cercis.common.LOG_TAG
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,6 +30,7 @@ abstract class NetworkBoundResource<T> {
         if (shouldFetch(dbValue)) {
             emit(Resource.Loading(dbValue))
             fetchFromNetwork().run {
+                Log.d(LOG_TAG, "$this")
                 when (this) {
                     is NetworkResponse.Success -> {
                         saveNetworkResult(data)

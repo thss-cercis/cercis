@@ -12,8 +12,7 @@ import com.squareup.moshi.JsonClass
 
 @Entity
 data class FriendEntry(
-    @PrimaryKey(autoGenerate = true) val id: CommonId = 0,
-    @ColumnInfo(index = true) val friendUserId: UserId,
+    @PrimaryKey val friendUserId: UserId,
     val remark: String,
     val displayName: String,
 )

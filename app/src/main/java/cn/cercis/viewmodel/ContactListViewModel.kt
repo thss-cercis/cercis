@@ -11,20 +11,21 @@ import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.scopes.ActivityRetainedScoped
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @FlowPreview
-@HiltViewModel
 @ExperimentalCoroutinesApi
+@HiltViewModel
 class ContactListViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
     data class FriendEntryWithUpdateMark(
-        val id: CommonId,
         val friendUserId: UserId,
         val remarks: String,
         val alias: String,
@@ -74,26 +75,26 @@ class ContactListViewModel @Inject constructor(
 
                 // TODO replace with real data
                 // ********
-                MutableLiveData(Resource.Success((0L..10L).map {
-                    FriendEntry(
-                        id = it,
-                        friendUserId = it,
-                        remark = "",
-                        displayName = "",
-                    )
-                }) as Resource<List<FriendEntry>>).let { newSource ->
-                    source = newSource
-                    liveData.addSource(newSource) {
-                        liveData.value = it
-                    }
-                }
-                // * replace the code above with the following code to enable real data
-//                source = friendRepository.getFriendList().asFlow()
-//                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
-//                        liveData.addSource(this) {
-//                            liveData.value = it
-//                        }
+//                MutableLiveData(Resource.Success((0L..10L).map {
+//                    FriendEntry(
+//                        id = it,
+//                        friendUserId = it,
+//                        remark = "",
+//                        displayName = "",
+//                    )
+//                }) as Resource<List<FriendEntry>>).let { newSource ->
+//                    source = newSource
+//                    liveData.addSource(newSource) {
+//                        liveData.value = it
 //                    }
+//                }
+                // * replace the code above with the following code to enable real data
+                source = friendRepository.getFriendList().asFlow()
+                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
+                        liveData.addSource(this) {
+                            liveData.value = it
+                        }
+                    }
                 // ********
             }
 
@@ -109,7 +110,6 @@ class ContactListViewModel @Inject constructor(
             Log.d(LOG_TAG, "updated with mark $updateMark")
             it?.data?.map { friendEntry ->
                 FriendEntryWithUpdateMark(
-                    id = friendEntry.id,
                     friendUserId = friendEntry.friendUserId,
                     alias = friendEntry.displayName,
                     remarks = friendEntry.remark,
@@ -128,23 +128,25 @@ class ContactListViewModel @Inject constructor(
         // TODO replace with real data
         return users.computeIfAbsent(userId) {
             // ********
-            MutableLiveData(Friend(
-                id = userId,
-                nickname = "$userId",
-                mobile = "12345$userId",
-                avatar = "",
-                bio = "${System.currentTimeMillis()}",
-                alias = "alias$userId",
-                remarks = "",
-            ))
+//            MutableLiveData(Friend(
+//                id = userId,
+//                nickname = "$userId",
+//                mobile = "12345$userId",
+//                avatar = "",
+//                bio = "${System.currentTimeMillis()}",
+//                alias = "alias$userId",
+//                remarks = "",
+//            ))
             // * replace the code above with the following code to enable real data
-//            Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
-//                viewModelScope.coroutineContext + Dispatchers.IO
-//            )) { user ->
-//                user?.data?.let {
-//                    Friend(it, friendEntry)
-//                }
-//            }
+            Log.d(LOG_TAG, "loading user $userId")
+            Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
+                viewModelScope.coroutineContext + Dispatchers.IO
+            )) { user ->
+                Log.d(LOG_TAG, "user data received $user")
+                user?.data?.let {
+                    Friend(it, friendEntry)
+                }
+            }
             // ********
         }
     }

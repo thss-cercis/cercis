@@ -25,7 +25,7 @@ import kotlinx.coroutines.FlowPreview
 class LoginFragment : Fragment() {
     private val loginViewModel: LoginViewModel by activityViewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.viewModel = loginViewModel
         binding.loginRootLayout.enableTransition()

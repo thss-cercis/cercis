@@ -16,6 +16,7 @@ import cn.cercis.databinding.ContactListRecyclerViewBinding
 import cn.cercis.databinding.FragmentContactListBinding
 import cn.cercis.util.DataBindingViewHolder
 import cn.cercis.util.DiffRecyclerViewAdapter
+import cn.cercis.util.doDetailNavigation
 import cn.cercis.viewmodel.ContactListViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +45,7 @@ class ContactListFragment : Fragment() {
                     object :
                         DiffRecyclerViewAdapter<ContactListViewModel.FriendEntryWithUpdateMark, DataBindingViewHolder<ContactListFriendItemBinding>>(
                             { oldItem, newItem ->
-                                oldItem.id == newItem.id
+                                oldItem.friendUserId == newItem.friendUserId
                             }, Objects::equals) {
                         override fun onCreateViewHolder(
                             parent: ViewGroup,
@@ -53,7 +54,9 @@ class ContactListFragment : Fragment() {
                             return DataBindingViewHolder(ContactListFriendItemBinding.inflate(
                                 LayoutInflater.from(parent.context),
                                 parent,
-                                false))
+                                false).apply {
+                                this.lifecycleOwner = this@ContactListFragment.viewLifecycleOwner
+                            })
                         }
 
                         override fun onBindViewHolder(
@@ -166,7 +169,9 @@ class ContactListFragment : Fragment() {
         binding.contactListPager.currentItem = TAB_FRIENDS
 
         // initiate ListView with actions
-        binding.buttonShowFriendRequests.root.setOnClickListener({ })
+        binding.buttonShowFriendRequests.root.setOnClickListener {
+            doDetailNavigation(R.id.action_global_friendRequestListFragment)
+        }
         binding.buttonShowGroupNotifications.root.setOnClickListener({ })
         return binding.root
     }
