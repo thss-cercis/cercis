@@ -4,6 +4,7 @@
 /local.properties
 .gradle
 
-/.idea/
+/.idea/*
+!/.idea/codeStyles/
 
 .DS_Store
