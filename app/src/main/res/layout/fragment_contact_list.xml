@@ -89,7 +89,7 @@
             <!--            <androidx.recyclerview.widget.RecyclerView-->
             <!--                android:layout_width="match_parent"-->
             <!--                android:layout_height="match_parent"-->
-            <!--                app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+            <!--                -->
             <!--                tools:listitem="@layout/contact_list_friend_item"/>-->
 
             <androidx.viewpager2.widget.ViewPager2

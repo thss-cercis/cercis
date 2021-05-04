@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
 import cn.cercis.databinding.ContactListFriendItemBinding
-import cn.cercis.databinding.ContactListRecylerViewBinding
+import cn.cercis.databinding.ContactListRecyclerViewBinding
 import cn.cercis.databinding.FragmentContactListBinding
-import cn.cercis.entity.FriendEntry
 import cn.cercis.util.DataBindingViewHolder
 import cn.cercis.util.DiffRecyclerViewAdapter
 import cn.cercis.util.LOG_TAG
@@ -40,10 +39,10 @@ class ContactListFragment : Fragment() {
         binding.viewModel = contactListViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         binding.contactListPager.adapter =
-            object : RecyclerView.Adapter<DataBindingViewHolder<ContactListRecylerViewBinding>>() {
+            object : RecyclerView.Adapter<DataBindingViewHolder<ContactListRecyclerViewBinding>>() {
                 val friendAdapter by lazy {
                     object :
-                        DiffRecyclerViewAdapter<FriendEntry, DataBindingViewHolder<ContactListFriendItemBinding>>(
+                        DiffRecyclerViewAdapter<ContactListViewModel.FriendEntryWithUpdateMark, DataBindingViewHolder<ContactListFriendItemBinding>>(
                             { oldItem, newItem ->
                                 oldItem.id == newItem.id
                             }, Objects::equals) {
@@ -61,8 +60,9 @@ class ContactListFragment : Fragment() {
                             holder: DataBindingViewHolder<ContactListFriendItemBinding>,
                             position: Int,
                         ) {
-                            holder.binding.user =
-                                contactListViewModel.getUserInfo(currentList[position].friendUserId)
+                            holder.binding.user = currentList[position].let {
+                                contactListViewModel.getUserInfo(it.friendUserId, it)
+                            }
                         }
                     }.apply {
                         submitList(contactListViewModel.friendList.value ?: listOf())
@@ -77,17 +77,28 @@ class ContactListFragment : Fragment() {
                 override fun onCreateViewHolder(
                     parent: ViewGroup,
                     viewType: Int,
-                ): DataBindingViewHolder<ContactListRecylerViewBinding> {
-                    return DataBindingViewHolder(
-                        ContactListRecylerViewBinding.inflate(
-                            LayoutInflater.from(parent.context), parent, false
-                        )
+                ): DataBindingViewHolder<ContactListRecyclerViewBinding> {
+                    val recyclerViewBinding = ContactListRecyclerViewBinding.inflate(
+                        LayoutInflater.from(parent.context), parent, false
                     )
+                    recyclerViewBinding.contactListSwipe.setOnRefreshListener {
+                        contactListViewModel.refreshFriendList()
+                        val observer = object : androidx.lifecycle.Observer<Boolean> {
+                            override fun onChanged(t: Boolean?) {
+                                if (t == false) {
+                                    recyclerViewBinding.contactListSwipe.isRefreshing = false
+                                }
+                                contactListViewModel.friendListLoading.removeObserver(this)
+                            }
+                        }
+                        contactListViewModel.friendListLoading.observe(viewLifecycleOwner, observer)
+                    }
+                    return DataBindingViewHolder(recyclerViewBinding)
                 }
 
                 override fun onBindViewHolder(
-                    holder: DataBindingViewHolder<ContactListRecylerViewBinding>,
-                    position: Int
+                    holder: DataBindingViewHolder<ContactListRecyclerViewBinding>,
+                    position: Int,
                 ) {
                     when (position) {
                         TAB_FRIENDS -> {

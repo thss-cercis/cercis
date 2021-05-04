@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -8,7 +9,7 @@
 
         <variable
             name="user"
-            type="LiveData&lt;cn.cercis.entity.User>" />
+            type="LiveData&lt;cn.cercis.viewmodel.ContactListViewModel.Friend>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,7 +29,8 @@
             android:layout_height="56dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/roundedCorner" />
+            app:shapeAppearanceOverlay="@style/roundedCorner"
+            tools:src="@drawable/outline_perm_identity_24" />
 
         <TextView
             android:id="@+id/contact_list_friend_nickname"
@@ -38,13 +40,14 @@
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{user.nickname}"
+            android:text="@{user.displayName()}"
             android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@+id/contact_list_friend_bio"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="spread" />
+            app:layout_constraintVertical_chainStyle="spread"
+            tools:text="Example displayName" />
 
         <TextView
             android:id="@+id/contact_list_friend_bio"
@@ -59,7 +62,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@+id/contact_list_friend_nickname" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_list_friend_nickname"
+            tools:text="Example bio" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
