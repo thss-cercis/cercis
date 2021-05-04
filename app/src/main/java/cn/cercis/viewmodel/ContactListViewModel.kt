@@ -125,19 +125,7 @@ class ContactListViewModel @Inject constructor(
      * redundant GETs.
      */
     fun getUserInfo(userId: UserId, friendEntry: FriendEntryWithUpdateMark): LiveData<Friend> {
-        // TODO replace with real data
         return users.computeIfAbsent(userId) {
-            // ********
-//            MutableLiveData(Friend(
-//                id = userId,
-//                nickname = "$userId",
-//                mobile = "12345$userId",
-//                avatar = "",
-//                bio = "${System.currentTimeMillis()}",
-//                alias = "alias$userId",
-//                remarks = "",
-//            ))
-            // * replace the code above with the following code to enable real data
             Log.d(LOG_TAG, "loading user $userId")
             Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
                 viewModelScope.coroutineContext + Dispatchers.IO
@@ -147,7 +135,6 @@ class ContactListViewModel @Inject constructor(
                     Friend(it, friendEntry)
                 }
             }
-            // ********
         }
     }
 
@@ -155,7 +142,7 @@ class ContactListViewModel @Inject constructor(
      * Refreshes users in the user list
      */
     fun refreshFriendList() {
-        // the following steps should not be changed
+        // the following steps should not be reordered
         // add updateMark by 1 to fail all caches
         atomicInteger.incrementAndGet()
         // clear users to enforce re-fetch

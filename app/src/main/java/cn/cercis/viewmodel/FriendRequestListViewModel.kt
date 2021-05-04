@@ -17,7 +17,6 @@ import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DEL
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_1
 import cn.cercis.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -32,6 +31,10 @@ class FriendRequestListViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
+    /**
+     * The two subclasses indicates whether there should be a data or a delimiter at a given position
+     * in a RecyclerView.
+     */
     sealed class RecyclerData(val id: ApplyId, val type: Int) {
         data class FriendRequestWithUpdateMark(
             val applyId: ApplyId,
@@ -48,16 +51,23 @@ class FriendRequestListViewModel @Inject constructor(
         data class Delimiter(val delimiterId: Long) : RecyclerData(delimiterId, TYPE_DELIMITER)
 
         companion object {
+            // delimiter at the beginning leading pending requests
             const val DELIMITER_0 = -1L
+
+            // delimiter at the middle separating pending and proceeded requests
             const val DELIMITER_1 = -2L
+
+            // viewType for data
             const val TYPE_DATA = 0
+
+            // viewType for delimiters
             const val TYPE_DELIMITER = 1
         }
     }
 
+    // this works as a flag indicating users need to be re-fetched
     private val atomicInteger = AtomicInteger(0)
-    private val users =
-        HashMap<UserId, LiveData<User>>()
+    private val users = HashMap<UserId, LiveData<User>>()
     private val requestSource by lazy {
         val liveData = MediatorLiveData<Resource<List<FriendRequest>>>()
         var source: LiveData<Resource<List<FriendRequest>>>? = null
@@ -128,7 +138,8 @@ class FriendRequestListViewModel @Inject constructor(
         }
     }
     val requestListLoading by lazy { Transformations.map(requestSource.liveData) { it is Resource.Loading } }
-    val errorMessage = MutableLiveData<Pair<RecyclerData.FriendRequestWithUpdateMark, NetworkResponse<Any>>>(null)
+    val operationMessage =
+        MutableLiveData<Pair<RecyclerData.FriendRequestWithUpdateMark, NetworkResponse<Any>>>(null)
 
     @MainThread
     fun acceptRequest(friendRequest: RecyclerData.FriendRequestWithUpdateMark) {
@@ -136,7 +147,7 @@ class FriendRequestListViewModel @Inject constructor(
             friendRequest.loading.value = true
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    errorMessage.postValue(friendRequest to friendRepository.acceptFriendRequest(
+                    operationMessage.postValue(friendRequest to friendRepository.acceptFriendRequest(
                         friendRequest.applyId))
                 } finally {
                     friendRequest.loading.postValue(false)
@@ -146,33 +157,20 @@ class FriendRequestListViewModel @Inject constructor(
     }
 
     fun getUserInfo(userId: UserId): LiveData<User> {
-        // TODO replace with real data
         return users.computeIfAbsent(userId) {
-            // ********
-//            MutableLiveData(User(
-//                id = userId,
-//                nickname = "$userId",
-//                mobile = "12345$userId",
-//                avatar = "",
-//                bio = "${System.currentTimeMillis()}",
-//                chatId = 0,
-//                updated = 0,
-//            ))
-            // * replace the code above with the following code to enable real data
             Transformations.map(userRepository.getUser(userId).asFlow().asLiveData(
                 viewModelScope.coroutineContext + Dispatchers.IO
             )) { user ->
                 user?.data
             }
-            // ********
         }
     }
 
     /**
-     * Refreshes users in the user list
+     * Refreshes users in the user list.
      */
     fun refreshRequestList() {
-        // the following steps should not be changed
+        // the following steps should not be reordered
         // add updateMark by 1 to fail all caches
         atomicInteger.incrementAndGet()
         // clear users to enforce re-fetch

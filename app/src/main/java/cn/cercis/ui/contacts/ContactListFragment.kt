@@ -176,13 +176,6 @@ class ContactListFragment : Fragment() {
         return binding.root
     }
 
-    class RecyclerViewHolder(val root: View) : RecyclerView.ViewHolder(root)
-
-    data class MenuListItem(
-        val text: () -> String,
-        val onClick: (View) -> Unit,
-    )
-
     companion object {
         const val TAB_COUNT = 2
         const val TAB_FRIENDS = 0

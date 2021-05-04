@@ -53,6 +53,7 @@ class FriendRequestListFragment : Fragment() {
                 viewType: Int,
             ): DataBindingViewHolder<ViewDataBinding> {
                 val inflater1 = LayoutInflater.from(parent.context)
+                // * always remember to bind a lifecycleOwner to data binding objects
                 val binding1 = when (viewType) {
                     TYPE_DATA -> FriendRequestListItemBinding
                         .inflate(inflater1, parent, false)
@@ -110,7 +111,7 @@ class FriendRequestListFragment : Fragment() {
             }
         }
 
-        friendRequestListViewModel.errorMessage.observe(viewLifecycleOwner) {
+        friendRequestListViewModel.operationMessage.observe(viewLifecycleOwner) {
             it?.let {
                 val (req, resp) = it
                 when (resp) {
@@ -137,8 +138,10 @@ class FriendRequestListFragment : Fragment() {
                             .setBackgroundTint(requireContext().getColor(R.color.snackbar_success_background))
                             .setTextColor(requireContext().getColor(R.color.snackbar_success_text))
                             .show()
+                        friendRequestListViewModel.refreshRequestList()
                     }
                 }
+                friendRequestListViewModel.operationMessage.value = null
             }
         }
 
