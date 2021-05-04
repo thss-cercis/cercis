@@ -1,7 +1,6 @@
 package cn.cercis.util
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
@@ -10,10 +9,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import cn.cercis.databinding.ContactListFriendItemBinding
-import cn.cercis.viewmodel.ContactListViewModel
 import java.util.*
-import java.util.zip.Inflater
 
 class DataBindingViewHolder<T : ViewBinding>(val binding: T) :
     RecyclerView.ViewHolder(binding.root)

@@ -6,10 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
-import cn.cercis.http.CercisHttpService
-import cn.cercis.http.LoginRequest
-import cn.cercis.http.SignUpRequest
-import cn.cercis.http.SendSmsRequest
+import cn.cercis.http.*
 import cn.cercis.module.AuthorizedEvent
 import cn.cercis.util.NetworkResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -81,6 +78,21 @@ class AuthRepository @Inject constructor(
             loggedIn.postValue(false)
         }
     }
+
+    suspend fun sendPasswordResetSms(mobile: String) =
+        httpService.sendPasswordResetSms(SendSmsRequest(mobile))
+
+    suspend fun resetPassword(
+        mobile: String,
+        newPassword: String,
+        verificationCode: String,
+    ) = httpService.resetPassword(
+        ResetPasswordRequest(
+            mobile = mobile,
+            newPassword = newPassword,
+            verificationCode = verificationCode,
+        )
+    )
 
     fun getUserDatabaseAbsolutePath(name: String) =
         "${context.getDatabasePath(currentUserId.toString()).absolutePath}/$name"

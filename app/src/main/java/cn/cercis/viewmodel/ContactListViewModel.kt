@@ -2,7 +2,6 @@ package cn.cercis.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
-import cn.cercis.common.CommonId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.entity.FriendEntry
@@ -11,7 +10,6 @@ import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

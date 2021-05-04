@@ -8,6 +8,7 @@ import cn.cercis.dao.UserDao
 import cn.cercis.entity.User
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.NetworkBoundResource
+import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
 import cn.cercis.util.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,5 +46,21 @@ class UserRepository @Inject constructor(
             Log.d(LOG_TAG, "fetch user $userId from ${this.hashCode()}")
             return userDao.loadUser(userId)
         }
+    }
+
+    suspend fun searchUser(
+        userId: UserId? = null,
+        mobile: String? = null,
+        nickname: String? = null,
+        offset: Long? = null,
+        limit: Long? = null,
+    ): NetworkResponse<List<UserSearchResult>> {
+        return httpService.searchUser(
+            userId = userId,
+            mobile = mobile,
+            nickname = nickname,
+            offset = offset,
+            limit = limit,
+        ).use { users }
     }
 }

@@ -7,7 +7,6 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
 import cn.cercis.dao.LoginHistoryDao
-import cn.cercis.http.LoginRequest
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.PairLiveData

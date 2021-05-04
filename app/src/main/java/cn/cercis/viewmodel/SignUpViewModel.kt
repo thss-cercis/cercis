@@ -6,7 +6,7 @@ import android.view.View
 import androidx.lifecycle.*
 import cn.cercis.Constants.SEND_CODE_COUNTDOWN
 import cn.cercis.R
-import cn.cercis.common.*
+import cn.cercis.common.LOG_TAG
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository

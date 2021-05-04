@@ -18,7 +18,6 @@ import cn.cercis.util.DataBindingViewHolder
 import cn.cercis.util.DiffRecyclerViewAdapter
 import cn.cercis.util.doDetailNavigation
 import cn.cercis.viewmodel.ContactListViewModel
-import cn.cercis.viewmodel.ContactListViewModel.FriendEntryWithUpdateMark
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

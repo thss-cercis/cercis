@@ -29,10 +29,19 @@ interface CercisHttpService {
     suspend fun updateUserDetail(@Body request: UpdateUserDetailRequest): EmptyNetworkResponse
 
     @PUT("user/password")
-    suspend fun updateUserPassword(@Body request: UpdateUserPasswordRequest): EmptyNetworkResponse
+    suspend fun updatePassword(@Body request: UpdatePasswordRequest): EmptyNetworkResponse
 
     @GET("user/info")
     suspend fun getUser(@Query("id") userId: UserId): NetworkResponse<WrappedUserPayload>
+
+    @GET("search/users")
+    suspend fun searchUser(
+        @Query("id") userId: UserId?,
+        @Query("mobile") mobile: String?,
+        @Query("nickname") nickname: String?,
+        @Query("offset") offset: Long?,
+        @Query("limit") limit: Long?,
+    ): NetworkResponse<WrappedSearchUserPayload>
 
     @GET("friend/")
     suspend fun getFriendList(): NetworkResponse<WrappedFriendListPayload>
@@ -57,6 +66,12 @@ interface CercisHttpService {
 
     @DELETE("friend/")
     suspend fun deleteFriend(@Body request: DeleteFriendRequest): EmptyNetworkResponse
+
+    @POST("mobile/recover")
+    suspend fun sendPasswordResetSms(@Body request: SendSmsRequest): EmptyNetworkResponse
+
+    @POST("auth/recover")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): EmptyNetworkResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -98,7 +113,7 @@ data class UpdateUserDetailRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class UpdateUserPasswordRequest(
+data class UpdatePasswordRequest(
     @Json(name = "old_pwd") val oldPassword: String,
     @Json(name = "new_pwd") val newPassword: String,
 )
@@ -114,6 +129,18 @@ data class WrappedUserPayload(
         val mobile: String,
         val avatar: String,
         val bio: String,
+    )
+}
+
+@JsonClass(generateAdapter = true)
+data class WrappedSearchUserPayload(
+    val users: List<UserSearchResult>,
+) {
+    @JsonClass(generateAdapter = true)
+    data class UserSearchResult(
+        val id: UserId,
+        val mobile: String,
+        val nickname: String,
     )
 }
 
@@ -161,4 +188,11 @@ data class UpdateFriendRemarkRequest(
 @JsonClass(generateAdapter = true)
 data class DeleteFriendRequest(
     @Json(name = "friend_id") val id: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class ResetPasswordRequest(
+    val mobile: String,
+    @Json(name = "new_pwd") val newPassword: String,
+    @Json(name = "code") val verificationCode: String,
 )

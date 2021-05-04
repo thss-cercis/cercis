@@ -1,7 +1,9 @@
 package cn.cercis.module
 
 import androidx.room.Room
-import cn.cercis.dao.*
+import cn.cercis.dao.FriendDatabase
+import cn.cercis.dao.MessageDatabase
+import cn.cercis.dao.UserDatabase
 import cn.cercis.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
