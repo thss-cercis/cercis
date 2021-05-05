@@ -14,14 +14,16 @@ import java.util.*
 class DataBindingViewHolder<T : ViewBinding>(val binding: T) :
     RecyclerView.ViewHolder(binding.root)
 
-abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(private val itemCallback: DiffUtil.ItemCallback<T>) :
+abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
+    private val itemCallback: DiffUtil.ItemCallback<T>
+) :
     RecyclerView.Adapter<VH>() {
     /**
      * Constructor using equals to judge if contents are the same.
      */
     constructor(
-        itemSameCallback: (a: T, b: T) -> Boolean,
-        contentsSameCallback: (a: T, b: T) -> Boolean = Objects::equals,
+        itemSameCallback: (T, T) -> Boolean,
+        contentsSameCallback: (T, T) -> Boolean,
     ) : this(object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T) = itemSameCallback(oldItem, newItem)
 
@@ -42,8 +44,10 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(private 
         AsyncListDiffer(this, itemCallback)
     }
 
-    fun submitList(list: List<T>) {
-        differ.submitList(list)
+    fun submitList(list: List<T>?) {
+        if (list != null) {
+            differ.submitList(list)
+        }
     }
 
     val currentList: List<T>
@@ -56,15 +60,26 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(private 
     }
 
     companion object {
+        abstract class BindingAdapter<T, B : ViewDataBinding>(
+            itemSameCallback: (T, T) -> Boolean,
+            contentsSameCallback: (T, T) -> Boolean,
+        ) : DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>(
+            itemSameCallback,
+            contentsSameCallback,
+        )
+
         fun <T, B : ViewDataBinding, C: Comparable<C>> getInstance(
             dataSource: LiveData<List<T>>,
             viewLifecycleOwnerSupplier: () -> LifecycleOwner,
             itemIndex: T.() -> C,
-            contentsSameCallback: (a: T, b: T) -> Boolean,
-            inflater: (LayoutInflater, parent: ViewGroup, viewType: Int) -> B,
-            onBindViewHolderWithExecution: DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>.(DataBindingViewHolder<B>, Int) -> Unit,
-            getViewType: DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>.(position: Int) -> Int = { 0 },
-        ) = object : DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>(
+            contentsSameCallback: (T, T) -> Boolean,
+            inflater: (inflater: LayoutInflater, parent: ViewGroup, viewType: Int) -> B,
+            onBindViewHolderWithExecution: BindingAdapter<T, B>.(
+                holder: DataBindingViewHolder<B>,
+                position: Int
+            ) -> Unit,
+            getViewType: BindingAdapter<T, B>.(position: Int) -> Int = { 0 },
+        ) = object : BindingAdapter<T, B>(
             { oldItem, newItem -> itemIndex(oldItem).compareTo(itemIndex(newItem)) == 0 },
             contentsSameCallback,
         ) {
@@ -91,9 +106,10 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(private 
                 return getViewType(position)
             }
         }.apply {
-            submitList(dataSource.value ?: listOf())
-            dataSource.observe(viewLifecycleOwnerSupplier()) {
-                it?.let(::submitList)
+            submitList(listOf())
+            dataSource.run {
+                submitList(value)
+                observe(viewLifecycleOwnerSupplier(), ::submitList)
             }
         }
     }

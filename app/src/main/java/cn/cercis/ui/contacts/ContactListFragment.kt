@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
@@ -54,7 +55,7 @@ class ContactListFragment : Fragment() {
                             holder.binding.user = currentList[position].let {
                                 contactListViewModel.getUserInfo(it.friendUserId, it)
                             }
-                        }
+                        },
                     )
                 }
 
@@ -67,7 +68,7 @@ class ContactListFragment : Fragment() {
                     )
                     recyclerViewBinding.contactListSwipe.setOnRefreshListener {
                         contactListViewModel.refreshFriendList()
-                        val observer = object : androidx.lifecycle.Observer<Boolean> {
+                        val observer = object : Observer<Boolean> {
                             override fun onChanged(t: Boolean?) {
                                 if (t == false) {
                                     recyclerViewBinding.contactListSwipe.isRefreshing = false

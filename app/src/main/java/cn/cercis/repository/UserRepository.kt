@@ -42,7 +42,7 @@ class UserRepository @Inject constructor(
             userDao.saveUser(data)
         }
 
-        override fun loadFromDb(): Flow<User?> {
+        override suspend fun loadFromDb(): Flow<User?> {
             Log.d(LOG_TAG, "fetch user $userId from ${this.hashCode()}")
             return userDao.loadUser(userId)
         }

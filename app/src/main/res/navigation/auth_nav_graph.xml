@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/signUpFragment"
         android:name="cn.cercis.ui.startup.SignUpFragment"
-        android:label="layout_signup_1"
+        android:label="layout_signup"
         tools:layout="@layout/fragment_signup">
         <action
             android:id="@+id/action_signUpFragment_to_signUpSuccessFragment"

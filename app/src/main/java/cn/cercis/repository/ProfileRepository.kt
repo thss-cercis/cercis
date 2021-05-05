@@ -1,5 +1,6 @@
 package cn.cercis.repository
 
+import androidx.lifecycle.MutableLiveData
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.dao.UserDao
 import cn.cercis.entity.LoginHistory
@@ -23,6 +24,8 @@ class ProfileRepository @Inject constructor(
     val userDao: UserDao,
     val loginHistoryDao: LoginHistoryDao,
 ) {
+    val profileChanged = MutableLiveData(false)
+
     fun getCurrentUserDetail() = object : NetworkBoundResource<UserDetail>() {
         override suspend fun fetchFromNetwork(): NetworkResponse<UserDetail> {
             // TODO handle user_id inconsistency, or just ignore it
@@ -34,7 +37,7 @@ class ProfileRepository @Inject constructor(
             userDao.saveUserDetail(data)
         }
 
-        override fun loadFromDb(): Flow<UserDetail?> {
+        override suspend fun loadFromDb(): Flow<UserDetail?> {
             return userDao.loadUserDetail()
         }
     }

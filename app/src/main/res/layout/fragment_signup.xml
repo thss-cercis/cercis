@@ -13,7 +13,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/signup_1_root_layout"
+        android:id="@+id/signup_root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:hint="@string/signup_hint_nickname"
+            android:hint="@string/hint_nickname"
             app:layout_constraintTop_toBottomOf="@id/signup_headline2"
             app:shapeAppearanceOverlay="@style/roundedCorner">
 

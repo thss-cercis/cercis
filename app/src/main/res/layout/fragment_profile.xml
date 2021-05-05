@@ -61,9 +61,18 @@
                 app:layout_constraintTop_toBottomOf="@id/profile_avatar" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_profile_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/status_bar"
+                android:text="@string/profile_edit_title" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_logout"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/button_profile_edit"
                 android:text="@string/profile_button_logout"
                 android:onClick="@{viewModel::onLogoutClicked}" />
         </androidx.constraintlayout.widget.ConstraintLayout>

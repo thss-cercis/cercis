@@ -22,6 +22,7 @@ data class User(
 data class UserDetail(
     @PrimaryKey val id: UserId,
     val nickname: String,
+    val email: String,
     val mobile: String,
     val avatar: String,
     val bio: String,

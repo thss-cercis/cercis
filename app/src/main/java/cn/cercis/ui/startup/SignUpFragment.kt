@@ -27,8 +27,8 @@ class SignUpFragment : Fragment() {
     ): View {
         val binding = FragmentSignupBinding.inflate(inflater, container, false)
         binding.viewModel = signUpViewModel
-        binding.lifecycleOwner = this
-        binding.signup1RootLayout.enableTransition()
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.signupRootLayout.enableTransition()
         signUpViewModel.signUpError.observe(viewLifecycleOwner) {
             binding.signupSubmitError.text = it
         }

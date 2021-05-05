@@ -35,7 +35,7 @@ class FriendRepository @Inject constructor(
             friendDao.saveFriendList(data)
         }
 
-        override fun loadFromDb(): Flow<List<FriendEntry>?> {
+        override suspend fun loadFromDb(): Flow<List<FriendEntry>?> {
             return friendDao.loadFriendList()
         }
     }
@@ -61,7 +61,7 @@ class FriendRepository @Inject constructor(
             return httpService.getFriendRequestSentList().use { requests }
         }
 
-        override fun loadFromDb(): Flow<List<FriendRequest>?> {
+        override suspend fun loadFromDb(): Flow<List<FriendRequest>?> {
             return friendDao.loadFriendRequestSentList(authRepository.currentUserId)
         }
     }
@@ -75,7 +75,7 @@ class FriendRepository @Inject constructor(
             return httpService.getFriendRequestReceivedList().use { requests }
         }
 
-        override fun loadFromDb(): Flow<List<FriendRequest>?> {
+        override suspend fun loadFromDb(): Flow<List<FriendRequest>?> {
             return friendDao.loadFriendRequestReceivedList(authRepository.currentUserId)
         }
     }

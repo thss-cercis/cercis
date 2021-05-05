@@ -10,4 +10,21 @@
         android:name="cn.cercis.ui.empty.EmptyFragment"
         android:label="layout_empty"
         tools:layout="@layout/fragment_empty" />
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="cn.cercis.ui.profile.ProfileEditFragment"
+        android:label="ProfileEditFragment" >
+        <argument
+            android:name="nickname"
+            app:argType="string" />
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="bio"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_profileEditFragment"
+        app:destination="@id/profileEditFragment" />
 </navigation>

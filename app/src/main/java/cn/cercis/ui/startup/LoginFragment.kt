@@ -42,9 +42,9 @@ class LoginFragment : Fragment() {
         }
         loginViewModel.currentUserList.observe(viewLifecycleOwner) {
             binding.loginUserIdList.setAdapter(ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_dropdown_item_1line,
-                    it.map { item -> item.userId.toString() }
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                it.map { item -> item.userId.toString() }
             ))
         }
         (binding.root as ViewGroup).enableTransition()

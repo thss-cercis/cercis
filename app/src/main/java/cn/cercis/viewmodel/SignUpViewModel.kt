@@ -12,7 +12,7 @@ import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.NetworkResponse
 import cn.cercis.util.PairLiveData
-import cn.cercis.util.PasswordChecker
+import cn.cercis.util.validation.validatePassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -56,7 +56,7 @@ class SignUpViewModel @Inject constructor(
     val mobile = MutableLiveData("")
     val verificationCode = MutableLiveData("")
     val verificationError = MutableLiveData<String?>(null)
-    val verificationCodeCountDown = MutableLiveData(0)
+    private val verificationCodeCountDown = MutableLiveData(0)
     val canSendCode = Transformations.map(PairLiveData(mobile, verificationCodeCountDown)) {
         it?.let {
             !it.first.isNullOrEmpty() && it.second == 0
@@ -71,25 +71,25 @@ class SignUpViewModel @Inject constructor(
     val password = MutableLiveData("")
     val passwordVisible = MutableLiveData(false)
     val signUpError = MutableLiveData<String?>(null)
-    val signUpSubmittingBusy = MutableLiveData(false)
-    val passwordChecker = PasswordChecker(password)
+    private val signUpSubmittingBusy = MutableLiveData(false)
+    private val passwordValid = validatePassword(password)
     val canSubmit: LiveData<Boolean> = run {
         MediatorLiveData<Boolean>().apply {
             val checkCanSubmit = { _: Any ->
                 value = !mobile.value.isNullOrEmpty()
                         && !verificationCode.value.isNullOrEmpty()
                         && !nickname.value.isNullOrEmpty()
-                        && passwordChecker.result.value?.valid ?: false
+                        && passwordValid.value?.valid ?: false
                         && signUpSubmittingBusy.value != true
             }
             addSource(mobile, checkCanSubmit)
             addSource(verificationCode, checkCanSubmit)
             addSource(nickname, checkCanSubmit)
-            addSource(passwordChecker.result, checkCanSubmit)
+            addSource(passwordValid, checkCanSubmit)
             addSource(signUpSubmittingBusy, checkCanSubmit)
         }
     }
-    val passwordError: LiveData<String?> = Transformations.map(passwordChecker.result) {
+    val passwordError: LiveData<String?> = Transformations.map(passwordValid) {
         it?.let {
             when {
                 it.emptyOrValid -> null
