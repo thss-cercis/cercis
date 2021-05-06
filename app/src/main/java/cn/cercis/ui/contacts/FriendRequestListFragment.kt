@@ -11,8 +11,8 @@ import cn.cercis.R
 import cn.cercis.databinding.FragmentFriendRequestListBinding
 import cn.cercis.databinding.FriendRequestListDelimiterBinding
 import cn.cercis.databinding.FriendRequestListItemBinding
-import cn.cercis.util.DiffRecyclerViewAdapter
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.viewmodel.FriendRequestListViewModel
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_0
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_1

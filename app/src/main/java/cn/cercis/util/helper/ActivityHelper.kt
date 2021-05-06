@@ -1,4 +1,4 @@
-package cn.cercis.util
+package cn.cercis.util.helper
 
 import android.animation.LayoutTransition
 import android.view.ViewGroup

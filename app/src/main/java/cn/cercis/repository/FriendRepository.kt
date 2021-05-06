@@ -6,8 +6,9 @@ import cn.cercis.dao.FriendDao
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.FriendRequest
 import cn.cercis.http.*
-import cn.cercis.util.NetworkResponse
 import cn.cercis.util.mapRun
+import cn.cercis.util.resource.DataSource
+import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -22,8 +23,8 @@ class FriendRepository @Inject constructor(
     private val authRepository: AuthRepository,
     private val friendDao: FriendDao,
 ) {
-    fun getFriendList() = object : NetworkBoundResource<List<FriendEntry>>() {
-        override suspend fun fetchFromNetwork(): NetworkResponse<List<FriendEntry>> {
+    fun getFriendList() = object : DataSource<List<FriendEntry>>() {
+        override suspend fun fetch(): NetworkResponse<List<FriendEntry>> {
             return httpService.getFriendList().use { friends }.convert {
                 it.mapRun {
                     FriendEntry(friendUserId = id, remark = "", displayName = displayName)
@@ -31,11 +32,11 @@ class FriendRepository @Inject constructor(
             }
         }
 
-        override suspend fun saveNetworkResult(data: List<FriendEntry>) {
+        override suspend fun saveToDb(data: List<FriendEntry>) {
             friendDao.saveFriendList(data)
         }
 
-        override suspend fun loadFromDb(): Flow<List<FriendEntry>?> {
+        override fun loadFromDb(): Flow<List<FriendEntry>?> {
             return friendDao.loadFriendList()
         }
     }
@@ -52,30 +53,30 @@ class FriendRepository @Inject constructor(
         )
     )
 
-    fun getFriendRequestSentList() = object : NetworkBoundResource<List<FriendRequest>>() {
-        override suspend fun saveNetworkResult(data: List<FriendRequest>) {
+    fun getFriendRequestSentList() = object : DataSource<List<FriendRequest>>() {
+        override suspend fun saveToDb(data: List<FriendRequest>) {
             friendDao.saveFriendRequestList(data)
         }
 
-        override suspend fun fetchFromNetwork(): NetworkResponse<List<FriendRequest>> {
+        override suspend fun fetch(): NetworkResponse<List<FriendRequest>> {
             return httpService.getFriendRequestSentList().use { requests }
         }
 
-        override suspend fun loadFromDb(): Flow<List<FriendRequest>?> {
+        override fun loadFromDb(): Flow<List<FriendRequest>?> {
             return friendDao.loadFriendRequestSentList(authRepository.currentUserId)
         }
     }
 
-    fun getFriendRequestReceivedList() = object : NetworkBoundResource<List<FriendRequest>>() {
-        override suspend fun saveNetworkResult(data: List<FriendRequest>) {
+    fun getFriendRequestReceivedList() = object : DataSource<List<FriendRequest>>() {
+        override suspend fun saveToDb(data: List<FriendRequest>) {
             friendDao.saveFriendRequestList(data)
         }
 
-        override suspend fun fetchFromNetwork(): NetworkResponse<List<FriendRequest>> {
+        override suspend fun fetch(): NetworkResponse<List<FriendRequest>> {
             return httpService.getFriendRequestReceivedList().use { requests }
         }
 
-        override suspend fun loadFromDb(): Flow<List<FriendRequest>?> {
+        override fun loadFromDb(): Flow<List<FriendRequest>?> {
             return friendDao.loadFriendRequestReceivedList(authRepository.currentUserId)
         }
     }

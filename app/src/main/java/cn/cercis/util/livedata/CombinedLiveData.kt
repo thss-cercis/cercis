@@ -1,4 +1,4 @@
-package cn.cercis.util
+package cn.cercis.util.livedata
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData

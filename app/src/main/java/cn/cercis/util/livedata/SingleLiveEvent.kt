@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package cn.cercis.util
+package cn.cercis.util.livedata
 
 import android.util.Log
 import androidx.annotation.MainThread

@@ -12,7 +12,7 @@ import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.databinding.ChatListItemBinding
 import cn.cercis.databinding.FragmentChatListBinding
-import cn.cercis.util.doDetailNavigation
+import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.viewmodel.ChatListItemData
 import cn.cercis.viewmodel.ChatListViewModel
 import com.bumptech.glide.Glide

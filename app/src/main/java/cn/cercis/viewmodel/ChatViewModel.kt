@@ -12,7 +12,7 @@ import cn.cercis.entity.User
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
-import cn.cercis.util.Resource
+import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

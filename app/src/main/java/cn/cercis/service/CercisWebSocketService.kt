@@ -36,8 +36,8 @@ interface CercisWebSocketService {
 
 @JsonClass(generateAdapter = true)
 data class InitMessageFromServer(
-        @Json(name = "friends") val friends: List<InitMessageFromServerFriend>,
-        @Json(name = "groups") val groups: List<InitMessageFromServerGroup>,
+    @Json(name = "friends") val friends: List<InitMessageFromServerFriend>,
+    @Json(name = "groups") val groups: List<InitMessageFromServerGroup>,
 )
 
 @JsonClass(generateAdapter = true)
@@ -59,8 +59,8 @@ data class InitMessageFromClient(
 
 @JsonClass(generateAdapter = true)
 data class ChatsUpdateMessage(
-        @Json(name = "type") val type: String,
-        @Json(name = "chats") val chats: List<ChatsUpdateMessageChat>,
+    @Json(name = "type") val type: String,
+    @Json(name = "chats") val chats: List<ChatsUpdateMessageChat>,
 )
 
 @JsonClass(generateAdapter = true)
@@ -79,10 +79,10 @@ data class ChatUpdateMessage(
 @JsonClass(generateAdapter = true)
 data class SendMessageRequestMessage(
     /**
-         * Client generated serial number.
-         * Used to receive corresponding response.
-         */
-        @Json(name = "serial") val serial: SerialId,
+     * Client generated serial number.
+     * Used to receive corresponding response.
+     */
+    @Json(name = "serial") val serial: SerialId,
     @Json(name = "chat_id") val chatId: ChatId,
     @Json(name = "type") val type: String,
     @Json(name = "content") val content: String,

@@ -8,9 +8,9 @@ import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyPayload
+import cn.cercis.http.HttpStatusCode
 import cn.cercis.http.PayloadResponseBody
-import cn.cercis.util.HttpStatusCode
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.resource.NetworkResponse
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor

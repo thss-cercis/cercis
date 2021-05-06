@@ -4,7 +4,7 @@ import android.app.Application
 import android.view.View
 import androidx.lifecycle.*
 import cn.cercis.repository.ProfileRepository
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.BIO_MAX_LENGTH
 import cn.cercis.util.validation.EMAIL_REGEX
 import dagger.hilt.android.lifecycle.HiltViewModel

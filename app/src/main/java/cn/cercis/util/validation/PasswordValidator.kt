@@ -64,7 +64,7 @@ fun validatePassword(password: LiveData<String>): MediatorLiveData<PasswordValid
                         invalidCharacterVal = try {
                             String(charArrayOf(it))
                         } catch (t: Throwable) {
-                            // todo: deal with surrogate pair
+                            // TODO: deal with surrogate pair
                             ""
                         }
                     }

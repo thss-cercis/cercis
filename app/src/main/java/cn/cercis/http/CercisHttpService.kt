@@ -4,7 +4,7 @@ import cn.cercis.common.ApplyId
 import cn.cercis.common.UserId
 import cn.cercis.entity.FriendRequest
 import cn.cercis.entity.UserDetail
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.resource.NetworkResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import retrofit2.http.*
@@ -73,6 +73,11 @@ interface CercisHttpService {
     @POST("auth/recover")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): EmptyNetworkResponse
 }
+
+@JsonClass(generateAdapter = true)
+class EmptyPayload
+
+typealias EmptyNetworkResponse = NetworkResponse<EmptyPayload>
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(

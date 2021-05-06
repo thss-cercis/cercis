@@ -1,4 +1,4 @@
-package cn.cercis.util
+package cn.cercis.http
 
 object HttpStatusCode {
     const val StatusContinue                      = 100 // RFC 7231, 6.2.1

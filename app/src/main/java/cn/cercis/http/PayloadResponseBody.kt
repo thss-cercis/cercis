@@ -1,6 +1,5 @@
 package cn.cercis.http
 
-import cn.cercis.util.HttpStatusCode
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

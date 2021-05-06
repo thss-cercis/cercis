@@ -48,12 +48,12 @@ class MessageService : Service() {
         val backoffStrategy = ExponentialWithJitterBackoffStrategy(5000, 5000)
 
         val scarlet = Scarlet.Builder()
-                .webSocketFactory(okHttpClient.newWebSocketFactory(WSS_MESSAGES))
-                .addMessageAdapterFactory(MoshiMessageAdapter.Factory())
-                .addStreamAdapterFactory(RxJava2StreamAdapterFactory())
-                .backoffStrategy(backoffStrategy)
-                .lifecycle(lifecycle)
-                .build()
+            .webSocketFactory(okHttpClient.newWebSocketFactory(WSS_MESSAGES))
+            .addMessageAdapterFactory(MoshiMessageAdapter.Factory())
+            .addStreamAdapterFactory(RxJava2StreamAdapterFactory())
+            .backoffStrategy(backoffStrategy)
+            .lifecycle(lifecycle)
+            .build()
 
         socketService = scarlet.create()
         messageRepository.submitConnectionStatus(ConnectionStatus.CONNECTING)

@@ -15,9 +15,9 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ContactListFriendItemBinding
 import cn.cercis.databinding.ContactListRecyclerViewBinding
 import cn.cercis.databinding.FragmentContactListBinding
-import cn.cercis.util.DataBindingViewHolder
-import cn.cercis.util.DiffRecyclerViewAdapter
-import cn.cercis.util.doDetailNavigation
+import cn.cercis.util.helper.DataBindingViewHolder
+import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.viewmodel.ContactListViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint

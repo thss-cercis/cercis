@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentLoginBinding
-import cn.cercis.util.enableTransition
+import cn.cercis.util.helper.enableTransition
 import cn.cercis.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

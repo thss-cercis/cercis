@@ -8,7 +8,7 @@ import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
 import cn.cercis.http.*
 import cn.cercis.module.AuthorizedEvent
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

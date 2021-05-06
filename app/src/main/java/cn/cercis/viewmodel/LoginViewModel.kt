@@ -8,8 +8,8 @@ import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.repository.AuthRepository
-import cn.cercis.util.NetworkResponse
-import cn.cercis.util.PairLiveData
+import cn.cercis.util.livedata.PairLiveData
+import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -5,7 +5,8 @@ import androidx.lifecycle.*
 import cn.cercis.entity.UserDetail
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
-import cn.cercis.util.Resource
+import cn.cercis.util.helper.coroutineContext
+import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +21,7 @@ class ProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val currentUserResource = createCurrentUserResource()
+    private val currentUserResource = generateCurrentUserResource()
 
     val currentUser = MediatorLiveData<UserDetail>().apply {
         val addResource: MediatorLiveData<UserDetail>.(LiveData<Resource<UserDetail>>) -> Unit = {
@@ -35,7 +36,7 @@ class ProfileViewModel @Inject constructor(
                     return@addSource
                 }
                 it.value = false
-                addResource(createCurrentUserResource())
+                addResource(generateCurrentUserResource())
             }
         }
     }
@@ -53,11 +54,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private val coroutineContext
-        get() = viewModelScope.coroutineContext + Dispatchers.IO
-
-    private fun createCurrentUserResource()
-        = profileRepository.getCurrentUserDetail().asFlow().asLiveData(coroutineContext)
+    private fun generateCurrentUserResource(): LiveData<Resource<UserDetail>> {
+        return profileRepository.getCurrentUserDetail().flow().asLiveData(coroutineContext)
+    }
 
     fun onLogoutClicked(@Suppress("UNUSED_PARAMETER") view: View) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.databinding.FragmentProfileEditBinding
-import cn.cercis.util.enableTransition
+import cn.cercis.util.helper.enableTransition
 import cn.cercis.viewmodel.ProfileEditViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi

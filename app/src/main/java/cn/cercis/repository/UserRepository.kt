@@ -7,9 +7,9 @@ import cn.cercis.common.UserId
 import cn.cercis.dao.UserDao
 import cn.cercis.entity.User
 import cn.cercis.http.CercisHttpService
-import cn.cercis.http.NetworkBoundResource
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
-import cn.cercis.util.NetworkResponse
+import cn.cercis.util.resource.DataSource
+import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -23,8 +23,8 @@ class UserRepository @Inject constructor(
     val httpService: CercisHttpService,
     val userDao: UserDao,
 ) {
-    fun getUser(userId: UserId) = object : NetworkBoundResource<User>() {
-        override suspend fun fetchFromNetwork(): NetworkResponse<User> {
+    fun getUser(userId: UserId) = object : DataSource<User>() {
+        override suspend fun fetch(): NetworkResponse<User> {
             return httpService.getUser(userId).use { user }.use {
                 User(
                     id = userId,
@@ -38,11 +38,11 @@ class UserRepository @Inject constructor(
             }
         }
 
-        override suspend fun saveNetworkResult(data: User) {
+        override suspend fun saveToDb(data: User) {
             userDao.saveUser(data)
         }
 
-        override suspend fun loadFromDb(): Flow<User?> {
+        override fun loadFromDb(): Flow<User?> {
             Log.d(LOG_TAG, "fetch user $userId from ${this.hashCode()}")
             return userDao.loadUser(userId)
         }

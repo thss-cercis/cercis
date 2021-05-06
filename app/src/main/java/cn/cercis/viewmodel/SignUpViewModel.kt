@@ -10,8 +10,9 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository
-import cn.cercis.util.NetworkResponse
-import cn.cercis.util.PairLiveData
+import cn.cercis.util.helper.getString
+import cn.cercis.util.livedata.PairLiveData
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.validatePassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -191,9 +192,5 @@ class SignUpViewModel @Inject constructor(
         } finally {
             signUpSubmittingBusy.postValue(false)
         }
-    }
-
-    private fun getString(resId: Int): String {
-        return getApplication<Application>().getString(resId)
     }
 }
