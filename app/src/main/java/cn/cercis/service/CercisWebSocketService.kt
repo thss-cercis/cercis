@@ -1,95 +1,69 @@
 package cn.cercis.service
 
-import cn.cercis.common.ChatId
-import cn.cercis.common.MessageId
-import cn.cercis.common.SerialId
-import cn.cercis.common.UserId
+import cn.cercis.common.*
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket
 import com.tinder.scarlet.ws.Receive
 import com.tinder.scarlet.ws.Send
 import io.reactivex.Flowable
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 /**
  * TODO May change due to protocol change.
  */
 interface CercisWebSocketService {
-    @Send
-    fun sendInitMessage(initMessageFromClient: InitMessageFromClient)
-
-    @Send
-    fun sendSendMessageRequestMessage(sendMessageRequestMessage: SendMessageRequestMessage)
+    @Receive
+    fun observeWebSocketEvent(): ReceiveChannel<WebSocket.Event>
 
     @Receive
-    fun receiveInitMessage(): Flowable<InitMessageFromServer>
+    fun observeWebSocketMessage(): ReceiveChannel<NotificationMessage>
 
     @Receive
-    fun observeWebSocketEvent(): Flowable<WebSocket.Event>
-
-    @Receive
-    fun receiveChatsUpdate(): Flowable<ChatsUpdateMessage>
-
-    @Receive
-    fun receiveSendMessageResponseMessage(): Flowable<SendMessageResponseMessage>
+    fun observeDebugMessage(): ReceiveChannel<DebugMessage>
 }
 
 @JsonClass(generateAdapter = true)
-data class InitMessageFromServer(
-    @Json(name = "friends") val friends: List<InitMessageFromServerFriend>,
-    @Json(name = "groups") val groups: List<InitMessageFromServerGroup>,
+data class DebugMessage(
+    @Json(name = "Msg") val msg: String,
 )
 
+/**
+ * This is a joint message class for all types.
+ */
 @JsonClass(generateAdapter = true)
-data class InitMessageFromServerFriend(
-    @Json(name = "user_id") val userId: UserId,
-    @Json(name = "chat_id") val chatId: ChatId,
-    @Json(name = "alias") val alias: String,
+data class NotificationMessage(
+    val type: WSMessageTypeId,
+    val apply: FriendRequestReceivedMessage?,
 )
 
-@JsonClass(generateAdapter = true)
-data class InitMessageFromServerGroup(
-    @Json(name = "id") val chatId: ChatId,
-)
+enum class MessageType(
+    val typeId: WSMessageTypeId,
+    val property: KProperty1<NotificationMessage, *>?
+) {
+    // a new friend request arrived
+    FRIEND_REQUEST_RECEIVED(100, null),
+
+    // friend list changed (friend deleted / friend added)
+    FRIEND_LIST_UPDATED(101, NotificationMessage::apply),
+
+    ;
+
+    companion object {
+        /**
+         * Gets the message type from id.
+         */
+        fun of(type: WSMessageTypeId): MessageType? {
+            return values().find { it.typeId == type }
+        }
+    }
+}
 
 @JsonClass(generateAdapter = true)
-data class InitMessageFromClient(
-    @Json(name = "latest") val latestMessageId: MessageId,
-)
-
-@JsonClass(generateAdapter = true)
-data class ChatsUpdateMessage(
-    @Json(name = "type") val type: String,
-    @Json(name = "chats") val chats: List<ChatsUpdateMessageChat>,
-)
-
-@JsonClass(generateAdapter = true)
-data class ChatsUpdateMessageChat(
-    @Json(name = "id") val chatId: ChatId,
-    @Json(name = "messages") val messages: List<ChatUpdateMessage>,
-)
-
-@JsonClass(generateAdapter = true)
-data class ChatUpdateMessage(
-    @Json(name = "id") val messageId: MessageId,
-    @Json(name = "type") val type: String,
-    @Json(name = "content") val content: String,
-)
-
-@JsonClass(generateAdapter = true)
-data class SendMessageRequestMessage(
-    /**
-     * Client generated serial number.
-     * Used to receive corresponding response.
-     */
-    @Json(name = "serial") val serial: SerialId,
-    @Json(name = "chat_id") val chatId: ChatId,
-    @Json(name = "type") val type: String,
-    @Json(name = "content") val content: String,
-)
-
-@JsonClass(generateAdapter = true)
-data class SendMessageResponseMessage(
-    @Json(name = "serial") val serial: SerialId,
-    @Json(name = "message_id") val messageId: MessageId,
+data class FriendRequestReceivedMessage(
+    @Json(name = "apply_id") val applyId: ApplyId,
+    val nickname: String,
 )

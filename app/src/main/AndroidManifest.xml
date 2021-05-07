@@ -3,7 +3,7 @@
     package="cn.cercis">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".CercisApplication"
@@ -26,9 +26,23 @@
             </intent-filter>
         </activity>
         <activity android:name=".AuthActivity" />
-        <activity android:name=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-        <service android:name=".service.MessageService" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="cercis.cn"
+                    android:pathPrefix="/client/open"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".service.NotificationService" />
     </application>
 
 </manifest>

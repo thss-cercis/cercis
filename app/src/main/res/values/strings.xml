@@ -24,6 +24,9 @@
     <string name="login_hint_user_id">ID / 手机号</string>
     <string name="login_link_reset_password">找回密码</string>
     <string name="login_link_user_signup">用户注册</string>
+    <string name="main_401_dialog_title">登录过期</string>
+    <string name="main_401_dialog_body">点击 %s 回到登录界面</string>
+    <string name="main_401_dialog_ok_button">确定</string>
     <string name="nav_contacts">联系人</string>
     <string name="nav_discovery">发现</string>
     <string name="nav_messages">消息</string>

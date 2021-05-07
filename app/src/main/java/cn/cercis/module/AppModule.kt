@@ -47,15 +47,30 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun providePersistentCookieJar(
+        @ApplicationContext context: Context,
+    ): PersistentCookieJar {
+        return object: PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)) {
+            @Synchronized
+            override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                val result = super.loadForRequest(url)
+                return result
+            }
+        }
+    }
+
+    @Singleton
+    @Provides
     fun provideOkHttpClient(
         @AuthorizedEvent authorized: MutableLiveData<Boolean?>,
         @ApplicationContext context: Context,
+        cookieJar: PersistentCookieJar
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
             .writeTimeout(5, TimeUnit.SECONDS)
-            .cookieJar(PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)))
+            .cookieJar(cookieJar)
             .addInterceptor { chain ->
                 val request = chain.request()
                 try {
@@ -104,7 +119,7 @@ object AppModule {
             .client(okHttpClient)
             .addConverterFactory(object : Converter.Factory() {
                 val moshi = MoshiConverterFactory.create()
-                val serverErrorMsg = context.getString(R.string.error_server_error)
+                val serverErrorMsg = { context.getString(R.string.error_server_error) }
 
                 override fun responseBodyConverter(
                     type: Type,
@@ -132,7 +147,7 @@ object AppModule {
                         }
                         try {
                             val value = responseBodyConverter?.convert(it)
-                                ?: return@Converter NetworkResponse.NetworkError(serverErrorMsg)
+                                ?: return@Converter NetworkResponse.NetworkError(serverErrorMsg())
                             val body = value as PayloadResponseBody<*>
                             if (!body.successful) {
                                 return@Converter NetworkResponse.Reject(body.code, body.msg)
@@ -140,11 +155,11 @@ object AppModule {
                             if (body.payload != null || responseType.rawType == EmptyPayload::class.java) {
                                 NetworkResponse.Success(body.payload ?: EmptyPayload())
                             } else {
-                                NetworkResponse.NetworkError(serverErrorMsg)
+                                NetworkResponse.NetworkError(serverErrorMsg())
                             }
                         } catch (e: Exception) {
                             Log.d(LOG_TAG, e.stackTraceToString())
-                            NetworkResponse.NetworkError(serverErrorMsg)
+                            NetworkResponse.NetworkError(serverErrorMsg())
                         }
                     }
                 }

@@ -11,7 +11,7 @@ import cn.cercis.entity.Chat
 import cn.cercis.entity.ChatType
 import cn.cercis.entity.Message
 import cn.cercis.entity.User
-import cn.cercis.service.MessageService
+import cn.cercis.service.NotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.flow.Flow
@@ -24,8 +24,6 @@ class MessageRepository @Inject constructor(
     private val chatDao: ChatDao,
     @ApplicationContext val context: Context,
 ) {
-    val connectionStatus = MutableLiveData(MessageService.ConnectionStatus.DISCONNECTED)
-
     /**
      * This field keeps the oldest liable messageId for each chat. Not persisted.
      *
@@ -98,19 +96,10 @@ class MessageRepository @Inject constructor(
     /**
      * Insert a message into database.
      *
-     * Called from [MessageService]
+     * Called from [NotificationService]
      */
     fun submitMessage(vararg messages: Message) {
         messageDao.insertMessage(*messages)
-    }
-
-    /**
-     * Submits connection status.
-     *
-     * Called from [MessageService].
-     */
-    fun submitConnectionStatus(connectionStatus: MessageService.ConnectionStatus) {
-        this.connectionStatus.postValue(connectionStatus)
     }
 
     /**

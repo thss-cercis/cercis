@@ -14,12 +14,14 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityMainBinding
+import cn.cercis.service.NotificationService
 import cn.cercis.ui.activity.ActivityFragment
 import cn.cercis.ui.chat.ChatListFragment
 import cn.cercis.ui.contacts.ContactListFragment
 import cn.cercis.ui.profile.ProfileFragment
 import cn.cercis.util.setupWithNavController
 import cn.cercis.viewmodel.MainActivityViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -42,8 +44,22 @@ class MainActivity : AppCompatActivity() {
         // check login status and automatically jumps to login view
         mainActivityViewModel.loggedIn.observe(this) {
             if (it == false) {
-                startActivity(Intent(this, AuthActivity::class.java))
-                finish()
+                val finishActivity = {
+                    startActivity(Intent(this, AuthActivity::class.java))
+                    finish()
+                }
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.main_401_dialog_title)
+                    .setMessage(
+                        getString(R.string.main_401_dialog_body)
+                            .format(getString(R.string.main_401_dialog_ok_button))
+                    )
+                    .setPositiveButton(R.string.main_401_dialog_ok_button) { _, _ ->
+                        finishActivity()
+                    }
+                    .setOnDismissListener { finishActivity() }
+                    .show()
+
             }
         }
 
@@ -66,9 +82,21 @@ class MainActivity : AppCompatActivity() {
             isUserInputEnabled = false
         }
 
+        // starts the notification service
+        // NotificationService runs in the background even if MainActivity dies.
+        // Calling startService on this service multiple times would make no difference from calling once.
+        startService(Intent(applicationContext, NotificationService::class.java))
+
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        // ensure fragment get noticed
+        super.onNewIntent(intent)
+        // todo finish logic here
+        Log.d(LOG_TAG, "started intent: ${intent.toString()}")
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

@@ -56,8 +56,8 @@ android {
 
 dependencies {
     def room_version = "2.2.6"
-    def lifecycle_version = "2.3.0"
-    def paging_version = "3.0.0-rc01"
+    def lifecycle_version = "2.3.1"
+    def paging_version = "3.0.0"
 
     implementation "androidx.paging:paging-runtime:$paging_version"
     implementation "androidx.paging:paging-rxjava2:$paging_version"
@@ -102,6 +102,7 @@ dependencies {
 
     implementation 'com.tinder.scarlet:websocket-okhttp:0.1.11'
     implementation 'com.tinder.scarlet:message-adapter-moshi:0.1.11'
+    implementation 'com.tinder.scarlet:stream-adapter-coroutines:0.1.11'
     implementation 'com.tinder.scarlet:stream-adapter-rxjava2:0.1.11'
     implementation 'com.tinder.scarlet:lifecycle-android:0.1.11'
     implementation 'com.tinder.scarlet:scarlet:0.1.11'
@@ -114,9 +115,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha04"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
 
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"

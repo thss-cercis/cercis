@@ -9,7 +9,10 @@ import cn.cercis.common.UserId
 import cn.cercis.http.*
 import cn.cercis.module.AuthorizedEvent
 import cn.cercis.util.resource.NetworkResponse
+import com.tinder.scarlet.Lifecycle
+import com.tinder.scarlet.lifecycle.LifecycleRegistry
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.reactivestreams.Subscriber
 import javax.inject.Inject
 import javax.inject.Singleton
 

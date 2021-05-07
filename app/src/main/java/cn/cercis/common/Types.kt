@@ -6,4 +6,5 @@ typealias ChatId = Long
 typealias MessageId = Long
 typealias SerialId = Long
 typealias ApplyId = Long
+typealias WSMessageTypeId = Long
 typealias Timestamp = Long

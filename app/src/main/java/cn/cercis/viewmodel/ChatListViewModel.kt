@@ -11,6 +11,7 @@ import cn.cercis.entity.Chat
 import cn.cercis.entity.ChatType.CHAT_SINGLE
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
+import cn.cercis.repository.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class ChatListViewModel @Inject constructor(
         application: Application,
         private val messageRepository: MessageRepository,
+        private val notificationRepository: NotificationRepository,
         private val chatDao: ChatDao,
         private val authRepository: AuthRepository,
 ) : AndroidViewModel(application) {
