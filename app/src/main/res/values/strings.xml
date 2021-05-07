@@ -56,4 +56,5 @@
     <string name="splash_button_goto_login">登录</string>
     <string name="splash_button_goto_user_signup">新用户注册</string>
     <string name="title_activity_startup">Cercis</string>
+    <string name="fragment_search_cancel">取消</string>
 </resources>

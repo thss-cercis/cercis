@@ -145,6 +145,8 @@ data class WrappedSearchUserPayload(
     data class UserSearchResult(
         val id: UserId,
         val mobile: String,
+        // TODO wait for ayajike to add this
+        // val avatar: String,
         val nickname: String,
     )
 }

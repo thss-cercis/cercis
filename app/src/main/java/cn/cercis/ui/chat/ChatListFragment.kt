@@ -1,9 +1,11 @@
 package cn.cercis.ui.chat
 
+import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -84,6 +86,14 @@ class ChatListFragment : Fragment() {
         }
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        val menuItem = menu.findItem(R.id.action_search)
+        // TODO inline search
+//        menuItem?.let {
+//            val actionView = it.actionView as SearchView
+//        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val binding = FragmentChatListBinding.inflate(inflater, container, false)
         binding.viewModel = chatListViewModel
@@ -92,6 +102,12 @@ class ChatListFragment : Fragment() {
         binding.scrollRefreshLayout.setOnRefreshListener {
             chatListViewModel.onRefreshListener()
             binding.scrollRefreshLayout.isRefreshing = false
+        }
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_search -> doDetailNavigation(R.id.action_global_searchFragment)
+            }
+            true
         }
         // bind item click listener
         // TODO: use real data and somehow refactor this

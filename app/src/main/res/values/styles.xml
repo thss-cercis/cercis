@@ -58,6 +58,17 @@
         <item name="android:background">@color/list_delimiter</item>
     </style>
 
+    <style name="Widget.Cercis.Button.TextButton.Dense" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">14sp</item>
+        <item name="android:insetTop">4dp</item>
+        <item name="android:insetBottom">4dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+    </style>
 
     <style name="Widget.Cercis.ListItem.ActionButton" parent="Widget.MaterialComponents.Button">
         <item name="android:textSize">14sp</item>

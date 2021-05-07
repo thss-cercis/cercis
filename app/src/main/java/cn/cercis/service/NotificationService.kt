@@ -22,12 +22,8 @@ import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
 import com.tinder.scarlet.websocket.okhttp.request.RequestFactory
 import com.tinder.streamadapter.coroutines.CoroutinesStreamAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -37,7 +33,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class NotificationService : LifecycleService() {
-    private val disposables = ArrayList<Disposable>()
     private lateinit var socketService: CercisWebSocketService
 
     @Inject
@@ -84,8 +79,8 @@ class NotificationService : LifecycleService() {
 
         val okHttpClient = OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
-//            .readTimeout(5, TimeUnit.SECONDS)
-//            .writeTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(5, TimeUnit.SECONDS)
+            .writeTimeout(5, TimeUnit.SECONDS)
             .pingInterval(5, TimeUnit.SECONDS)
             .cookieJar(cookieJar)
             .build()
@@ -122,9 +117,7 @@ class NotificationService : LifecycleService() {
                     is WebSocket.Event.OnConnectionFailed -> {
                         notificationRepository.submitConnectionStatus(ConnectionStatus.DISCONNECTED)
                     }
-                    else -> {
-                        // TODO
-                    }
+                    else -> {}
                 }
                 Log.d(LOG_TAG, "$event")
             }
@@ -132,27 +125,17 @@ class NotificationService : LifecycleService() {
         lifecycleScope.launch(Dispatchers.IO) {
             socketService.observeWebSocketMessage().consumeEach {
                 Log.d(LOG_TAG, "$it")
+                when (it.get()) {
+                    WSMessage.FriendListUpdated -> Unit // TODO
+                    is WSMessage.FriendRequestReceived -> Unit // TODO
+                    null -> Unit // TODO
+                }
             }
         }
-        lifecycleScope.launch(Dispatchers.IO) {
-            socketService.observeDebugMessage().consumeEach {
-                Log.d(LOG_TAG, it.msg)
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposables.forEach { it.dispose() }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         return START_STICKY
-    }
-
-    private fun sendInitMessage() {
-        // TODO finish this
-//        socketService.sendInitMessage(InitMessageFromClient(0))
     }
 }

@@ -8,8 +8,8 @@
         <import type="androidx.lifecycle.LiveData" />
 
         <variable
-            name="user"
-            type="LiveData&lt;cn.cercis.viewmodel.ContactListViewModel.Friend>" />
+            name="data"
+            type="cn.cercis.viewmodel.CommonListItemData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +24,7 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"
-            avatarImageUrl="@{user.avatar}"
+            avatarImageUrl="@{data.avatar}"
             android:layout_width="@dimen/chat_avatar_size"
             android:layout_height="@dimen/chat_avatar_size"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,16 +33,16 @@
             tools:src="@drawable/outline_perm_identity_24" />
 
         <TextView
-            android:id="@+id/contact_list_friend_nickname"
+            android:id="@+id/text_display_name"
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{user.displayName()}"
+            android:text="@{data.displayName}"
             android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@+id/contact_list_friend_bio"
+            app:layout_constraintBottom_toTopOf="@+id/text_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
@@ -50,19 +50,19 @@
             tools:text="Example displayName" />
 
         <TextView
-            android:id="@+id/contact_list_friend_bio"
+            android:id="@+id/text_description"
             style="@style/TextAppearance.Cercis.Messages.Preview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{user.bio}"
+            android:text="@{data.description}"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/avatar"
-            app:layout_constraintTop_toBottomOf="@id/contact_list_friend_nickname"
+            app:layout_constraintTop_toBottomOf="@id/text_display_name"
             tools:text="Example bio" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

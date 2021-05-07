@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityAuthBinding
 import cn.cercis.viewmodel.LoginViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
