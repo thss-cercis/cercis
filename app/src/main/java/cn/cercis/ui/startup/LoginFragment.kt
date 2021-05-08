@@ -29,7 +29,7 @@ class LoginFragment : Fragment() {
         val binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.viewModel = loginViewModel
         binding.loginRootLayout.enableTransition()
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         loginViewModel.loginError.observe(viewLifecycleOwner) {
             binding.signupPassword.error = it
         }

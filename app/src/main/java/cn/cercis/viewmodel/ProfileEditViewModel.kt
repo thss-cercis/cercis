@@ -4,6 +4,8 @@ import android.app.Application
 import android.view.View
 import androidx.lifecycle.*
 import cn.cercis.repository.ProfileRepository
+import cn.cercis.util.livedata.addMultipleSource
+import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.BIO_MAX_LENGTH
 import cn.cercis.util.validation.EMAIL_REGEX
@@ -35,16 +37,11 @@ class ProfileEditViewModel @Inject constructor(
 
     private val isBusy = MutableLiveData(false)
 
-    val canSubmit = MediatorLiveData<Boolean>().apply {
-        value = true
-        arrayOf(nickname, email, bio, isBusy).forEach {
-            addSource(it) {
-                value = nickname.value!!.isNotEmpty()
-                    && email.value!!.matches(EMAIL_REGEX)
-                    && bio.value!!.length <= BIO_MAX_LENGTH
-                    && isBusy.value == false
-            }
-        }
+    val canSubmit = generateMediatorLiveData(nickname, email, bio, isBusy) {
+        nickname.value!!.isNotEmpty()
+            && email.value!!.matches(EMAIL_REGEX)
+            && bio.value!!.length <= BIO_MAX_LENGTH
+            && isBusy.value == false
     }
 
     fun onSubmit(@Suppress("UNUSED_PARAMETER") view: View) {

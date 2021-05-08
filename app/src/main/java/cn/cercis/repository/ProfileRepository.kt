@@ -8,6 +8,7 @@ import cn.cercis.entity.UserDetail
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.http.UpdateUserDetailRequest
+import cn.cercis.util.livedata.AutoResetLiveData
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
@@ -24,7 +25,7 @@ class ProfileRepository @Inject constructor(
     val userDao: UserDao,
     val loginHistoryDao: LoginHistoryDao,
 ) {
-    val profileChanged = MutableLiveData(false)
+    val profileChanged = AutoResetLiveData(false)
 
     fun getCurrentUserDetail() = object : DataSource<UserDetail>() {
         override suspend fun fetch(): NetworkResponse<UserDetail> {

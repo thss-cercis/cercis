@@ -78,7 +78,7 @@ class NotificationService : LifecycleService() {
         Log.d(LOG_TAG, "Service starting...")
 
         // initializes a WebSocket connection
-        val lifecycle = AndroidLifecycle.ofServiceStarted(application, this, 5000)
+        val lifecycle = AndroidLifecycle.ofServiceStarted(application, this, 1000)
             .combineWith(LoggedInLifecycle())
         val backoffStrategy = ExponentialWithJitterBackoffStrategy(5000, 5000)
 
@@ -114,15 +114,12 @@ class NotificationService : LifecycleService() {
             socketService.observeWebSocketEvent().consumeEach { event ->
                 when (event) {
                     is WebSocket.Event.OnConnectionOpened<*> -> {
-                        Log.d(LOG_TAG, "$event")
                         notificationRepository.submitConnectionStatus(ConnectionStatus.CONNECTED)
                     }
                     is WebSocket.Event.OnConnectionClosed -> {
-                        Log.d(LOG_TAG, "$event")
                         notificationRepository.submitConnectionStatus(ConnectionStatus.DISCONNECTED)
                     }
                     is WebSocket.Event.OnConnectionFailed -> {
-                        Log.d(LOG_TAG, "$event")
                         notificationRepository.submitConnectionStatus(ConnectionStatus.DISCONNECTED)
                     }
                     else -> {

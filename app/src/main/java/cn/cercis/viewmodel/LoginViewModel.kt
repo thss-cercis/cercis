@@ -9,6 +9,7 @@ import cn.cercis.common.UserId
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.livedata.PairLiveData
+import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,13 +30,13 @@ class LoginViewModel @Inject constructor(
         if (it == NO_USER) "" else it.toString()
     })
     val password = MutableLiveData("")
-    private val isInputValid = Transformations.map(PairLiveData(userId, password)) {
+    private val isInputValid = generateMediatorLiveData(userId, password) {
         loginError.postValue(null)
-        !it.first.isNullOrEmpty() && !it.second.isNullOrEmpty()
+        !userId.value.isNullOrEmpty() && !password.value.isNullOrEmpty()
     }
     private val isBusyLogin = MutableLiveData(false)
-    val canSubmitLogin = Transformations.map(PairLiveData(isInputValid, isBusyLogin)) {
-        it.first == true && it.second == false
+    val canSubmitLogin = generateMediatorLiveData(isInputValid, isBusyLogin) {
+        isInputValid.value == true && isBusyLogin.value == false
     }
     val currentUserList = loginHistoryDao.loadLoginHistoryList()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)

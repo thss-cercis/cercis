@@ -6,6 +6,8 @@ import cn.cercis.entity.UserDetail
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
 import cn.cercis.util.helper.coroutineContext
+import cn.cercis.util.livedata.MappingLiveData
+import cn.cercis.util.livedata.addResource
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,22 +23,13 @@ class ProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val currentUserResource = generateCurrentUserResource()
+    private val currentUserResource = MappingLiveData(generateCurrentUserResource())
 
     val currentUser = MediatorLiveData<UserDetail>().apply {
-        val addResource: MediatorLiveData<UserDetail>.(LiveData<Resource<UserDetail>>) -> Unit = {
-            addSource(it) { resource ->
-                postValue(resource.data)
-            }
-        }
         addResource(currentUserResource)
-        profileRepository.profileChanged.let {
-            addSource(it) { value ->
-                if (value != true) {
-                    return@addSource
-                }
-                it.value = false
-                addResource(generateCurrentUserResource())
+        addSource(profileRepository.profileChanged) {
+            if (it == true) {
+                currentUserResource.setSource(generateCurrentUserResource())
             }
         }
     }

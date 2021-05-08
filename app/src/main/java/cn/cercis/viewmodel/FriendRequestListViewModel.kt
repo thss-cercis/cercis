@@ -13,7 +13,7 @@ import cn.cercis.entity.User
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.*
-import cn.cercis.util.livedata.SourceReplaceableLiveData
+import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_0
@@ -47,7 +47,7 @@ class FriendRequestListViewModel @Inject constructor(
             val remark: String,
             val updateMark: Int,
             val createdAt: Timestamp,
-            val loading: SourceReplaceableLiveData<Boolean>,
+            val loading: MappingLiveData<Boolean>,
         ) : RecyclerData(applyId, TYPE_DATA)
 
         data class Delimiter(val delimiterId: Long) : RecyclerData(delimiterId, TYPE_DELIMITER)
@@ -129,7 +129,7 @@ class FriendRequestListViewModel @Inject constructor(
                             remark = friendEntry.remark,
                             createdAt = friendEntry.createdAt,
                             updateMark = updateMark,
-                            loading = SourceReplaceableLiveData<Boolean>().apply { value = false },
+                            loading = MappingLiveData<Boolean>().apply { value = false },
                         )
                     }.sortedByDescending {
                         it.createdAt

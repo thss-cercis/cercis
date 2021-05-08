@@ -20,8 +20,7 @@ import com.squareup.moshi.JsonClass
 )
 @JsonClass(generateAdapter = true)
 data class Message(
-    @PrimaryKey
-        @Json(name = "id") val id: MessageId,
+    @PrimaryKey @Json(name = "id") val id: MessageId,
     @Json(name = "chat_id") val chatId: ChatId,
     @Json(name = "type") val type: String,
     @Json(name = "content") val content: String,

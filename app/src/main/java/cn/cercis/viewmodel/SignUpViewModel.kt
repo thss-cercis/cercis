@@ -12,6 +12,7 @@ import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.helper.getString
 import cn.cercis.util.livedata.PairLiveData
+import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.validatePassword
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,10 +59,8 @@ class SignUpViewModel @Inject constructor(
     val verificationCode = MutableLiveData("")
     val verificationError = MutableLiveData<String?>(null)
     private val verificationCodeCountDown = MutableLiveData(0)
-    val canSendCode = Transformations.map(PairLiveData(mobile, verificationCodeCountDown)) {
-        it?.let {
-            !it.first.isNullOrEmpty() && it.second == 0
-        } ?: false
+    val canSendCode = generateMediatorLiveData(mobile, verificationCodeCountDown) {
+        !mobile.value.isNullOrEmpty() && verificationCodeCountDown.value == 0
     }
     val countdownText = Transformations.map(verificationCodeCountDown) {
         it?.let { if (it == 0) getString(R.string.signup_send_code) else "${getString(R.string.signup_send_code)}(${it})" }

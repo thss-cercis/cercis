@@ -40,6 +40,12 @@ data class NotificationMessage(
     val apply: FriendRequestReceivedMessage?,
 )
 
+@JsonClass(generateAdapter = true)
+data class FriendRequestReceivedMessage(
+    @Json(name = "apply_id") val applyId: ApplyId,
+    val nickname: String,
+)
+
 enum class MessageType(
     val typeId: WSMessageTypeId,
     val property: KProperty1<NotificationMessage, *>?
@@ -61,9 +67,3 @@ enum class MessageType(
         }
     }
 }
-
-@JsonClass(generateAdapter = true)
-data class FriendRequestReceivedMessage(
-    @Json(name = "apply_id") val applyId: ApplyId,
-    val nickname: String,
-)
