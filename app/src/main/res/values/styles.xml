@@ -70,6 +70,22 @@
         <item name="android:paddingRight">12dp</item>
     </style>
 
+    <style name="Widget.Cercis.Button.TextButton.Accent" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.Outlined.Accent" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.Accent" parent="Widget.MaterialComponents.Button">
+        <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
+    </style>
+
+    <style name="AccentButtonOverlay">
+        <item name="colorPrimary">?attr/colorAccent</item>
+    </style>
+
     <style name="Widget.Cercis.ListItem.ActionButton" parent="Widget.MaterialComponents.Button">
         <item name="android:textSize">14sp</item>
         <item name="cornerSize">50%</item>

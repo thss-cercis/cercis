@@ -56,4 +56,8 @@ object UserDatabaseModule {
     @Provides
     @ActivityRetainedScoped
     fun providesChatDao(messageDatabase: MessageDatabase) = messageDatabase.ChatDao()
+
+    @Provides
+    @ActivityRetainedScoped
+    fun providesChatMemberDao(messageDatabase: MessageDatabase) = messageDatabase.ChatMemberDao()
 }

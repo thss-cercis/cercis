@@ -1,7 +1,10 @@
 package cn.cercis.service
 
 import cn.cercis.common.ApplyId
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
 import cn.cercis.common.WSMessageTypeId
+import cn.cercis.entity.Chat
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket
@@ -41,16 +44,33 @@ data class NotificationMessage(
     }
 }
 
-sealed class WSMessage {
+sealed interface WSMessageWithId {
+    val typeId: WSMessageTypeId
+
+    /**
+     * Implementing this interface indicates that messages of this same type id can be combined.
+     */
+    interface Combinable : WSMessageWithId
+}
+
+sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
     // 100
     @JsonClass(generateAdapter = true)
     data class FriendRequestReceived(
         @Json(name = "apply_id") val applyId: ApplyId,
         val nickname: String,
-    ) : WSMessage()
+    ) : WSMessage(100L), WSMessageWithId.Combinable
 
     // 101
-    object FriendListUpdated : WSMessage()
+    object FriendListUpdated : WSMessage(101L), WSMessageWithId.Combinable
 
     // TODO future types
+
+    @JsonClass(generateAdapter = true)
+    data class NewMessageReceived(
+        @Json(name = "chat_id") val chatId: ChatId,
+        @Json(name = "msg_id") val messageId: MessageId,
+        @Json(name = "type") val type: WSMessageTypeId,
+        @Json(name = "sum") val sum: String,
+    ) : WSMessage(200L)
 }

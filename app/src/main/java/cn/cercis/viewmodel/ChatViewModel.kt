@@ -12,6 +12,7 @@ import cn.cercis.entity.User
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
+import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,7 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver {
     private val chatId = savedStateHandle.get<Long>("chatId") ?: NO_USER
     private val chatParticipants = messageRepository.getChatParticipants(chatId)
-    val chat = messageRepository.getChat(chatId)
+    val chat = messageRepository.getParticipatedChat(chatId).asLiveData(coroutineContext)
 
     fun side(senderId: ChatId): Side {
         if (senderId == authRepository.currentUserId) {

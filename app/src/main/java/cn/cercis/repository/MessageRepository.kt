@@ -5,23 +5,33 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
+import cn.cercis.common.UserId
 import cn.cercis.dao.ChatDao
+import cn.cercis.dao.ChatMemberDao
 import cn.cercis.dao.MessageDao
-import cn.cercis.entity.Chat
-import cn.cercis.entity.ChatType
-import cn.cercis.entity.Message
-import cn.cercis.entity.User
+import cn.cercis.entity.*
+import cn.cercis.http.CercisHttpService
 import cn.cercis.service.NotificationService
+import cn.cercis.util.resource.DataSource
+import cn.cercis.util.resource.NetworkResponse
+import cn.cercis.util.resource.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import kotlin.math.max
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @ActivityRetainedScoped
 class MessageRepository @Inject constructor(
     private val messageDao: MessageDao,
     private val chatDao: ChatDao,
+    private val chatMemberDao: ChatMemberDao,
+    private val httpService: CercisHttpService,
     @ApplicationContext val context: Context,
 ) {
     /**
@@ -31,18 +41,52 @@ class MessageRepository @Inject constructor(
      */
     private val liableOldestMessageId = ConcurrentHashMap<Long, Long>()
 
+    fun getAllChats() = object : DataSource<List<Chat>>() {
+        override suspend fun fetch(): NetworkResponse<List<Chat>> {
+            return httpService.getChatList()
+        }
+
+        override suspend fun saveToDb(data: List<Chat>) {
+            chatDao.updateAllChats(data)
+        }
+
+        override fun loadFromDb(): Flow<List<Chat>> {
+            return chatDao.loadAllChats()
+        }
+    }
+
     /**
      * Gets the most recent messages that is newer than messageId.
      */
     fun getChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): Flow<List<Message>> {
-        return messageDao.getChatMessagesNewerThan(chatId, messageId)
+        return messageDao.loadChatMessagesNewerThan(chatId, messageId)
+    }
+
+    fun debugInsertAllChats(chatList: List<Chat>) {
+        chatDao.updateAllChats(chatList)
+    }
+
+    fun getSingleMessage(chatId: ChatId, messageId: MessageId) = object : DataSource<Message>() {
+        override suspend fun fetch(): NetworkResponse<Message> {
+            return httpService.getSingleMessage(chatId, messageId)
+        }
+
+        override suspend fun saveToDb(data: Message) {
+            messageDao.insertMessage(data)
+        }
+
+        override fun loadFromDb(): Flow<Message?> {
+            return messageDao.loadSingleMessage(chatId, messageId)
+        }
+
+        override fun shouldFetch(data: Message?) = data == null
     }
 
     /**
      * Gets all chat message.
      */
     fun getChatAllMessages(chatId: ChatId): Flow<List<Message>> {
-        return messageDao.getChatAllMessages(chatId)
+        return messageDao.loadChatAllMessages(chatId)
     }
 
     /**
@@ -51,7 +95,7 @@ class MessageRepository @Inject constructor(
      * This method returns a live data giving both messages not older than `messageId` and
      * `previousCount` messages that are older than `messageId`.
      *
-     * Notice: if no Internet connection is available, previous messages will be given via local
+     * * NOTE: if no Internet connection is available, previous messages will be given via local
      * cache.
      *
      * @param chatId Chat ID
@@ -74,17 +118,61 @@ class MessageRepository @Inject constructor(
     }
 
     /**
-     * Gets basic info about a chat.
+     * Gets chat with another user.
      */
-    fun getChat(chatId: ChatId): LiveData<Chat> {
-        return MutableLiveData(Chat(
-            id = chatId,
-            name = "Chat $chatId",
-            type = ChatType.CHAT_SINGLE,
-            lastMessage = "test",
-        ))
-//        return chatDao.getChat(chatId).asLiveData()
+    suspend fun getPrivateChatWith(userId: UserId) = httpService.getPrivateChatWith(userId)
+
+    /**
+     * Gets all members' userIds in a chat.
+     */
+    fun getChatMemberList(chatId: ChatId, forceFetch: Boolean = true) =
+        object : DataSource<List<ChatMember>>() {
+            override suspend fun fetch() = httpService.getChatMemberList(chatId)
+
+            override suspend fun saveToDb(data: List<ChatMember>) {
+                chatMemberDao.updateChatMemberList(chatId, data)
+            }
+
+            override fun loadFromDb() = chatMemberDao.loadChatMembers(chatId)
+
+            override fun shouldFetch(data: List<ChatMember>?) =
+                forceFetch || (data?.isEmpty() ?: true)
+        }
+
+    /**
+     * Gets another user's id in a private chat.
+     */
+    fun getOtherUserId(selfUserId: UserId, chatId: ChatId): Flow<Resource<UserId>> =
+        getChatMemberList(chatId, false).flow().map { member ->
+            member.data?.firstOrNull { it.userId != selfUserId }?.userId?.let {
+                Resource.Success(it)
+            } ?: Resource.Error(0, "Unknown error", null)
+        }
+
+    /**
+     * Gets a full chat list.
+     */
+    fun getChatList() = object : DataSource<List<Chat>>() {
+        override suspend fun fetch(): NetworkResponse<List<Chat>> {
+            return httpService.getChatList()
+        }
+
+        override suspend fun saveToDb(data: List<Chat>) {
+            // TODO this makes caching chats impossible, but probably this doesn't matter
+            chatDao.updateAllChats(data)
+        }
+
+        override fun loadFromDb(): Flow<List<Chat>> {
+            return chatDao.loadAllChats()
+        }
     }
+
+    /**
+     * Gets basic info about a chat participated.
+     *
+     * * NOTE: this method will not trigger chat list loading.
+     */
+    fun getParticipatedChat(chatId: ChatId) = chatDao.getChat(chatId)
 
     /**
      * Gets participants of a chat.
@@ -94,7 +182,7 @@ class MessageRepository @Inject constructor(
     }
 
     /**
-     * Insert a message into database.
+     * Inserts a message into database.
      *
      * Called from [NotificationService]
      */
@@ -103,22 +191,24 @@ class MessageRepository @Inject constructor(
     }
 
     /**
-     * A rpc method telling if new messages should be fetched from server.
+     * Gets the latest message of a chat.
+     *
+     * * NOTE: if no message is present for the chat, a null will be emitted.
      */
-    private suspend fun shouldDownloadNewMessages(
-        chatId: ChatId,
-        messageId: MessageId,
-        previousCount: Long,
-    ): Boolean {
-        try {
-            val liable = liableOldestMessageId.getOrDefault(chatId, 0)
-            if (liable == 0L) {
-                return true
-            }
-            return messageDao.countMessagesBetween(chatId, liable, messageId) + 1 < previousCount
-        } catch (t: Exception) {
-            return false
-        }
+    fun getLatestMessage(chatId: ChatId): Flow<Message?> {
+        return messageDao.loadLatestMessage(chatId)
+    }
+
+
+    /**
+     * Gets latest [messageCount] messages from the chat. If new messages arrived, the returned list
+     * will still start from the previous starting position.
+     */
+    fun getChatLatestNMessages(chatId: ChatId, messageCount: Long): Flow<List<Message>> = flow {
+        val startMessageId = messageDao.loadLatestMessage(chatId).first()?.let {
+            max(0L, it.id - messageCount + 1)
+        } ?: 0L
+        emitAll(messageDao.loadChatMessagesNewerThan(chatId, startMessageId))
     }
 
     /**

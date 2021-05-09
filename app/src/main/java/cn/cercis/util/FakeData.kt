@@ -25,7 +25,7 @@ class FakeData @Inject constructor(
                 Random.nextInt(3) == 0 -> ""
                 else -> context.getString(R.string.lorem_ipsum)
             },
-            mediaTypeCode = Random.nextInt(3) / 2,
+            mediaTypeCode = 1, //Random.nextInt(3) / 2,
             publishedAt = System.currentTimeMillis() - Random.nextLong(0, 3600 * 1000),
         )
     }

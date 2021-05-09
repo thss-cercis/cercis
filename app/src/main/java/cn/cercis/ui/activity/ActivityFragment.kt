@@ -59,12 +59,12 @@ class ActivityFragment : Fragment() {
                             VIEW_TYPE_VIDEO -> {
                                 activityItemVideo.apply {
                                     setVideoURI(Uri.parse(it.videoUrl))
-                                    setOnPreparedListener { mp: MediaPlayer ->
-                                        activityItemRootLayout.setDimensionRatio(
-                                            activityItemVideo.id,
-                                            "${mp.videoWidth}:${mp.videoHeight}"
-                                        )
-                                    }
+//                                    setOnPreparedListener { mp: MediaPlayer ->
+//                                        activityItemRootLayout.setDimensionRatio(
+//                                            activityItemVideo.id,
+//                                            "${mp.videoWidth}:${mp.videoHeight}"
+//                                        )
+//                                    }
                                     setOnClickListener {
                                         when {
                                             isPlaying -> pause()

@@ -74,28 +74,9 @@ class ContactListViewModel @Inject constructor(
                 source?.let {
                     liveData.removeSource(it)
                 }
-
-                // TODO replace with real data
-                // ********
-//                MutableLiveData(Resource.Success((0L..10L).map {
-//                    FriendEntry(
-//                        id = it,
-//                        friendUserId = it,
-//                        remark = "",
-//                        displayName = "",
-//                    )
-//                }) as Resource<List<FriendEntry>>).let { newSource ->
-//                    source = newSource
-//                    liveData.addSource(newSource) {
-//                        liveData.value = it
-//                    }
-//                }
-                // * replace the code above with the following code to enable real data
                 source = friendRepository.getFriendList()
                     .asLiveData(coroutineContext).also { liveData.addSource(it) }
-                // ********
             }
-
             val liveData = liveData
         }.apply {
             refresh()
@@ -128,7 +109,6 @@ class ContactListViewModel @Inject constructor(
             Transformations.map(
                 userRepository.getUser(userId).asLiveData(coroutineContext)
             ) { user ->
-                Log.d(LOG_TAG, "user data received $user")
                 user?.data?.let {
                     Friend(it, friendEntry)
                 }

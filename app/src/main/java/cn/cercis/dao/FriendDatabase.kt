@@ -30,6 +30,9 @@ interface FriendDao {
     @Query("SELECT * FROM friendEntry")
     fun loadFriendList(): Flow<List<FriendEntry>>
 
+    @Query("SELECT * FROM friendEntry WHERE friendUserId = :friendUserId")
+    fun loadFriendEntry(friendUserId: UserId): Flow<FriendEntry?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveFriendRequest(vararg friendRequests: FriendRequest)
 

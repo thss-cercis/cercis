@@ -16,7 +16,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -35,6 +38,8 @@
                 android:id="@+id/profile_nickname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@{viewModel.currentUser.nickname}"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="24sp"
@@ -47,6 +52,8 @@
                 android:id="@+id/profile_id"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@{String.format(@string/profile_cercis_id, viewModel.currentUser.id)}"
                 app:layout_constraintBottom_toBottomOf="@id/profile_avatar"
                 app:layout_constraintEnd_toEndOf="@id/profile_nickname"
@@ -64,17 +71,17 @@
                 android:id="@+id/button_profile_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/status_bar"
-                android:text="@string/profile_edit_title" />
+                android:text="@string/profile_edit_title"
+                app:layout_constraintTop_toBottomOf="@id/status_bar" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_logout"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/Widget.Cercis.Button.TextButton.Accent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/button_profile_edit"
+                android:onClick="@{viewModel::onLogoutClicked}"
                 android:text="@string/profile_button_logout"
-                android:onClick="@{viewModel::onLogoutClicked}" />
+                app:layout_constraintTop_toBottomOf="@id/button_profile_edit" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

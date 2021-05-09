@@ -167,11 +167,10 @@
         <VideoView
             android:id="@+id/activity_item_video"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="180dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:visibility="@{activity.isViewVisible(ActivityListItem.ID_VIDEO)}"
-            app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintBottom_toTopOf="@id/activity_item_published_time"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"

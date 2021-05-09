@@ -10,19 +10,37 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @Entity(
-        foreignKeys = [ForeignKey(
-                entity = Chat::class,
-                parentColumns = ["id"],
-                childColumns = ["chatId"],
-                onDelete = ForeignKey.CASCADE,
-        )],
-        indices = [Index("chatId")]
+    foreignKeys = [ForeignKey(
+        entity = Chat::class,
+        parentColumns = ["id"],
+        childColumns = ["chatId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index("chatId")]
 )
 @JsonClass(generateAdapter = true)
 data class Message(
     @PrimaryKey val id: MessageId,
     @Json(name = "chat_id") val chatId: ChatId,
-    @Json(name = "type") val type: String,
+    @Json(name = "type") val type: Int,
     @Json(name = "content") val content: String,
     @Json(name = "sender_id") var senderId: Long,
 )
+
+enum class MessageType(val type: Int) {
+    TEXT(0),
+    IMAGE(1),
+    AUDIO(2),
+    VIDEO(3),
+    LOCATION(4),
+    UNKNOWN(-1),
+    ;
+
+    companion object {
+        fun of(type: Int): MessageType {
+            return values().firstOrNull { it.type == type } ?: UNKNOWN
+        }
+    }
+}
+
+fun Int.asMessageType(): MessageType = MessageType.of(this)

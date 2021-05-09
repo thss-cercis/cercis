@@ -36,6 +36,14 @@ abstract class DataSource<T> {
 
     fun networkFlow(): Flow<Resource<T>> = flow(emitNetworkResources)
 
+    suspend fun fetchAndSave() : NetworkResponse<T> {
+        val response = fetch()
+        if (response is NetworkResponse.Success) {
+            saveToDb(response.data)
+        }
+        return response
+    }
+
     private fun dbResourceFlow(): Flow<Resource<T>> {
         return dbFlow().map { Resource.Success(it) }
     }

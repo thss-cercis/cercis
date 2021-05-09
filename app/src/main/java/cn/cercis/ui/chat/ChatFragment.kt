@@ -14,8 +14,8 @@ import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.databinding.*
 import cn.cercis.entity.Chat
-import cn.cercis.entity.ChatType.CHAT_MULTIPLE
-import cn.cercis.entity.ChatType.CHAT_SINGLE
+import cn.cercis.entity.ChatType.CHAT_GROUP
+import cn.cercis.entity.ChatType.CHAT_PRIVATE
 import cn.cercis.entity.Message
 import cn.cercis.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -109,13 +109,13 @@ class ChatFragment : Fragment() {
         override fun getItemViewType(position: Int): Int {
             return when(chatViewModel.side(messageList[position].senderId)) {
                 ChatViewModel.Side.SELF -> when(chatInfo?.type) {
-                    CHAT_MULTIPLE -> SelfWithIcon
-                    null, CHAT_SINGLE -> SelfWithoutIcon
+                    CHAT_GROUP -> SelfWithIcon
+                    null, CHAT_PRIVATE -> SelfWithoutIcon
                     else -> SelfWithoutIcon
                 }
                 ChatViewModel.Side.OTHER -> when(chatInfo?.type) {
-                    CHAT_MULTIPLE -> OtherWithIcon
-                    null, CHAT_SINGLE -> OtherWithoutIcon
+                    CHAT_GROUP -> OtherWithIcon
+                    null, CHAT_PRIVATE -> OtherWithoutIcon
                     else -> OtherWithoutIcon
                 }
             }

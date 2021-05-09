@@ -1,5 +1,10 @@
 package cn.cercis.http
 
+import cn.cercis.common.ApplyId
+import cn.cercis.common.ChatId
+import cn.cercis.common.MessageId
+import cn.cercis.common.UserId
+import cn.cercis.entity.*
 import cn.cercis.common.*
 import cn.cercis.entity.Activity
 import cn.cercis.entity.FriendRequest
@@ -66,6 +71,64 @@ interface CercisHttpService {
 
     @DELETE("friend/")
     suspend fun deleteFriend(@Body request: DeleteFriendRequest): EmptyNetworkResponse
+
+    @POST("chat/private")
+    suspend fun createPrivateChat(@Body request: CreatePrivateChatRequest): NetworkResponse<Chat>
+
+    @POST("chat/group")
+    suspend fun createGroupChat(@Body request: CreateGroupChatRequest): NetworkResponse<Chat>
+
+    @GET("chat/all")
+    suspend fun getChatList(): NetworkResponse<List<Chat>>
+
+    @GET("chat/private")
+    suspend fun getPrivateChatWith(@Query("id") userId: UserId): NetworkResponse<Chat>
+
+    @PUT("chat/group")
+    suspend fun editGroupChatInfo(@Body request: EditGroupChatInfoRequest): NetworkResponse<Chat>
+
+    @GET("chat/")
+    suspend fun getChatMemberList(@Query("id") chatId: ChatId): NetworkResponse<List<ChatMember>>
+
+    @POST("chat/group/member")
+    suspend fun inviteGroupMember(@Body request: InviteGroupMemberRequest): EmptyNetworkResponse
+
+    @PUT("group/member/alias")
+    suspend fun editInGroupDisplayName(@Body request: EditInGroupDisplayNameRequest): EmptyNetworkResponse
+
+    @PUT("chat/group/member/perm")
+    suspend fun editGroupMemberPermission(@Body request: EditGroupMemberPermissionRequest): EmptyNetworkResponse
+
+    @PUT("chat/group/member/owner")
+    suspend fun giveawayGroupOwner(@Body request: GiveAwayGroupOwnerRequest): EmptyNetworkResponse
+
+    @DELETE("chat/group/member")
+    suspend fun deleteGroupMember(@Body request: DeleteGroupMemberRequest): EmptyNetworkResponse
+
+    @DELETE("chat/message")
+    suspend fun sendMessage(@Body request: SendMessageRequest): NetworkResponse<Chat>
+
+    @GET("chat/message")
+    suspend fun getSingleMessage(
+        @Query("chat_id") chatId: ChatId,
+        @Query("message_id") messageId: MessageId
+    ): NetworkResponse<Message>
+
+    @GET("chat/messages")
+    suspend fun getRangeMessages(
+        @Query("chat_id") chatId: ChatId,
+        @Query("from_id") fromId: MessageId,
+        @Query("to_id") toId: MessageId
+    ): EmptyNetworkResponse
+
+    @GET("chat/messages/all-latest")
+    suspend fun getAllChatsLatestMessageId(): NetworkResponse<List<ChatLatestMessageId>>
+
+    @POST("chat/messages/latest")
+    suspend fun getChatsLatestMessages(@Body request: GetChatsLatestMessagesRequest): NetworkResponse<List<Message>>
+
+    @POST("chat/message/withdraw")
+    suspend fun withdrawMessage(@Body request: WithdrawMessageRequest): EmptyNetworkResponse
 
     @POST("mobile/recover")
     suspend fun sendPasswordResetSms(@Body request: SendSmsRequest): EmptyNetworkResponse
@@ -201,6 +264,80 @@ data class UpdateFriendRemarkRequest(
 @JsonClass(generateAdapter = true)
 data class DeleteFriendRequest(
     @Json(name = "friend_id") val id: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class CreatePrivateChatRequest(
+    val id: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class EditGroupChatInfoRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    val name: String?,
+    val avatar: String?,
+)
+
+@JsonClass(generateAdapter = true)
+data class CreateGroupChatRequest(
+    @Json(name = "member_ids") val memberIds: List<UserId>?
+)
+
+@JsonClass(generateAdapter = true)
+data class InviteGroupMemberRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "user_id") val userId: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class EditInGroupDisplayNameRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "user_id") val userId: UserId,
+    @Json(name = "alias") val displayName: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class EditGroupMemberPermissionRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "user_id") val userId: UserId,
+    // GroupChatPermission
+    val permission: Int,
+)
+
+@JsonClass(generateAdapter = true)
+data class GiveAwayGroupOwnerRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "user_id") val userId: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class DeleteGroupMemberRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "user_id") val userId: UserId,
+)
+
+@JsonClass(generateAdapter = true)
+data class SendMessageRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    val type: Int,
+    val message: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class ChatLatestMessageId(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "max_message_id") val latestMessageId: MessageId,
+)
+
+@JsonClass(generateAdapter = true)
+data class WithdrawMessageRequest(
+    @Json(name = "chat_id") val chatId: ChatId,
+    @Json(name = "message_id") val messageId: MessageId,
+)
+
+@JsonClass(generateAdapter = true)
+data class GetChatsLatestMessagesRequest(
+    @Json(name = "chat_ids") val chatIds: List<ChatId>
 )
 
 @JsonClass(generateAdapter = true)

@@ -21,6 +21,7 @@ import cn.cercis.util.helper.DataBindingViewHolder
 import cn.cercis.viewmodel.CommonListItemData
 import cn.cercis.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -98,7 +99,8 @@ class SearchFragment : Fragment() {
             // TODO add loading animation
             binding.fragmentSearchResultView.adapter = this
         }
-        viewLifecycleOwner.lifecycleScope.launch {
+        // TODO check if changing to [Dispatchers.IO] causes bugs
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             searchViewModel.searchResultFlow.collectLatest { pagingData ->
                 adapter.submitData(pagingData)
             }

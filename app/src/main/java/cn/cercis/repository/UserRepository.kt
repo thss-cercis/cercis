@@ -4,19 +4,21 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.cercis.common.LOG_TAG
-import cn.cercis.common.NO_USER
 import cn.cercis.common.SEARCH_PAGE_SIZE
 import cn.cercis.common.UserId
+import cn.cercis.dao.FriendDao
 import cn.cercis.dao.UserDao
 import cn.cercis.entity.User
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
+import cn.cercis.util.resource.Resource
+import cn.cercis.viewmodel.CommonListItemData
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @FlowPreview
@@ -24,7 +26,8 @@ import javax.inject.Inject
 @ActivityRetainedScoped
 class UserRepository @Inject constructor(
     val httpService: CercisHttpService,
-    val userDao: UserDao,
+    private val userDao: UserDao,
+    private val friendDao: FriendDao,
 ) {
     fun getUser(userId: UserId) = object : DataSource<User>() {
         override suspend fun fetch(): NetworkResponse<User> {
@@ -33,8 +36,7 @@ class UserRepository @Inject constructor(
                     id = userId,
                     nickname = nickname,
                     mobile = mobile,
-                    chatId = NO_USER, // TODO
-                    avatar = avatar,
+                    avatar = avatar, // TODO
                     bio = bio,
                     updated = System.currentTimeMillis(),
                 )
@@ -50,6 +52,32 @@ class UserRepository @Inject constructor(
             return userDao.loadUser(userId)
         }
     }
+
+    /**
+     * Gets a user's display with info from friend entries.
+     *
+     * * NOTE: this method will not trigger friend list loading.
+     *
+     * @return emits null on user loading failure
+     */
+    fun getUserWithFriendDisplay(
+        userId: UserId,
+        fetchUser: Boolean
+    ): Flow<CommonListItemData?> =
+        getUser(userId).let { if (fetchUser) it.flow().map { res -> res.data } else it.dbFlow() }
+            .flatMapLatest { user ->
+                when (user) {
+                    null -> MutableStateFlow(null)
+                    else -> friendDao.loadFriendEntry(user.id).map {
+                        CommonListItemData(
+                            avatar = user.avatar,
+                            displayName = it?.displayName ?: user.nickname,
+                            description = user.bio,
+                        )
+                    }
+                }
+            }
+
 
     suspend fun searchUser(
         userId: UserId? = null,

@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import cn.cercis.Constants.WSS_BASE
 import cn.cercis.common.LOG_TAG
 import cn.cercis.repository.AuthRepository
+import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.tinder.scarlet.Lifecycle
@@ -23,6 +24,8 @@ import com.tinder.scarlet.websocket.okhttp.request.RequestFactory
 import com.tinder.streamadapter.coroutines.CoroutinesStreamAdapterFactory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -117,7 +120,8 @@ class NotificationService : LifecycleService() {
                     is WebSocket.Event.OnConnectionFailed -> {
                         notificationRepository.submitConnectionStatus(ConnectionStatus.DISCONNECTED)
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
                 Log.d(LOG_TAG, "$event")
             }
@@ -125,10 +129,8 @@ class NotificationService : LifecycleService() {
         lifecycleScope.launch(Dispatchers.IO) {
             socketService.observeWebSocketMessage().consumeEach {
                 Log.d(LOG_TAG, "$it")
-                when (it.get()) {
-                    WSMessage.FriendListUpdated -> Unit // TODO
-                    is WSMessage.FriendRequestReceived -> Unit // TODO
-                    null -> Unit // TODO
+                it.get()?.let { msg ->
+                    notificationRepository.submitWSMessage(msg)
                 }
             }
         }
