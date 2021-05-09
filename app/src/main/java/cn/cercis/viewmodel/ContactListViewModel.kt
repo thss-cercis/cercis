@@ -8,9 +8,10 @@ import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.User
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
+import cn.cercis.util.helper.coroutineContext
+import cn.cercis.util.livedata.addSource
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.concurrent.atomic.AtomicInteger
@@ -87,12 +88,8 @@ class ContactListViewModel @Inject constructor(
 //                    }
 //                }
                 // * replace the code above with the following code to enable real data
-                source = friendRepository.getFriendList().flow()
-                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
-                        liveData.addSource(this) {
-                            liveData.value = it
-                        }
-                    }
+                source = friendRepository.getFriendList()
+                    .asLiveData(coroutineContext).also { liveData.addSource(it) }
                 // ********
             }
 
@@ -119,15 +116,15 @@ class ContactListViewModel @Inject constructor(
     val friendListLoading by lazy { Transformations.map(friendListSource.liveData) { it is Resource.Loading } }
 
     /**
-     * Gets a user's info, with cached [cn.cercis.http.DataSource] object, to prevent
+     * Gets a user's info, with cached [cn.cercis.util.resource.DataSource] object, to prevent
      * redundant GETs.
      */
     fun getUserInfo(userId: UserId, friendEntry: FriendEntryWithUpdateMark): LiveData<Friend> {
         return users.computeIfAbsent(userId) {
             Log.d(LOG_TAG, "loading user $userId")
-            Transformations.map(userRepository.getUser(userId).flow().asLiveData(
-                viewModelScope.coroutineContext + Dispatchers.IO
-            )) { user ->
+            Transformations.map(
+                userRepository.getUser(userId).asLiveData(coroutineContext)
+            ) { user ->
                 Log.d(LOG_TAG, "user data received $user")
                 user?.data?.let {
                     Friend(it, friendEntry)

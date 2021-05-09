@@ -48,7 +48,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun generateCurrentUserResource(): LiveData<Resource<UserDetail>> {
-        return profileRepository.getCurrentUserDetail().flow().asLiveData(coroutineContext)
+        return profileRepository.getCurrentUserDetail().asLiveData(coroutineContext)
     }
 
     fun onLogoutClicked(@Suppress("UNUSED_PARAMETER") view: View) {

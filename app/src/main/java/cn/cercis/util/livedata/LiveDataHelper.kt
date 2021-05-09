@@ -12,7 +12,13 @@ fun <T> MediatorLiveData<T>.addSource(source: LiveData<T>) {
 
 fun <T> MediatorLiveData<T>.addResource(source: LiveData<Resource<T>>) {
     addSource(source) {
-        value = it.data
+        value = it?.data
+    }
+}
+
+fun <T> LiveData<Resource<T>>.unwrapResource(): LiveData<T> {
+    return MediatorLiveData<T>().also {
+        it.addResource(this)
     }
 }
 

@@ -13,7 +13,10 @@ import cn.cercis.entity.User
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.*
+import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.MappingLiveData
+import cn.cercis.util.livedata.addSource
+import cn.cercis.util.livedata.unwrapResource
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.FriendRequestListViewModel.RecyclerData.Companion.DELIMITER_0
@@ -98,12 +101,8 @@ class FriendRequestListViewModel @Inject constructor(
 //                    }
 //                }
                 // * replace the code above with the following code to enable real data
-                source = friendRepository.getFriendRequestReceivedList().flow()
-                    .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO).apply {
-                        liveData.addSource(this) {
-                            liveData.value = it
-                        }
-                    }
+                source = friendRepository.getFriendRequestReceivedList()
+                    .asLiveData(coroutineContext).also { liveData.addSource(it) }
                 // ********
             }
 
@@ -158,13 +157,9 @@ class FriendRequestListViewModel @Inject constructor(
         }
     }
 
-    fun getUserInfo(userId: UserId): LiveData<User> {
+    fun getUserLiveData(userId: UserId): LiveData<User> {
         return users.computeIfAbsent(userId) {
-            Transformations.map(userRepository.getUser(userId).flow().asLiveData(
-                viewModelScope.coroutineContext + Dispatchers.IO
-            )) { user ->
-                user?.data
-            }
+            userRepository.getUser(it).asLiveData(coroutineContext).unwrapResource()
         }
     }
 

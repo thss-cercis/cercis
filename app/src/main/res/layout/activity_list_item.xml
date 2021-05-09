@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="cn.cercis.viewmodel.ActivityViewModel.ActivityListItem" />
+
+        <variable name="activity" type="ActivityListItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/activity_list_item_avatar"
+            avatarUrl="@{activity.user.avatar}"
+            android:layout_width="@dimen/chat_avatar_size"
+            android:layout_height="@dimen/chat_avatar_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/roundedCorner"
+            tools:src="@drawable/outline_perm_identity_24" />
+
+        <TextView
+            android:id="@+id/activity_list_item_nickname"
+            style="@style/TextAppearance.Cercis.Messages.Username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{activity.user.nickname}"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toTopOf="@+id/activity_list_item_text"
+            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="备注名" />
+
+        <TextView
+            android:id="@+id/activity_list_item_text"
+            style="@style/TextAppearance.Cercis.ListItem.Text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="@{activity.text}"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/activity_list_item_nickname"
+            tools:text="@string/lorem_ipsum" />
+
+        <GridLayout
+            android:id="@+id/gridLayout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true"
+            android:columnCount="3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/activity_list_item_text">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(0)}"
+                imageUrl="@{activity.getImageUrl(0)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(1)}"
+                imageUrl="@{activity.getImageUrl(1)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(2)}"
+                imageUrl="@{activity.getImageUrl(2)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(3)}"
+                imageUrl="@{activity.getImageUrl(3)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(4)}"
+                imageUrl="@{activity.getImageUrl(4)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(5)}"
+                imageUrl="@{activity.getImageUrl(5)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(6)}"
+                imageUrl="@{activity.getImageUrl(6)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(7)}"
+                imageUrl="@{activity.getImageUrl(7)}" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_columnWeight="1"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:visibility="@{activity.imageVisible(8)}"
+                imageUrl="@{activity.getImageUrl(8)}" />
+
+        </GridLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

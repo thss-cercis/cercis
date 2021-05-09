@@ -14,7 +14,7 @@
         android:icon="@drawable/ic_eco_white_24dp"
         android:id="@+id/activity_list_nav_graph"
         android:enabled="true"
-        android:title="@string/nav_discovery" />
+        android:title="@string/nav_activity" />
     <item
         android:icon="@drawable/ic_account_circle_24"
         android:id="@+id/profile_nav_graph"

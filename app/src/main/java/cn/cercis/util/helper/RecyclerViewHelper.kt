@@ -16,8 +16,7 @@ class DataBindingViewHolder<T : ViewBinding>(val binding: T) :
 
 abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
     private val itemCallback: DiffUtil.ItemCallback<T>
-) :
-    RecyclerView.Adapter<VH>() {
+) : RecyclerView.Adapter<VH>() {
     /**
      * Constructor using equals to judge if contents are the same.
      */
@@ -62,10 +61,10 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
     companion object {
         abstract class BindingAdapter<T, B : ViewDataBinding>(
             itemSameCallback: (T, T) -> Boolean,
-            contentsSameCallback: (T, T) -> Boolean,
+            contentsSameCallback: (T, T) -> Boolean
         ) : DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>(
             itemSameCallback,
-            contentsSameCallback,
+            contentsSameCallback
         )
 
         fun <T, B : ViewDataBinding, C: Comparable<C>> getInstance(
@@ -81,11 +80,11 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
             getViewType: BindingAdapter<T, B>.(position: Int) -> Int = { 0 },
         ) = object : BindingAdapter<T, B>(
             { oldItem, newItem -> itemIndex(oldItem).compareTo(itemIndex(newItem)) == 0 },
-            contentsSameCallback,
+            contentsSameCallback
         ) {
             override fun onCreateViewHolder(
                 parent: ViewGroup,
-                viewType: Int,
+                viewType: Int
             ): DataBindingViewHolder<B> {
                 return DataBindingViewHolder(
                     inflater(LayoutInflater.from(parent.context), parent, viewType).apply {
@@ -96,7 +95,7 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
 
             override fun onBindViewHolder(
                 holder: DataBindingViewHolder<B>,
-                position: Int,
+                position: Int
             ) {
                 onBindViewHolderWithExecution(holder, position)
                 holder.binding.executePendingBindings()

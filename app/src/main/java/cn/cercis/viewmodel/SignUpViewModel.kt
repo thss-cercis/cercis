@@ -11,7 +11,6 @@ import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository
 import cn.cercis.util.helper.getString
-import cn.cercis.util.livedata.PairLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.validatePassword
@@ -71,23 +70,20 @@ class SignUpViewModel @Inject constructor(
     val password = MutableLiveData("")
     val passwordVisible = MutableLiveData(false)
     val signUpError = MutableLiveData<String?>(null)
-    private val signUpSubmittingBusy = MutableLiveData(false)
+    private val isBusySubmitting = MutableLiveData(false)
     private val passwordValid = validatePassword(password)
-    val canSubmit: LiveData<Boolean> = run {
-        MediatorLiveData<Boolean>().apply {
-            val checkCanSubmit = { _: Any ->
-                value = !mobile.value.isNullOrEmpty()
-                        && !verificationCode.value.isNullOrEmpty()
-                        && !nickname.value.isNullOrEmpty()
-                        && passwordValid.value?.valid ?: false
-                        && signUpSubmittingBusy.value != true
-            }
-            addSource(mobile, checkCanSubmit)
-            addSource(verificationCode, checkCanSubmit)
-            addSource(nickname, checkCanSubmit)
-            addSource(passwordValid, checkCanSubmit)
-            addSource(signUpSubmittingBusy, checkCanSubmit)
-        }
+    val canSubmit = generateMediatorLiveData(
+        mobile,
+        verificationCode,
+        nickname,
+        passwordValid,
+        isBusySubmitting
+    ) {
+        !mobile.value.isNullOrEmpty()
+            && !verificationCode.value.isNullOrEmpty()
+            && !nickname.value.isNullOrEmpty()
+            && passwordValid.value?.valid ?: false
+            && isBusySubmitting.value != true
     }
     val passwordError: LiveData<String?> = Transformations.map(passwordValid) {
         it?.let {
@@ -156,7 +152,7 @@ class SignUpViewModel @Inject constructor(
     private suspend fun signUp() {
         // clear error message
         signUpError.postValue(null)
-        signUpSubmittingBusy.postValue(true)
+        isBusySubmitting.postValue(true)
 
         val nickname = this.nickname.value ?: ""
         val mobile = "+86${this.mobile.value}"
@@ -189,7 +185,7 @@ class SignUpViewModel @Inject constructor(
                 }
             }
         } finally {
-            signUpSubmittingBusy.postValue(false)
+            isBusySubmitting.postValue(false)
         }
     }
 }

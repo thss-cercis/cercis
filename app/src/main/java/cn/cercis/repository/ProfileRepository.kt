@@ -1,6 +1,5 @@
 package cn.cercis.repository
 
-import androidx.lifecycle.MutableLiveData
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.dao.UserDao
 import cn.cercis.entity.LoginHistory

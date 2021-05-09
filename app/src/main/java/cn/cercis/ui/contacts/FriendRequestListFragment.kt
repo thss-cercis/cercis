@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.databinding.FragmentFriendRequestListBinding
@@ -66,7 +67,7 @@ class FriendRequestListFragment : Fragment() {
                             (holder.binding as FriendRequestListItemBinding).apply {
                                 (currentList[position] as FriendRequestWithUpdateMark).let {
                                     request = it
-                                    user = friendRequestListViewModel.getUserInfo(it.fromId)
+                                    user = friendRequestListViewModel.getUserLiveData(it.fromId)
                                     onAcceptClicked = View.OnClickListener { _ ->
                                         if (it.loading.value != true) {
                                             friendRequestListViewModel.acceptRequest(it)
@@ -95,17 +96,9 @@ class FriendRequestListFragment : Fragment() {
             it ?: return@observe
             val (req, resp) = it
             when (resp) {
-                is NetworkResponse.NetworkError -> {
-                    Snackbar.make(binding.root, resp.message, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.friend_request_accept_retry) {
-                            friendRequestListViewModel.acceptRequest(req)
-                        }
-                        .setBackgroundTint(requireContext().getColor(R.color.snackbar_error_background))
-                        .setTextColor(requireContext().getColor(R.color.snackbar_error_text))
-                        .show()
-                }
+                is NetworkResponse.NetworkError,
                 is NetworkResponse.Reject -> {
-                    Snackbar.make(binding.root, resp.message, Snackbar.LENGTH_SHORT)
+                    Snackbar.make(binding.root, resp.message!!, Snackbar.LENGTH_SHORT)
                         .setAction(R.string.friend_request_accept_retry) {
                             friendRequestListViewModel.acceptRequest(req)
                         }
@@ -126,15 +119,17 @@ class FriendRequestListFragment : Fragment() {
 
         binding.friendRequestListSwipe.setOnRefreshListener {
             friendRequestListViewModel.refreshRequestList()
-            val observer = object : androidx.lifecycle.Observer<Boolean> {
-                override fun onChanged(t: Boolean?) {
-                    if (t == false) {
-                        binding.friendRequestListSwipe.isRefreshing = false
+            friendRequestListViewModel.requestListLoading.let {
+                val observer = object : Observer<Boolean> {
+                    override fun onChanged(value: Boolean?) {
+                        if (value == false) {
+                            binding.friendRequestListSwipe.isRefreshing = false
+                        }
+                        it.removeObserver(this)
                     }
-                    friendRequestListViewModel.requestListLoading.removeObserver(this)
                 }
+                it.observe(viewLifecycleOwner, observer)
             }
-            friendRequestListViewModel.requestListLoading.observe(viewLifecycleOwner, observer)
         }
         return binding.root
     }

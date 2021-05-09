@@ -5,6 +5,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import cn.cercis.common.LOG_TAG
 
 class AutoResetLiveData<T>(value: T) : MutableLiveData<T>() {
     private val initialValue = value
@@ -16,7 +17,7 @@ class AutoResetLiveData<T>(value: T) : MutableLiveData<T>() {
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
         if (hasActiveObservers()) {
-            Log.w(TAG, "Multiple observers registered but only one will be notified of changes.")
+            Log.w(LOG_TAG, "Multiple observers registered but only one will be notified of changes.")
         }
 
         super.observe(owner) {
@@ -25,9 +26,5 @@ class AutoResetLiveData<T>(value: T) : MutableLiveData<T>() {
                 value = initialValue
             }
         }
-    }
-
-    companion object {
-        private val TAG = AutoResetLiveData::class.simpleName
     }
 }

@@ -1,11 +1,10 @@
 package cn.cercis.ui.chat
 
-import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.MenuItemCompat
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -41,8 +40,8 @@ class ChatListFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-            chats[position].let {
-                holder.binding.run {
+            holder.binding.run {
+                chats[position].let {
                     viewModel = it
                     Glide.with(avatar.context)
                         .load(it.avatar)

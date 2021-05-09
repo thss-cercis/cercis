@@ -3,19 +3,26 @@ package cn.cercis.util.livedata
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import java.lang.UnsupportedOperationException
 
-class MappingLiveData<T>() : MediatorLiveData<T>() {
+open class MappingLiveData<T> : MediatorLiveData<T> {
     private var currentSource: LiveData<*>? = null
-    private lateinit var savedObserver: Observer<in T>
+    private var savedObserver: Observer<in T>
 
-    constructor(source: LiveData<T>, observer: MappingLiveData<T>.(T) -> Unit) : this() {
-        currentSource = source
+    constructor(observer: MappingLiveData<T>.(T) -> Unit) {
         savedObserver = Observer { observer(it) }
+    }
+
+    constructor() {
+        savedObserver = Observer { value = it }
+    }
+
+    constructor(source: LiveData<T>) : this() {
         setSource(source)
     }
 
-    constructor(source: LiveData<T>) : this(source, { value = it })
+    constructor(source: LiveData<T>, observer: MappingLiveData<T>.(T) -> Unit) : this(observer) {
+        setSource(source)
+    }
 
     fun setSource(source: LiveData<T>) {
         setSource(source, savedObserver)

@@ -2,9 +2,11 @@ package cn.cercis.viewmodel
 
 import android.app.Application
 import android.view.View
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import cn.cercis.repository.ProfileRepository
-import cn.cercis.util.livedata.addMultipleSource
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.BIO_MAX_LENGTH
@@ -39,7 +41,7 @@ class ProfileEditViewModel @Inject constructor(
 
     val canSubmit = generateMediatorLiveData(nickname, email, bio, isBusy) {
         nickname.value!!.isNotEmpty()
-            && email.value!!.matches(EMAIL_REGEX)
+            && email.value!! matches EMAIL_REGEX
             && bio.value!!.length <= BIO_MAX_LENGTH
             && isBusy.value == false
     }

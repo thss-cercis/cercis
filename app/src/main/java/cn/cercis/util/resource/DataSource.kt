@@ -1,8 +1,10 @@
 package cn.cercis.util.resource
 
+import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A generic class that can provide a Response backed by both the sqlite database and the network.
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class DataSource<T> {
+    fun asLiveData(context: CoroutineContext) = flow().asLiveData(context)
 
     fun flow(): Flow<Resource<T>> = flow {
         emit(Resource.Loading(null))

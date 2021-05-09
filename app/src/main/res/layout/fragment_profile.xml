@@ -25,7 +25,7 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profile_avatar"
-                avatarImageUrl="@{viewModel.currentUser.avatar}"
+                avatarUrl="@{viewModel.currentUser.avatar}"
                 android:layout_width="@dimen/profile_avatar_size"
                 android:layout_height="@dimen/profile_avatar_size"
                 app:layout_constraintStart_toStartOf="parent"
