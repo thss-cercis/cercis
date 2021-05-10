@@ -38,31 +38,43 @@ class ActivityViewModel @Inject constructor(
     class ActivityListItem(
         val activityId: CommonId,
         val user: LiveData<User>,
-        val text: String,
-        private val imageList: List<String>,
         val publishedAt: Timestamp,
+        val text: String?,
+        private val imageList: List<String>,
         val isLoading: LiveData<Boolean>,
     ) {
+        init {
+            Log.d(LOG_TAG, "Init with imageCount=$imageCount")
+        }
+
+        val imageCount get() = imageList.size
+
         val columnCount: Int
-            get() {
-                Log.d(LOG_TAG, imageList.size.toString())
-                return when (imageList.size) {
-                    4 -> 2
-                    else -> 3
-                }
+            get() = when (imageCount) {
+                4 -> 2
+                else -> imageCount.coerceAtMost(3)
             }
+
+        val rowCount: Int
+            get() = (imageCount - 1) / columnCount + 1
+
+        val dimensionRatio
+            get() = "${columnCount}:${rowCount}"
 
         fun imageVisible(pos: Int): Int {
             return when {
-                pos < imageList.size -> View.VISIBLE
+                pos < imageCount -> View.VISIBLE
                 else -> View.GONE
             }
         }
 
         fun getImageUrl(pos: Int): String {
             return when {
-                pos < imageList.size -> imageList[pos]
-                else -> ""
+                pos < imageCount -> imageList[pos]
+                else -> {
+//                    Log.d(LOG_TAG, "invisible image index ${pos + 1}/$imageCount")
+                    ""
+                }
             }
         }
     }
@@ -74,15 +86,10 @@ class ActivityViewModel @Inject constructor(
 
     private val activitySource by lazy {
         object : MappingLiveData<Resource<List<Activity>>>() {
+            init { refresh() }
             fun refresh() {
-//                val fakeData: Resource<List<Activity>> = Resource.Success((1L..10L).map {
-//                    Activity(id = it)
-//                })
-//                setSource(MutableLiveData(fakeData))
                 setSource(activityRepository.getActivityList(1L..10L).asLiveData(coroutineContext))
             }
-        }.apply {
-            refresh()
         }
     }
 
@@ -95,10 +102,10 @@ class ActivityViewModel @Inject constructor(
             (resource?.data ?: listOf()).map {
                 ActivityListItem(
                     activityId = it.id,
-                    user = getUserLiveData(authRepository.currentUserId),
-                    text = getString(R.string.lorem_ipsum),
-                    imageList = List(Random.nextInt(1, 9)) { "" },
-                    publishedAt = 0,
+                    user = getUserLiveData(it.userId),
+                    publishedAt = it.publishedAt,
+                    text = it.text,
+                    imageList = it.imageUrls,
                     isLoading = isLoading,
                 )
             }.sortedByDescending {

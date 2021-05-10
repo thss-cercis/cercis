@@ -89,7 +89,7 @@ class FriendRequestListFragment : Fragment() {
                         }
                     }
                 },
-                getViewType = { currentList[it].type },
+                itemViewType = { type },
             )
 
         friendRequestListViewModel.operationMessage.observe(viewLifecycleOwner) {

@@ -44,7 +44,7 @@
 
     <style name="TextAppearance.Cercis.ListItem.Text" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">17sp</item>
-        <item name="android:background">@color/list_background</item>
+<!--        <item name="android:background">@color/list_background</item>-->
     </style>
 
     <style name="TextAppearance.Cercis.ListItem.Delimiter" parent="TextAppearance.MaterialComponents.Body1">

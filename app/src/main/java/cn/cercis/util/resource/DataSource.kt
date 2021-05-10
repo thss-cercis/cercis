@@ -1,6 +1,8 @@
 package cn.cercis.util.resource
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import cn.cercis.util.helper.coroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -16,6 +18,8 @@ import kotlin.coroutines.CoroutineContext
 @ExperimentalCoroutinesApi
 abstract class DataSource<T> {
     fun asLiveData(context: CoroutineContext) = flow().asLiveData(context)
+
+    fun asLiveData(viewModel: ViewModel) = asLiveData(viewModel.coroutineContext)
 
     fun flow(): Flow<Resource<T>> = flow {
         emit(Resource.Loading(null))

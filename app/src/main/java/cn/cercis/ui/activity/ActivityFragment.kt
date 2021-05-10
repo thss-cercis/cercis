@@ -1,13 +1,16 @@
 package cn.cercis.ui.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
@@ -35,7 +38,7 @@ class ActivityFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        val adapter = DiffRecyclerViewAdapter.getInstance(
+        binding.activityRecyclerView.adapter = DiffRecyclerViewAdapter.getInstance(
             activityViewModel.activities,
             { viewLifecycleOwner },
             itemIndex = { activityId },
@@ -45,11 +48,19 @@ class ActivityFragment : Fragment() {
             },
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.apply {
-                    activity = currentList[position]
+                    activity = currentList[position].also {
+                        val constraintSet = ConstraintSet()
+                        constraintSet.clone(activityListRootLayout)
+                        constraintSet.setDimensionRatio(
+                            activityListGridLayout.id,
+                            it.dimensionRatio
+                        )
+                        constraintSet.applyTo(activityListRootLayout)
+                    }
                 }
             },
+            itemViewType = { columnCount },
         )
-        binding.activityRecyclerView.adapter = adapter
 
         binding.activitySwipe.setOnRefreshListener {
             activityViewModel.refresh()

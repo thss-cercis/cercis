@@ -2,6 +2,7 @@ package cn.cercis.http
 
 import cn.cercis.common.ApplyId
 import cn.cercis.common.UserId
+import cn.cercis.entity.Activity
 import cn.cercis.entity.FriendRequest
 import cn.cercis.entity.UserDetail
 import cn.cercis.util.resource.NetworkResponse
@@ -72,6 +73,12 @@ interface CercisHttpService {
 
     @POST("auth/recover")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): EmptyNetworkResponse
+
+    @GET("activity/")
+    suspend fun getActivityList(): NetworkResponse<WrappedActivityListPayload>
+
+    @POST("activity/like")
+    suspend fun likeActivity(@Body request: LikeActivityRequest): EmptyNetworkResponse
 }
 
 @JsonClass(generateAdapter = true)
@@ -202,4 +209,14 @@ data class ResetPasswordRequest(
     val mobile: String,
     @Json(name = "new_pwd") val newPassword: String,
     @Json(name = "code") val verificationCode: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class WrappedActivityListPayload(
+    val activities: List<Activity>,
+)
+
+@JsonClass(generateAdapter = true)
+data class LikeActivityRequest(
+    val id: String,
 )

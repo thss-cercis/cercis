@@ -77,19 +77,18 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
                 holder: DataBindingViewHolder<B>,
                 position: Int
             ) -> Unit,
-            getViewType: BindingAdapter<T, B>.(position: Int) -> Int = { 0 },
+            itemViewType: T.() -> Int = { 0 },
         ) = object : BindingAdapter<T, B>(
-            { oldItem, newItem -> itemIndex(oldItem).compareTo(itemIndex(newItem)) == 0 },
+            { oldItem, newItem -> oldItem.itemIndex().compareTo(newItem.itemIndex()) == 0 },
             contentsSameCallback
         ) {
             override fun onCreateViewHolder(
                 parent: ViewGroup,
                 viewType: Int
             ): DataBindingViewHolder<B> {
+                // Do not set lifecycleOwner here or it will call executeBinding with null
                 return DataBindingViewHolder(
-                    inflater(LayoutInflater.from(parent.context), parent, viewType).apply {
-                        lifecycleOwner = viewLifecycleOwnerSupplier()
-                    }
+                    inflater(LayoutInflater.from(parent.context), parent, viewType)
                 )
             }
 
@@ -98,11 +97,16 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
                 position: Int
             ) {
                 onBindViewHolderWithExecution(holder, position)
-                holder.binding.executePendingBindings()
+                holder.binding.run {
+                    if (lifecycleOwner == null) {
+                        lifecycleOwner = viewLifecycleOwnerSupplier()
+                    }
+                    executePendingBindings()
+                }
             }
 
             override fun getItemViewType(position: Int): Int {
-                return getViewType(position)
+                return currentList[position].itemViewType()
             }
         }.apply {
             submitList(listOf())
