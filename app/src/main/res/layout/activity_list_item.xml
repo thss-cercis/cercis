@@ -5,13 +5,15 @@
 
     <data>
 
-        <import type="cn.cercis.viewmodel.ActivityViewModel.ActivityListItem" />
+        <import type="cn.cercis.viewmodel.ActivityListItem" />
 
-        <variable name="activity" type="ActivityListItem" />
+        <variable
+            name="activity"
+            type="ActivityListItem" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/activity_list_root_layout"
+        android:id="@+id/activity_item_root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
@@ -22,7 +24,7 @@
         android:paddingVertical="8dp">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/activity_list_item_avatar"
+            android:id="@+id/activity_item_avatar"
             avatarUrl="@{activity.user.avatar}"
             android:layout_width="@dimen/chat_avatar_size"
             android:layout_height="@dimen/chat_avatar_size"
@@ -32,7 +34,7 @@
             tools:src="@drawable/outline_perm_identity_24" />
 
         <TextView
-            android:id="@+id/activity_list_item_nickname"
+            android:id="@+id/activity_item_nickname"
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -41,40 +43,43 @@
             android:maxLines="1"
             android:text="@{activity.user.nickname}"
             android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@+id/activity_list_item_text"
-            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
+            app:layout_constraintBottom_toTopOf="@+id/activity_item_item_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="备注名" />
+            tools:text="@string/activity_sample_nickname" />
 
         <TextView
-            android:id="@+id/activity_list_item_text"
+            android:id="@+id/activity_item_item_text"
             style="@style/TextAppearance.Cercis.ListItem.Text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
+            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_TEXT)}"
             android:text="@{activity.text}"
             android:textSize="15sp"
-            app:layout_constraintBottom_toTopOf="@+id/activity_list_grid_layout"
+            app:layout_constraintBottom_toTopOf="@+id/activity_item_image_grid"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/activity_list_item_nickname"
+            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/activity_item_nickname"
             tools:text="@string/lorem_ipsum" />
 
         <GridLayout
-            android:id="@+id/activity_list_grid_layout"
+            android:id="@+id/activity_item_image_grid"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:orientation="horizontal"
+            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_IMAGE_GRID)}"
             android:useDefaultMargins="true"
             android:columnCount="@{activity.columnCount}"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="2:1"
+            app:layout_constraintBottom_toBottomOf="@id/activity_item_video"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/activity_list_item_avatar"
-            app:layout_constraintTop_toBottomOf="@id/activity_list_item_text">
+            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/activity_item_item_text">
 
             <ImageView
                 android:layout_width="0dp"
@@ -82,7 +87,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(0)}"
+                android:visibility="@{activity.isImageVisible(0)}"
                 imageUrl="@{activity.getImageUrl(0)}" />
 
             <ImageView
@@ -91,7 +96,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(1)}"
+                android:visibility="@{activity.isImageVisible(1)}"
                 imageUrl="@{activity.getImageUrl(1)}" />
 
             <ImageView
@@ -100,7 +105,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(2)}"
+                android:visibility="@{activity.isImageVisible(2)}"
                 imageUrl="@{activity.getImageUrl(2)}" />
 
             <ImageView
@@ -109,7 +114,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(3)}"
+                android:visibility="@{activity.isImageVisible(3)}"
                 imageUrl="@{activity.getImageUrl(3)}" />
 
             <ImageView
@@ -118,7 +123,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(4)}"
+                android:visibility="@{activity.isImageVisible(4)}"
                 imageUrl="@{activity.getImageUrl(4)}" />
 
             <ImageView
@@ -127,7 +132,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(5)}"
+                android:visibility="@{activity.isImageVisible(5)}"
                 imageUrl="@{activity.getImageUrl(5)}" />
 
             <ImageView
@@ -136,7 +141,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(6)}"
+                android:visibility="@{activity.isImageVisible(6)}"
                 imageUrl="@{activity.getImageUrl(6)}" />
 
             <ImageView
@@ -145,7 +150,7 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(7)}"
+                android:visibility="@{activity.isImageVisible(7)}"
                 imageUrl="@{activity.getImageUrl(7)}" />
 
             <ImageView
@@ -154,10 +159,36 @@
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.imageVisible(8)}"
+                android:visibility="@{activity.isImageVisible(8)}"
                 imageUrl="@{activity.getImageUrl(8)}" />
 
         </GridLayout>
+
+        <VideoView
+            android:id="@+id/activity_item_video"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_VIDEO)}"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintBottom_toTopOf="@id/activity_item_published_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/activity_item_image_grid" />
+
+        <TextView
+            android:id="@+id/activity_item_published_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="end"
+            android:text="@{activity.publishedTimeText}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/activity_item_video"
+            tools:text="2038-01-20" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

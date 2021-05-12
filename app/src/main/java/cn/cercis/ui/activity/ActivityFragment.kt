@@ -1,7 +1,10 @@
 package cn.cercis.ui.activity
 
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +17,14 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.setDimensionRatio
+import cn.cercis.viewmodel.ActivityListItem.Companion.VIEW_TYPE_VIDEO
 import cn.cercis.viewmodel.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.*
+import kotlin.math.ceil
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -49,17 +55,35 @@ class ActivityFragment : Fragment() {
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.apply {
                     activity = currentList[position].also {
-                        val constraintSet = ConstraintSet()
-                        constraintSet.clone(activityListRootLayout)
-                        constraintSet.setDimensionRatio(
-                            activityListGridLayout.id,
-                            it.dimensionRatio
-                        )
-                        constraintSet.applyTo(activityListRootLayout)
+                        when (it.viewType) {
+                            VIEW_TYPE_VIDEO -> {
+                                activityItemVideo.apply {
+                                    setVideoURI(Uri.parse(it.videoUrl))
+                                    setOnPreparedListener { mp: MediaPlayer ->
+                                        activityItemRootLayout.setDimensionRatio(
+                                            activityItemVideo.id,
+                                            "${mp.videoWidth}:${mp.videoHeight}"
+                                        )
+                                    }
+                                    setOnClickListener {
+                                        when {
+                                            isPlaying -> pause()
+                                            else -> start()
+                                        }
+                                    }
+                                }
+                            }
+                            else -> {
+                                activityItemRootLayout.setDimensionRatio(
+                                    activityItemImageGrid.id,
+                                    it.dimensionRatio
+                                )
+                            }
+                        }
                     }
                 }
             },
-            itemViewType = { columnCount },
+            itemViewType = { viewType },
         )
 
         binding.activitySwipe.setOnRefreshListener {

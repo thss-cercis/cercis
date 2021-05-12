@@ -2,11 +2,11 @@ package cn.cercis.repository
 
 import cn.cercis.common.ApplyId
 import cn.cercis.common.UserId
+import cn.cercis.common.mapRun
 import cn.cercis.dao.FriendDao
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.FriendRequest
 import cn.cercis.http.*
-import cn.cercis.util.mapRun
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped

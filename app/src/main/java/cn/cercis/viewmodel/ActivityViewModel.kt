@@ -1,21 +1,20 @@
 package cn.cercis.viewmodel
 
-import android.app.Application
 import android.util.Log
-import android.view.View
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import cn.cercis.R
-import cn.cercis.common.CommonId
 import cn.cercis.common.LOG_TAG
-import cn.cercis.common.Timestamp
+import cn.cercis.common.MediaType
 import cn.cercis.common.UserId
 import cn.cercis.entity.Activity
 import cn.cercis.entity.User
 import cn.cercis.repository.ActivityRepository
-import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.UserRepository
+import cn.cercis.util.getFakeMediaUrlList
+import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
-import cn.cercis.util.helper.getString
 import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.livedata.unwrapResource
 import cn.cercis.util.resource.Resource
@@ -30,55 +29,9 @@ import kotlin.random.Random
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class ActivityViewModel @Inject constructor(
-    application: Application,
-    private val authRepository: AuthRepository,
     private val activityRepository: ActivityRepository,
     private val userRepository: UserRepository,
-) : AndroidViewModel(application) {
-    class ActivityListItem(
-        val activityId: CommonId,
-        val user: LiveData<User>,
-        val publishedAt: Timestamp,
-        val text: String?,
-        private val imageList: List<String>,
-        val isLoading: LiveData<Boolean>,
-    ) {
-        init {
-            Log.d(LOG_TAG, "Init with imageCount=$imageCount")
-        }
-
-        val imageCount get() = imageList.size
-
-        val columnCount: Int
-            get() = when (imageCount) {
-                4 -> 2
-                else -> imageCount.coerceAtMost(3)
-            }
-
-        val rowCount: Int
-            get() = (imageCount - 1) / columnCount + 1
-
-        val dimensionRatio
-            get() = "${columnCount}:${rowCount}"
-
-        fun imageVisible(pos: Int): Int {
-            return when {
-                pos < imageCount -> View.VISIBLE
-                else -> View.GONE
-            }
-        }
-
-        fun getImageUrl(pos: Int): String {
-            return when {
-                pos < imageCount -> imageList[pos]
-                else -> {
-//                    Log.d(LOG_TAG, "invisible image index ${pos + 1}/$imageCount")
-                    ""
-                }
-            }
-        }
-    }
-
+) : ViewModel() {
     // this works as a flag indicating users need to be re-fetched
     private val atomicInteger = AtomicInteger(0)
 
@@ -103,9 +56,10 @@ class ActivityViewModel @Inject constructor(
                 ActivityListItem(
                     activityId = it.id,
                     user = getUserLiveData(it.userId),
-                    publishedAt = it.publishedAt,
+                    mediaType = it.mediaType,
                     text = it.text,
-                    imageList = it.imageUrls,
+                    mediaUrlList = getFakeMediaUrlList(it.mediaType),
+                    publishedAt = it.publishedAt,
                     isLoading = isLoading,
                 )
             }.sortedByDescending {

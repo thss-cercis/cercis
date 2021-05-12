@@ -1,7 +1,6 @@
 package cn.cercis.http
 
-import cn.cercis.common.ApplyId
-import cn.cercis.common.UserId
+import cn.cercis.common.*
 import cn.cercis.entity.Activity
 import cn.cercis.entity.FriendRequest
 import cn.cercis.entity.UserDetail
@@ -220,3 +219,31 @@ data class WrappedActivityListPayload(
 data class LikeActivityRequest(
     val id: String,
 )
+
+@JsonClass(generateAdapter = true)
+data class ActivityPayload(
+    val id: ActivityId,
+    val text: String,
+    @Json(name = "sender_id") val userId: UserId,
+    val media: List<MediaPayload>,
+    val comments: List<CommentPayload>,
+    @Json(name = "created_at") val createdAt: String,
+) {
+    @JsonClass(generateAdapter = true)
+    data class MediaPayload(
+        val id: MediumId,
+        @Json(name = "activity_id") val activityId: ActivityId,
+        val type: Int,
+        val content: String,
+        @Json(name = "created_at") val createdAt: String,
+    )
+
+    @JsonClass(generateAdapter = true)
+    data class CommentPayload(
+        val id: CommentId,
+        @Json(name = "activity_id") val activityId: ActivityId,
+        @Json(name = "commenter_id") val commenterId: UserId,
+        val content: String,
+        @Json(name = "created_at") val createdAt: String,
+    )
+}

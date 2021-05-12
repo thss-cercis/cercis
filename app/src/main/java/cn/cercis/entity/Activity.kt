@@ -1,22 +1,38 @@
 package cn.cercis.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import cn.cercis.common.CommonId
-import cn.cercis.common.Timestamp
-import cn.cercis.common.UserId
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import cn.cercis.common.*
 
 @Entity
-@JsonClass(generateAdapter = true)
 data class Activity(
     @PrimaryKey val id: CommonId,
-    @Json(name = "user_id") val userId: UserId,
-    @Json(name = "published_at") val publishedAt: Timestamp,
-    val type: Int,
-    val text: String?,
-    @Json(name = "image_urls") val imageUrls: List<String>,
-    @Json(name = "video_url") val videoUrl: String?,
-    @Json(name = "liked_user_names") val likedUserNames: List<String>,
+    val userId: UserId,
+    val text: String,
+    val mediaTypeCode: Int,
+    val publishedAt: Timestamp,
+) {
+    val mediaType: MediaType
+        get() = when (mediaTypeCode) {
+            0 -> MediaType.IMAGE
+            1 -> MediaType.VIDEO
+            else -> MediaType.NONE
+        }
+}
+
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Activity::class,
+        parentColumns = ["id"],
+        childColumns = ["activityId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index("activityId")]
+)
+data class Medium(
+    @PrimaryKey val id: MediumId,
+    val activityId: ActivityId,
+    val url: String,
 )

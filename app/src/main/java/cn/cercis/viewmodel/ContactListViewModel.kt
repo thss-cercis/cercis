@@ -1,7 +1,10 @@
 package cn.cercis.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.entity.FriendEntry

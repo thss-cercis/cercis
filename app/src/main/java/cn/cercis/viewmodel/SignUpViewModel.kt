@@ -1,6 +1,5 @@
 package cn.cercis.viewmodel
 
-import android.app.Application
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
@@ -10,7 +9,7 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.entity.LoginHistory
 import cn.cercis.repository.AuthRepository
-import cn.cercis.util.helper.getString
+import cn.cercis.util.getString
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.validation.validatePassword
@@ -40,10 +39,9 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    application: Application,
     private val authRepository: AuthRepository,
     private val loginHistoryDao: LoginHistoryDao,
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     enum class NavAction {
         FRAGMENT, FRAGMENT_SUCCESS, BACK,
@@ -91,7 +89,7 @@ class SignUpViewModel @Inject constructor(
                 it.emptyOrValid -> null
                 !it.ruleLength -> getString(R.string.signup_error_password_min_8_max_20)
                 !it.ruleAllowedCharacters -> getString(R.string.signup_error_password_invalid_character)
-                    .replace("{}", it.invalidCharacter!!)
+                    .format(it.invalidCharacter!!)
                 else -> getString(R.string.signup_error_password_should_3_out_of_4)
             }
         }

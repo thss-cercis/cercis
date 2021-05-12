@@ -1,9 +1,8 @@
 package cn.cercis.viewmodel
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import cn.cercis.dao.ChatDao
@@ -12,21 +11,19 @@ import cn.cercis.entity.ChatType.CHAT_SINGLE
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
+import cn.cercis.util.getCurrentTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
-        application: Application,
         private val messageRepository: MessageRepository,
         private val notificationRepository: NotificationRepository,
         private val chatDao: ChatDao,
         private val authRepository: AuthRepository,
-) : AndroidViewModel(application) {
+) : ViewModel() {
     private val chats = chatDao.loadAllChats()
         .asLiveData(viewModelScope.coroutineContext + Dispatchers.IO)
 
@@ -43,12 +40,6 @@ class ChatListViewModel @Inject constructor(
         }
     }
 
-    private fun generateTimeString(): String {
-        val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.US)
-        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-        return dateFormat.format(Date())
-    }
-
     fun onRefreshListener() {
         // TODO replace fake data with real ones
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,7 +48,7 @@ class ChatListViewModel @Inject constructor(
                     id = it,
                     type = CHAT_SINGLE,
                     name = "Test $it",
-                    lastMessage = "${authRepository.currentUserId} @ ${generateTimeString()}"
+                    lastMessage = "${authRepository.currentUserId} @ ${getCurrentTimeString()}"
                 )
             }.toTypedArray())
             Log.d(null, "Some junk data generated!")

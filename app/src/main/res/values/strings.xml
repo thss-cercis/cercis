@@ -1,5 +1,9 @@
 <resources>
     <string name="action_menu_add_friend">添加好友</string>
+    <string name="activity_published_time">发布于 %s</string>
+    <string name="activity_sample_nickname">测试用户</string>
+    <string name="activity_sample_video_url">http://azusa.one/cercis/1</string>
+    <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
     <string name="contact_list_action_show_group_notifications">群通知</string>
     <string name="contact_list_action_show_requests">好友请求</string>
@@ -10,6 +14,7 @@
     <string name="error_authorization">未登录</string>
     <string name="error_network_exception">无法连接到 Cercis 服务器</string>
     <string name="error_server_error">服务器通信异常</string>
+    <string name="fragment_search_cancel">取消</string>
     <string name="friend_request_accept">同意</string>
     <string name="friend_request_accept_retry">重试</string>
     <string name="friend_request_accept_success">已添加</string>
@@ -24,11 +29,12 @@
     <string name="login_hint_user_id">ID / 手机号</string>
     <string name="login_link_reset_password">找回密码</string>
     <string name="login_link_user_signup">用户注册</string>
-    <string name="main_401_dialog_title">登录过期</string>
+    <string name="lorem_ipsum">用户可以发布图文或视频动态，在动态页面可以按照时间线浏览其联系人发布的动态，并进行进行点赞评论操作。</string>
     <string name="main_401_dialog_body">点击 %s 回到登录界面</string>
     <string name="main_401_dialog_ok_button">确定</string>
-    <string name="nav_contacts">联系人</string>
+    <string name="main_401_dialog_title">登录过期</string>
     <string name="nav_activity">动态</string>
+    <string name="nav_contacts">联系人</string>
     <string name="nav_messages">消息</string>
     <string name="nav_profile">我的</string>
     <string name="profile_button_logout">登出</string>
@@ -38,7 +44,7 @@
     <string name="signup_button_signup">注册</string>
     <string name="signup_code">验证码</string>
     <string name="signup_code_next_step">下一步</string>
-    <string name="signup_error_password_invalid_character">密码包含非法字符 \'{}\'</string>
+    <string name="signup_error_password_invalid_character">密码包含非法字符 \'%s\'</string>
     <string name="signup_error_password_min_8_max_20">密码应为 8 ~ 20 位</string>
     <string name="signup_error_password_should_3_out_of_4">密码应包含数字、小写字母、大写字母、符号中的至少三种</string>
     <string name="signup_headline_2">加入 Cercis</string>
@@ -56,7 +62,4 @@
     <string name="splash_button_goto_login">登录</string>
     <string name="splash_button_goto_user_signup">新用户注册</string>
     <string name="title_activity_startup">Cercis</string>
-    <string name="fragment_search_cancel">取消</string>
-    <string name="activity_title">动态</string>
-    <string name="lorem_ipsum">用户可以发布图文或视频动态，在动态页面可以按照时间线浏览其联系人发布的动态，并进行进行点赞评论操作。</string>
 </resources>
