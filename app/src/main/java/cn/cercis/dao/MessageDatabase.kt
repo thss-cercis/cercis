@@ -79,6 +79,9 @@ interface ChatMemberDao {
     @Query("SELECT * FROM chatMember WHERE chatId = :chatId")
     fun loadChatMembers(chatId: ChatId): Flow<List<ChatMember>>
 
+    @Query("SELECT * FROM chatMember AS c1 JOIN chatMember AS c2 JOIN chat ON c1.chatId = c2.chatId AND c1.chatId = chat.id WHERE c1.userId = :userId1 AND c2.userId = :userId2")
+    fun loadSharedChats(userId1: UserId, userId2: UserId): Flow<Chat?>
+
     @Transaction
     fun updateChatMemberList(chatId: ChatId, chatMembers: List<ChatMember>) {
         deleteAllMembersFrom(chatId)

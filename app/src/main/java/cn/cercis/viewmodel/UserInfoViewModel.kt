@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import cn.cercis.common.NO_USER
 import cn.cercis.common.UserId
 import cn.cercis.entity.User
+import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.resource.Resource
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class UserInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     userRepository: UserRepository,
+    messageRepository: MessageRepository,
 ) : ViewModel() {
     private val userId = savedStateHandle.get<UserId>("user_id") ?: NO_USER
     private val userInfoFlow = flow {
@@ -36,6 +38,5 @@ class UserInfoViewModel @Inject constructor(
     val userInfo = userInfoFlow.asLiveData(coroutineContext)
 
     fun openChat() {
-
     }
 }

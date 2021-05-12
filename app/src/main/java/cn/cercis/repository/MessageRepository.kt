@@ -120,7 +120,19 @@ class MessageRepository @Inject constructor(
     /**
      * Gets chat with another user.
      */
-    suspend fun getPrivateChatWith(userId: UserId) = httpService.getPrivateChatWith(userId)
+    fun getPrivateChatWith(userId: UserId, otherId: UserId) = object: DataSource<Chat>() {
+        override suspend fun fetch(): NetworkResponse<Chat> {
+            return httpService.getPrivateChatWith(userId)
+        }
+
+        override suspend fun saveToDb(data: Chat) {
+            chatDao.insertChat(data)
+        }
+
+        override fun loadFromDb(): Flow<Chat?> {
+            return MutableStateFlow(null)//return chatMemberDao.loadSharedChats(userId, otherId)
+        }
+    }
 
     /**
      * Gets all members' userIds in a chat.

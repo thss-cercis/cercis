@@ -30,7 +30,7 @@ class MainActivityViewModel @Inject constructor(
 ) : ViewModel() {
     val loggedIn = authRepository.loggedIn
     // this initial value is related to the one in [master_nav_graph]
-    val detailHasNavigationDestination = MutableLiveData(false)
+    val detailHasNavigationDestination = MutableLiveData(true)
     val masterVisible = Transformations.map(detailHasNavigationDestination) {
         when (it) {
             null, false -> View.VISIBLE

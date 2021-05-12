@@ -6,12 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import cn.cercis.MainActivity
 import cn.cercis.databinding.FragmentProfileBinding
 import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -36,6 +40,11 @@ class ProfileFragment : Fragment() {
                         bio = bio,
                     )
                 )
+            }
+        }
+        binding.buttonLogout.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                (requireActivity() as MainActivity).logout()
             }
         }
         return binding.root

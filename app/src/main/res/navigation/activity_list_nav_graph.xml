@@ -3,11 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_list_nav_graph"
-    app:startDestination="@id/emptyFragment3">
-
+    app:startDestination="@id/activityFragment">
     <fragment
-        android:id="@+id/emptyFragment3"
-        android:name="cn.cercis.ui.empty.EmptyFragment"
-        android:label="layout_empty"
-        tools:layout="@layout/fragment_empty" />
+        android:id="@+id/activityFragment"
+        android:name="cn.cercis.ui.activity.ActivityFragment"
+        android:label="fragment_activity"
+        tools:layout="@layout/fragment_activity" />
 </navigation>

@@ -8,23 +8,31 @@ import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityMainBinding
+import cn.cercis.repository.AuthRepository
 import cn.cercis.service.NotificationService
 import cn.cercis.ui.activity.ActivityFragment
 import cn.cercis.ui.chat.ChatListFragment
 import cn.cercis.ui.contacts.ContactListFragment
+import cn.cercis.ui.empty.EmptyFragment
 import cn.cercis.ui.profile.ProfileFragment
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setupWithNavController
 import cn.cercis.viewmodel.MainActivityViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -34,6 +42,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentNavController: LiveData<NavController>
 
+    @Inject
+    lateinit var authRepository: AuthRepository
+    private val loggedInObserver = Observer<Boolean?> {
+        if (it == false) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.main_401_dialog_title)
+                .setMessage(
+                    getString(R.string.main_401_dialog_body)
+                        .format(getString(R.string.main_401_dialog_ok_button))
+                )
+                .setPositiveButton(R.string.main_401_dialog_ok_button) { _, _ ->
+                    finishActivity()
+                }
+                .setOnDismissListener { finishActivity() }
+                .show()
+
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -42,26 +69,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // check login status and automatically jumps to login view
-        mainActivityViewModel.loggedIn.observe(this) {
-            if (it == false) {
-                val finishActivity = {
-                    startActivity(Intent(this, AuthActivity::class.java))
-                    finish()
-                }
-                MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.main_401_dialog_title)
-                    .setMessage(
-                        getString(R.string.main_401_dialog_body)
-                            .format(getString(R.string.main_401_dialog_ok_button))
-                    )
-                    .setPositiveButton(R.string.main_401_dialog_ok_button) { _, _ ->
-                        finishActivity()
-                    }
-                    .setOnDismissListener { finishActivity() }
-                    .show()
-
-            }
-        }
+        mainActivityViewModel.loggedIn.observe(this, loggedInObserver)
 
         binding.reusedView.masterViewContainer.apply {
             adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
@@ -73,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                     return when (position) {
                         0 -> ChatListFragment()
                         1 -> ContactListFragment()
-                        2 -> ActivityFragment()
+                        2 -> EmptyFragment()// ActivityFragment()
                         3 -> ProfileFragment()
                         else -> throw IllegalStateException("out of index") // should not happen
                     }
@@ -109,6 +117,19 @@ class MainActivity : AppCompatActivity() {
         detailHost.navController.navigate(id)
     }
 
+    @MainThread
+    fun logout() {
+        lifecycle.coroutineScope.launch(Dispatchers.Main) {
+            if (authRepository.logout() is NetworkResponse.Success) {
+                mainActivityViewModel.loggedIn.apply {
+                    removeObserver(loggedInObserver)
+                    value = false
+                }
+                finishActivity()
+            }
+        }
+    }
+
     private val detailHost: NavHostFragment
         get() {
             return supportFragmentManager.findFragmentById(R.id.detail_view_container) as NavHostFragment
@@ -141,10 +162,10 @@ class MainActivity : AppCompatActivity() {
         )
 
         val listener = NavController.OnDestinationChangedListener { navController, dest, _ ->
-            val isStartDest = dest.id == navController.graph.startDestination
-            mainActivityViewModel.detailHasNavigationDestination.postValue(
-                !isStartDest
-            )
+//            val isStartDest = dest.id == navController.graph.startDestination
+//            mainActivityViewModel.detailHasNavigationDestination.postValue(
+//                !isStartDest
+//            )
         }
 
         controller.observe(this) { navController ->
@@ -158,6 +179,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         currentNavController = controller
+    }
+
+    private fun finishActivity() {
+        startActivity(Intent(this, AuthActivity::class.java))
+        finish()
     }
 
     private val isMasterDetail: Boolean by lazy {
