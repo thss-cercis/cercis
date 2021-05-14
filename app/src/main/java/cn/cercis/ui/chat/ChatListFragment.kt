@@ -18,6 +18,7 @@ import cn.cercis.databinding.FragmentChatListBinding
 import cn.cercis.entity.ChatType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
+import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.viewmodel.ChatListItemData
 import cn.cercis.viewmodel.ChatListViewModel
 import com.bumptech.glide.Glide
@@ -32,67 +33,6 @@ import kotlin.collections.ArrayList
 @ExperimentalCoroutinesApi
 class ChatListFragment : Fragment() {
     private val chatListViewModel: ChatListViewModel by activityViewModels()
-
-    inner class ChatListAdapter : Adapter<ChatListAdapter.ChatViewHolder>() {
-        init {
-            setHasStableIds(true)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
-            val binding = ChatListItemBinding.inflate(inflater, parent, false)
-            return ChatViewHolder(binding = binding)
-        }
-
-        override fun getItemCount(): Int {
-            return chats.size
-        }
-
-        override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-            holder.binding.run {
-                chats[position].let {
-                    viewModel = it
-                    Glide.with(avatar.context)
-                        .load(it.avatar)
-                        .fallback(R.drawable.outline_perm_identity_24)
-                        .placeholder(R.drawable.outline_perm_identity_24)
-                        .into(avatar)
-                    executePendingBindings()
-                }
-            }
-        }
-
-        override fun getItemId(position: Int): Long {
-            return chats[position].chatId
-        }
-
-        fun getChatId(position: Int): ChatId {
-            return chats[position].chatId
-        }
-
-        /**
-         * Replaces all data within the message chat adapter, but does not notify the changes.
-         *
-         * To update the view, call [Adapter.notifyItemChanged] and other similar functions to inform
-         * the data changes.
-         */
-        fun replaceDataWithoutNotify(list: List<ChatListItemData>) {
-            chats.clear()
-            chats.addAll(list)
-        }
-
-        private val chats = ArrayList<ChatListItemData>()
-
-        inner class ChatViewHolder(
-            val binding: ChatListItemBinding,
-        ) : RecyclerView.ViewHolder(binding.root) {
-            init {
-                itemView.setOnClickListener {
-                    doDetailNavigation(ChatFragment.navDirection(getChatId(absoluteAdapterPosition)))
-                }
-            }
-        }
-    }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val menuItem = menu.findItem(R.id.action_search)
@@ -136,7 +76,8 @@ class ChatListFragment : Fragment() {
                 )
             },
             onBindViewHolderWithExecution = { holder, position ->
-                holder.binding.data = chatListViewModel.getChatDisplay(currentList[position]).value
+                holder.binding.data = chatListViewModel.getChatDisplay(currentList[position])
+                holder.binding.root.setOnClickListener { requireMainActivity().openChat(currentList[position]) }
             },
             itemViewType = { type }
         )

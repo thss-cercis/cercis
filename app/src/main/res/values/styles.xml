@@ -1,13 +1,38 @@
 <resources>
+    <attr name="fragmentBackground" format="color" />
+    <attr name="colorSurfaceDark" format="color" />
+    <attr name="colorDivider" format="color" />
+    <attr name="colorIncomingBubble" format="color" />
+    <attr name="colorOutgoingBubble" format="color" />
+    <attr name="colorOnIncomingBubble" format="color" />
+    <attr name="colorOnOutgoingBubble" format="color" />
+
     <!-- Base application theme. -->
     <style name="Theme.Cercis" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/cercis_main</item>
         <item name="colorPrimaryDark">@color/cercis_main_dark</item>
+        <item name="colorPrimaryVariant">@color/cercis_main_dark</item>
+        <item name="colorOnPrimary">@color/cercis_on_main</item>
         <item name="colorAccent">@color/cercis_accent</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+        <item name="colorSecondary">@color/cercis_accent</item>
+        <item name="colorSecondaryVariant">@color/cercis_accent_dark</item>
+        <item name="colorOnSecondary">@color/cercis_on_accent</item>
+        <item name="colorSurface">@color/surface_day</item>
+        <item name="colorOnSurface">@color/on_surface_day</item>
+        <item name="colorSurfaceDark">@color/surface_day_dark</item>
+        <item name="colorDivider">@color/divider</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorIncomingBubble">@color/in_bubble</item>
+        <item name="colorOutgoingBubble">@color/out_bubble</item>
+        <item name="colorOnIncomingBubble">@color/on_in_bubble</item>
+        <item name="colorOnOutgoingBubble">@color/on_out_bubble</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="fragmentBackground">?attr/colorSurface</item>
     </style>
+
+    <style name="Theme.Cercis.DayNight" parent="Theme.Cercis" />
 
     <style name="FullscreenTheme" parent="Theme.Cercis">
         <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
@@ -20,6 +45,11 @@
     <style name="roundedCorner">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="roundedCorner20">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20%</item>
     </style>
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
@@ -44,7 +74,19 @@
 
     <style name="TextAppearance.Cercis.ListItem.Text" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">17sp</item>
-<!--        <item name="android:background">@color/list_background</item>-->
+    </style>
+
+    <style name="TextAppearance.MessageBox.Text" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">17sp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:background">@drawable/textfield_background</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.Message.Text" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="TextAppearance.Cercis.ListItem.Delimiter" parent="TextAppearance.MaterialComponents.Body1">

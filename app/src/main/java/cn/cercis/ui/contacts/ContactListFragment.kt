@@ -15,9 +15,11 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ContactListFriendItemBinding
 import cn.cercis.databinding.ContactListRecyclerViewBinding
 import cn.cercis.databinding.FragmentContactListBinding
+import cn.cercis.entity.User
 import cn.cercis.util.helper.DataBindingViewHolder
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
+import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.viewmodel.ContactListViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,8 +54,26 @@ class ContactListFragment : Fragment() {
                             ContactListFriendItemBinding.inflate(inflater, parent, false)
                         },
                         onBindViewHolderWithExecution = { holder, position ->
-                            holder.binding.user = currentList[position].let {
-                                contactListViewModel.getUserInfo(it.friendUserId, it)
+                            holder.binding.apply {
+                                user = currentList[position].let {
+                                    contactListViewModel.getUserInfo(it.friendUserId, it)
+                                }.apply {
+                                    root.setOnClickListener {
+                                        value?.let {
+                                            requireMainActivity().openUserInfo(
+                                                // TODO replace this stupid workaround
+                                                User(
+                                                    id = it.id,
+                                                    nickname = it.nickname,
+                                                    mobile = it.mobile,
+                                                    avatar = it.avatar,
+                                                    bio = it.bio,
+                                                    updated = 0L,
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         },
                     )

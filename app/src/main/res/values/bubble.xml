@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Bubble">
+        <attr name="bubbleType" format="enum">
+            <enum name="text" value="0"/>
+            <enum name="image" value="1"/>
+            <enum name="audio" value="2"/>
+            <enum name="video" value="3"/>
+            <enum name="location" value="4"/>
+        </attr>
+        <attr name="bubbleContent" format="string" />
+    </declare-styleable>
+</resources>

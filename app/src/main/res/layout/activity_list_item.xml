@@ -26,12 +26,12 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/activity_item_avatar"
             avatarUrl="@{activity.user.avatar}"
-            android:layout_width="@dimen/chat_avatar_size"
-            android:layout_height="@dimen/chat_avatar_size"
+            android:layout_width="@dimen/default_avatar_size"
+            android:layout_height="@dimen/default_avatar_size"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/roundedCorner"
-            tools:src="@drawable/outline_perm_identity_24" />
+            tools:src="@drawable/ic_default_avatar" />
 
         <TextView
             android:id="@+id/activity_item_nickname"

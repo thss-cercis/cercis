@@ -82,13 +82,13 @@ interface CercisHttpService {
     suspend fun getChatList(): NetworkResponse<List<Chat>>
 
     @GET("chat/private")
-    suspend fun getPrivateChatWith(@Query("id") userId: UserId): NetworkResponse<Chat>
+    suspend fun getPrivateChatWith(@Query("user_id") userId: UserId): NetworkResponse<Chat>
 
     @PUT("chat/group")
     suspend fun editGroupChatInfo(@Body request: EditGroupChatInfoRequest): NetworkResponse<Chat>
 
     @GET("chat/")
-    suspend fun getChatMemberList(@Query("id") chatId: ChatId): NetworkResponse<List<ChatMember>>
+    suspend fun getChatMemberList(@Query("chat_id") chatId: ChatId): NetworkResponse<List<ChatMember>>
 
     @POST("chat/group/member")
     suspend fun inviteGroupMember(@Body request: InviteGroupMemberRequest): EmptyNetworkResponse
@@ -119,7 +119,7 @@ interface CercisHttpService {
         @Query("chat_id") chatId: ChatId,
         @Query("from_id") fromId: MessageId,
         @Query("to_id") toId: MessageId
-    ): EmptyNetworkResponse
+    ): NetworkResponse<List<Message>>
 
     @GET("chat/messages/all-latest")
     suspend fun getAllChatsLatestMessageId(): NetworkResponse<List<ChatLatestMessageId>>

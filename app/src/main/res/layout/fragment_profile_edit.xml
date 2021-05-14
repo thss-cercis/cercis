@@ -16,7 +16,7 @@
         android:id="@+id/profile_edit_root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/fragment_background">
+        android:background="?attr/fragmentBackground">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/fragment_profile_edit_toolbar"
@@ -101,6 +101,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/profile_edit_submit_error"
                 android:textColor="@color/cercis_accent"
+                tools:text="error info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@+id/profile_edit_submit"

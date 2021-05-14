@@ -12,8 +12,10 @@
         tools:layout="@layout/fragment_chat">
         <argument
             android:name="chatId"
-            android:defaultValue="-1L"
             app:argType="long" />
+        <argument
+            android:name="chat"
+            app:argType="cn.cercis.entity.Chat" />
     </fragment>
     <fragment
         android:id="@+id/emptyFragment"
@@ -35,5 +37,22 @@
         android:id="@+id/action_global_searchFragment"
         app:destination="@id/searchFragment"
         app:popUpTo="@id/emptyFragment" />
+    <fragment
+        android:id="@+id/userInfoFragment"
+        android:name="cn.cercis.ui.contacts.UserInfoFragment"
+        android:label="fragment_user_info"
+        tools:layout="@layout/fragment_user_info">
+        <argument
+            android:name="user"
+            android:defaultValue="@null"
+            app:argType="cn.cercis.entity.User"
+            app:nullable="true" />
+        <argument
+            android:name="userId"
+            app:argType="long" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_userInfoFragment"
+        app:destination="@id/userInfoFragment" />
 
 </navigation>

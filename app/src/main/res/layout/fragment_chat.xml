@@ -15,23 +15,63 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/fragmentBackground"
+        android:clickable="true"
         android:fitsSystemWindows="false"
-        android:background="@color/fragment_background"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         tools:context=".ui.chat.ChatFragment">
 
-        <com.google.android.material.appbar.AppBarLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:title="@{viewModel.chatDisplay.displayName}" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/chat_text_box_barrier"
+            app:layout_constraintTop_toBottomOf="@id/topAppBar">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/chat_item_other_with_icon" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/chat_text_box_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:barrierMargin="-8dp"
+            app:constraint_referenced_ids="chat_text_box" />
+
+        <View
+            android:id="@+id/chat_text_box_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="?attr/colorSurfaceDark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chat_text_box_barrier" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/chat_text_box"
+            style="@style/TextAppearance.MessageBox.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/topAppBar"
-                style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_arrow_back_24"
-                app:title="@{viewModel.chat.name}" />
-        </com.google.android.material.appbar.AppBarLayout>
-
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="8dp"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine"
+            android:maxLength="@integer/message_max_length"
+            android:maxLines="3"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="测试文本" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

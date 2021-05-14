@@ -15,7 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/fragment_background">
+        android:background="?attr/fragmentBackground">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/fragment_search_text_input_layout"

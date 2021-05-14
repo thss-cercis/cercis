@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="chat_avatar_size">56dp</dimen>
-    <dimen name="chat_no_avatar_padding_start">72dp</dimen>
+    <dimen name="default_avatar_size">56dp</dimen>
 
     <dimen name="profile_avatar_size">80dp</dimen>
     <dimen name="profile_card_height">128dp</dimen>
+
+    <dimen name="chat_avatar_size">32dp</dimen>
+    <dimen name="chat_bubble_margin">48dp</dimen>
 </resources>

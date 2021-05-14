@@ -66,12 +66,14 @@ class UserRepository @Inject constructor(
     ): Flow<CommonListItemData?> =
         getUser(userId).let { if (fetchUser) it.flow().map { res -> res.data } else it.dbFlow() }
             .flatMapLatest { user ->
+                Log.d(LOG_TAG, "receiving user info: $user")
                 when (user) {
                     null -> MutableStateFlow(null)
-                    else -> friendDao.loadFriendEntry(user.id).map {
+                    else -> friendDao.loadFriendEntry(user.id).map { entry ->
+                        Log.d(LOG_TAG, "loaded friend entry: $entry")
                         CommonListItemData(
                             avatar = user.avatar,
-                            displayName = it?.displayName ?: user.nickname,
+                            displayName = entry?.displayName.let { if (it.isNullOrEmpty()) user.nickname else it },
                             description = user.bio,
                         )
                     }

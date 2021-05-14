@@ -1,21 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="cercis_main">#0073FF</color>
-    <color name="cercis_main_light">#147DFD</color>
-    <color name="cercis_main_dark">#003F8C</color>
-    <color name="cercis_accent">#FF3300</color>
+    <color name="cercis_main">#0061C9</color>
+    <color name="cercis_main_light">#0072DB</color>
+    <color name="cercis_main_dark">#0242AA</color>
+    <color name="cercis_on_main">#FFFFFF</color>
+    <color name="cercis_accent">#C96800</color>
+    <color name="cercis_accent_dark">#BF5200</color>
+    <color name="cercis_on_accent">#FFFFFF</color>
 
-    <color name="login_page_background">#FFFFFF</color>
-    <color name="fragment_background">#FFFFFF</color>
-    <color name="fragment_contact_list_background">#F4F5F9</color>
+    <color name="cercis_alt_1">#00C6C9</color>
+    <color name="cercis_alt_2">#0300C9</color>
+    <color name="cercis_alt_3">#6800C9</color>
+    <color name="cercis_alt_4">#C90061</color>
+
+    <color name="surface_day">#FFFFFF</color>
+    <color name="on_surface_day">#000000</color>
+    <color name="surface_night">#000000</color>
+    <color name="on_surface_night">#EEEEEE</color>
+    <color name="surface_day_dark">#F4F5F9</color>
+    <color name="surface_night_light">#2A2C2F</color>
+
     <!-- Color used for views displaying list. i.e. RecyclerView -->
     <color name="list_background">#FFFFFF</color>
     <color name="list_delimiter">#EEE</color>
     <color name="list_delimiter_text">#444</color>
+    <color name="cercis_toolbar">#DDD</color>
 
     <color name="black_overlay">#66000000</color>
     <color name="divider">#EEE</color>
+    <color name="divider_night">#111</color>
     <color name="icon_on_background">#888</color>
+
+    <color name="error">#B00020</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="in_bubble">#CFDFEF</color>
+    <color name="on_in_bubble">#000000</color>
+    <color name="out_bubble">#00C6C9</color>
+    <color name="on_out_bubble">#000000</color>
+    <color name="dark_bubble">#333333</color>
+    <color name="on_dark_bubble">#FFFFFF</color>
 
     <!-- snackbars -->
     <color name="snackbar_success_background">#4CAF50</color>

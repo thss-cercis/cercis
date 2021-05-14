@@ -1,9 +1,6 @@
 package cn.cercis.service
 
-import cn.cercis.common.ApplyId
-import cn.cercis.common.ChatId
-import cn.cercis.common.MessageId
-import cn.cercis.common.WSMessageTypeId
+import cn.cercis.common.*
 import cn.cercis.entity.Chat
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -34,11 +31,13 @@ data class DebugMessage(
 data class NotificationMessage(
     val type: WSMessageTypeId,
     val apply: WSMessage.FriendRequestReceived?,
+    val msg: WSMessage.NewMessageReceived?,
 ) {
     fun get(): WSMessage? {
         when (type) {
             100L -> apply
             101L -> WSMessage.FriendListUpdated
+            200L -> msg
         }
         return null
     }
@@ -54,6 +53,9 @@ sealed interface WSMessageWithId {
 }
 
 sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
+    // internal messages
+    object WebSocketConnected : WSMessage(-1L)
+
     // 100
     @JsonClass(generateAdapter = true)
     data class FriendRequestReceived(
@@ -64,8 +66,7 @@ sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
     // 101
     object FriendListUpdated : WSMessage(101L), WSMessageWithId.Combinable
 
-    // TODO future types
-
+    // 200
     @JsonClass(generateAdapter = true)
     data class NewMessageReceived(
         @Json(name = "chat_id") val chatId: ChatId,
@@ -73,4 +74,11 @@ sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
         @Json(name = "type") val type: WSMessageTypeId,
         @Json(name = "sum") val sum: String,
     ) : WSMessage(200L)
+
+    // 300
+    @JsonClass(generateAdapter = true)
+    data class NewActivity(
+        @Json(name = "activity_id") val activityId: ActivityId,
+        @Json(name = "user_id") val userId: UserId,
+    ) : WSMessage(300L)
 }

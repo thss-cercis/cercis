@@ -33,7 +33,9 @@ enum class MessageType(val type: Int) {
     AUDIO(2),
     VIDEO(3),
     LOCATION(4),
+    WITHDRAW(100),
     UNKNOWN(-1),
+    DELETED(-2),
     ;
 
     companion object {

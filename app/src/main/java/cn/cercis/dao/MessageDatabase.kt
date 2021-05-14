@@ -5,12 +5,13 @@ import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.common.UserId
 import cn.cercis.entity.Chat
+import cn.cercis.entity.ChatLastRead
 import cn.cercis.entity.ChatMember
 import cn.cercis.entity.Message
 import kotlinx.coroutines.flow.Flow
 
 @Database(
-    entities = [Message::class, Chat::class, ChatMember::class],
+    entities = [Message::class, Chat::class, ChatMember::class, ChatLastRead::class],
     version = 1,
     exportSchema = false
 )
@@ -24,6 +25,22 @@ abstract class MessageDatabase : RoomDatabase() {
 interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertMessage(vararg messages: Message)
+
+    /**
+     * Inserts some messages and replace on conflict. This method is used to mark a message to be
+     * deleted.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAndReplaceMessage(vararg messages: Message)
+
+    @Transaction
+    fun insertIgnoreAndInsertReplace(
+        insertIgnoreMessages: List<Message>,
+        insertReplaceMessages: List<Message>
+    ) {
+        insertMessage(*insertIgnoreMessages.toTypedArray())
+        insertAndReplaceMessage(*insertReplaceMessages.toTypedArray())
+    }
 
     @Delete
     fun deleteMessage(vararg messages: Message)
@@ -40,8 +57,17 @@ interface MessageDao {
     @Query("SELECT COUNT(*) FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
     suspend fun countMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Long
 
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
+    suspend fun loadMessagesBetweenOnce(chatId: ChatId, start: MessageId, end: MessageId): List<Message>
+
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
+    fun loadMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Flow<List<Message>>
+
     @Query("SELECT * FROM message WHERE chatId = :chatId ORDER BY id DESC LIMIT 1")
     fun loadLatestMessage(chatId: ChatId): Flow<Message?>
+
+    @Query("SELECT * FROM message WHERE chatId in (SELECT id FROM chat) ORDER BY id DESC LIMIT 1")
+    suspend fun loadAllChatLatestMessages(): List<Message>
 }
 
 @Dao
@@ -66,6 +92,15 @@ interface ChatDao {
         deleteAllChats()
         insertChat(*chats.toTypedArray())
     }
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateChatLastRead(chatLastRead: ChatLastRead)
+
+    @Query("SELECT lastReadMessageId FROM chatLastRead WHERE chatId = :chatId")
+    suspend fun loadChatLastReadOnce(chatId: ChatId): MessageId?
+
+    @Query("SELECT lastReadMessageId FROM chatLastRead WHERE chatId = :chatId")
+    fun loadChatLastRead(chatId: ChatId): Flow<MessageId?>
 }
 
 @Dao

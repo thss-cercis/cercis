@@ -20,6 +20,7 @@ package cn.cercis.util
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.SparseArray
 import android.util.SparseIntArray
 import androidx.core.util.set
@@ -31,6 +32,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
+import cn.cercis.common.LOG_TAG
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
@@ -95,14 +97,13 @@ fun BottomNavigationView.setupWithNavController(
 
     // When a navigation item is selected
     setOnNavigationItemSelectedListener { item ->
+        Log.d(LOG_TAG, "transaction stated ($item)")
         // Don't do anything if the state is state has already been saved.
         if (fragmentManager.isStateSaved) {
             false
         } else {
             val newlySelectedItemTag = graphIdToTagMap[item.itemId]
             if (selectedItemTag != newlySelectedItemTag) {
-                masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
-
                 // Pop everything above the first fragment (the "fixed start destination")
                 fragmentManager.popBackStack(firstFragmentTag,
                     FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -125,7 +126,9 @@ fun BottomNavigationView.setupWithNavController(
                             R.anim.nav_default_pop_exit_anim)
                         .setReorderingAllowed(true)
                         .commit()
+                    fragmentManager.executePendingTransactions()
                 }
+                masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
                 selectedNavController.value = selectedFragment.navController
@@ -133,6 +136,8 @@ fun BottomNavigationView.setupWithNavController(
             } else {
                 false
             }
+        }.apply {
+            Log.d(LOG_TAG, "transaction finished ($this)")
         }
     }
 

@@ -1,18 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.contacts.UserInfoFragment">
 
     <data>
 
         <import type="cn.cercis.viewmodel.UserInfoViewModel" />
+
+        <import type="android.view.View" />
 
         <variable
             name="viewModel"
             type="UserInfoViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?attr/fragmentBackground"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingHorizontal="10dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/user_info_avatar"
+                avatarUrl="@{viewModel.userInfo.avatar}"
+                android:layout_width="@dimen/profile_avatar_size"
+                android:layout_height="@dimen/profile_avatar_size"
+                android:layout_margin="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/roundedCorner20" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/user_info_nickname"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{viewModel.userInfo.nickname}"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@id/user_info_id"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/user_info_avatar"
+                app:layout_constraintTop_toTopOf="@id/user_info_avatar" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/user_info_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{String.format(@string/profile_cercis_id, viewModel.userInfo.id)}"
+                app:layout_constraintBottom_toBottomOf="@id/user_info_avatar"
+                app:layout_constraintEnd_toEndOf="@id/user_info_nickname"
+                app:layout_constraintStart_toStartOf="@id/user_info_nickname"
+                app:layout_constraintTop_toBottomOf="@id/user_info_nickname" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/user_info_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                app:layout_constraintTop_toBottomOf="@id/user_info_profile_barrier"
+                tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sollicitudin libero a tortor vehicula, eget facilisis elit pellentesque. Pellentesque auctor tortor mauris, vitae accumsan turpis placerat aliquam. Nunc eget orci vitae erat ullamcorper posuere pulvinar eget mi. Phasellus in mauris finibus, convallis orci vitae, imperdiet eros. Donec eu augue auctor mauris imperdiet feugiat sit amet et erat. Nunc a ex tincidunt, egestas neque ut, facilisis sapien. Donec sagittis volutpat dignissim. Etiam auctor mi ut dolor eleifend, quis suscipit ligula vestibulum. Donec in leo arcu. Proin ut sapien at justo volutpat egestas non in orci. Maecenas et convallis elit. Donec in malesuada lorem. Ut et lacinia mi, in malesuada neque." />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/user_info_content_bottom_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="user_info_bio" />
+
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/user_info_profile_barrier"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="user_info_avatar, user_info_id" />
+
+            <Button
+                android:id="@+id/user_info_delete_friend"
+                style="@style/Widget.Cercis.Button.TextButton.Accent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/user_info_delete_friend"
+                android:visibility="@{viewModel.showIfFriend}"
+                app:layout_constraintBottom_toBottomOf="@id/user_info_send_message"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/user_info_send_message"
+                tools:visibility="visible" />
+
+            <Button
+                android:id="@+id/user_info_add_friend"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/user_info_add_friend"
+                android:visibility="@{viewModel.showIfNotFriend}"
+                app:layout_constraintBottom_toBottomOf="@id/user_info_send_message"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/user_info_send_message"
+                tools:visibility="gone" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/user_info_action_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="user_info_add_friend, user_info_delete_friend" />
+
+            <Button
+                android:id="@+id/user_info_send_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/user_info_send_messages"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/user_info_action_barrier"
+                app:layout_constraintTop_toBottomOf="@id/user_info_content_bottom_barrier"
+                app:layout_constraintVertical_bias="1" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

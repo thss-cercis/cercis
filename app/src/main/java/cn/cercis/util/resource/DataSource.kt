@@ -32,6 +32,8 @@ abstract class DataSource<T> {
         }
     }
 
+    fun fallbackFlow(): Flow<Resource<T>> = flow().filter { it !is Resource.Loading }
+
     fun dbFlow(): Flow<T> = loadFromDb().filterNotNull()
 
     fun networkFlow(): Flow<Resource<T>> = flow(emitNetworkResources)

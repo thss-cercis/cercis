@@ -19,25 +19,29 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingHorizontal="10dp"
-        android:paddingVertical="8dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/fragment_background">
+            android:background="?attr/fragmentBackground">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profile_avatar"
                 avatarUrl="@{viewModel.currentUser.avatar}"
                 android:layout_width="@dimen/profile_avatar_size"
                 android:layout_height="@dimen/profile_avatar_size"
+                android:layout_margin="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/roundedCorner20" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/profile_nickname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@{viewModel.currentUser.nickname}"
@@ -60,19 +64,27 @@
                 app:layout_constraintStart_toStartOf="@id/profile_nickname"
                 app:layout_constraintTop_toBottomOf="@id/profile_nickname" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/status_bar"
+            <!--            <com.google.android.material.textview.MaterialTextView-->
+            <!--                android:id="@+id/status_bar"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:text="@{viewModel.currentUserLoadingStatus}"-->
+            <!--                app:layout_constraintTop_toBottomOf="@id/profile_avatar" />-->
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/profile_barrier"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.currentUserLoadingStatus}"
-                app:layout_constraintTop_toBottomOf="@id/profile_avatar" />
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="profile_avatar, profile_id" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_profile_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="@string/profile_edit_title"
-                app:layout_constraintTop_toBottomOf="@id/status_bar" />
+                app:layout_constraintTop_toBottomOf="@id/profile_barrier" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_logout"
@@ -80,7 +92,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_button_logout"
-                app:layout_constraintTop_toBottomOf="@id/button_profile_edit" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_profile_edit"
+                app:layout_constraintVertical_bias="1.0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingDataAdapter
@@ -58,11 +59,11 @@ class SearchFragment : Fragment() {
         ) {
             holder.binding.apply {
                 getItem(position)?.let {
-                    data = CommonListItemData(
+                    data = MutableLiveData(CommonListItemData(
                         ""/* TODO: it.avatar */,
                         it.nickname,
                         getString(R.string.profile_cercis_id).format(it.id)
-                    )
+                    ))
                 } ?: run {
                     data = null
                 }

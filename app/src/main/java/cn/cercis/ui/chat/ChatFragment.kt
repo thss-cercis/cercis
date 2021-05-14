@@ -7,20 +7,23 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.databinding.*
-import cn.cercis.entity.Chat
 import cn.cercis.entity.ChatType.CHAT_GROUP
 import cn.cercis.entity.ChatType.CHAT_PRIVATE
 import cn.cercis.entity.Message
 import cn.cercis.viewmodel.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -50,7 +53,7 @@ class ChatFragment : Fragment() {
     }
 
     private class MessageViewHolder(
-            val binding: ViewDataBinding
+        val binding: ViewDataBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
     private val messageListAdapter = object : RecyclerView.Adapter<MessageViewHolder>() {
@@ -59,16 +62,11 @@ class ChatFragment : Fragment() {
         }
 
         private val messageList = ArrayList<Message>()
-        private var chatInfo: Chat? = null
+        private val chatInfo by lazy { chatViewModel.chatInitData }
 
         fun updateMessages(messages: List<Message>) {
             messageList.clear()
             messageList.addAll(messages)
-            notifyDataSetChanged()
-        }
-
-        fun updateChatInfo(chat: Chat) {
-            chatInfo = chat
             notifyDataSetChanged()
         }
 
@@ -78,7 +76,11 @@ class ChatFragment : Fragment() {
                 OtherWithIcon -> ChatItemOtherWithIconBinding.inflate(inflater, parent, false)
                 OtherWithoutIcon -> ChatItemOtherWithoutIconBinding.inflate(inflater, parent, false)
                 SelfWithIcon -> ChatItemSelfWithIconBinding.inflate(inflater, parent, false)
-                /* SelfWithoutIcon, */ else -> ChatItemSelfWithoutIconBinding.inflate(inflater, parent, false)
+                /* SelfWithoutIcon, */ else -> ChatItemSelfWithoutIconBinding.inflate(
+                    inflater,
+                    parent,
+                    false
+                )
             }
             return MessageViewHolder(binding)
         }
@@ -107,37 +109,35 @@ class ChatFragment : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return when(chatViewModel.side(messageList[position].senderId)) {
-                ChatViewModel.Side.SELF -> when(chatInfo?.type) {
+            return when (chatViewModel.side(messageList[position].senderId)) {
+                ChatViewModel.Side.SELF -> when (chatInfo.type) {
                     CHAT_GROUP -> SelfWithIcon
-                    null, CHAT_PRIVATE -> SelfWithoutIcon
+                    CHAT_PRIVATE -> SelfWithoutIcon
                     else -> SelfWithoutIcon
                 }
-                ChatViewModel.Side.OTHER -> when(chatInfo?.type) {
+                ChatViewModel.Side.OTHER -> when (chatInfo.type) {
                     CHAT_GROUP -> OtherWithIcon
-                    null, CHAT_PRIVATE -> OtherWithoutIcon
+                    CHAT_PRIVATE -> OtherWithoutIcon
                     else -> OtherWithoutIcon
                 }
             }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val binding = FragmentChatBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = chatViewModel
         binding.executePendingBindings()
-        chatViewModel.messageListDataSource.observe(viewLifecycleOwner, {
-            it?.let {
-                messageListAdapter.updateMessages(it)
-            }
-        })
-        chatViewModel.chat.observe(viewLifecycleOwner, {
-            it?.let {
-                messageListAdapter.updateChatInfo(it)
-            }
-        })
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
         }
         return binding.root
     }

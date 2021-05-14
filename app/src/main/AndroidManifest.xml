@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_cercis_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Cercis"
+        android:theme="@style/Theme.Cercis.DayNight"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".StartupActivity"

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Cercis.DayNight" parent="Theme.Cercis">
+        <item name="colorSurface">@color/surface_night</item>
+        <item name="colorOnSurface">@color/on_surface_night</item>
+        <item name="colorSurfaceDark">@color/surface_night_light</item>
+        <item name="colorDivider">@color/divider_night</item>
+        <item name="colorIncomingBubble">@color/dark_bubble</item>
+        <item name="colorOutgoingBubble">@color/dark_bubble</item>
+        <item name="colorOnIncomingBubble">@color/on_dark_bubble</item>
+        <item name="colorOnOutgoingBubble">@color/on_dark_bubble</item>
+    </style>
+</resources>

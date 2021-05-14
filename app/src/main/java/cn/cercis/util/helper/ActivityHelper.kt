@@ -2,6 +2,7 @@ package cn.cercis.util.helper
 
 import android.animation.LayoutTransition
 import android.view.ViewGroup
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import cn.cercis.MainActivity
@@ -31,7 +32,7 @@ fun ViewGroup.enableTransition() {
 @FlowPreview
 @ExperimentalCoroutinesApi
 fun Fragment.doDetailNavigation(id: Int) {
-    (requireActivity() as MainActivity).doDetailNavigation(id)
+    requireMainActivity().doDetailNavigation(id)
 }
 
 /**
@@ -43,5 +44,12 @@ fun Fragment.doDetailNavigation(id: Int) {
 @FlowPreview
 @ExperimentalCoroutinesApi
 fun Fragment.doDetailNavigation(navDirections: NavDirections) {
-    (requireActivity() as MainActivity).doDetailNavigation(navDirections)
+    requireMainActivity().doDetailNavigation(navDirections)
+}
+
+@FlowPreview
+@ExperimentalCoroutinesApi
+@MainThread
+fun Fragment.requireMainActivity(): MainActivity {
+    return requireActivity() as MainActivity
 }

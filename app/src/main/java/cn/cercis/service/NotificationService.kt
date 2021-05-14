@@ -113,6 +113,7 @@ class NotificationService : LifecycleService() {
                 when (event) {
                     is WebSocket.Event.OnConnectionOpened<*> -> {
                         notificationRepository.submitConnectionStatus(ConnectionStatus.CONNECTED)
+                        notificationRepository.submitWSMessage(WSMessage.WebSocketConnected)
                     }
                     is WebSocket.Event.OnConnectionClosed -> {
                         notificationRepository.submitConnectionStatus(ConnectionStatus.DISCONNECTED)

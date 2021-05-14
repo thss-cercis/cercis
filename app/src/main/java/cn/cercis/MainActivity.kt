@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.annotation.IdRes
 import androidx.annotation.MainThread
+import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
@@ -14,13 +16,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
+import cn.cercis.common.UserId
 import cn.cercis.databinding.ActivityMainBinding
+import cn.cercis.entity.Chat
+import cn.cercis.entity.User
 import cn.cercis.repository.AuthRepository
 import cn.cercis.service.NotificationService
-import cn.cercis.ui.activity.ActivityFragment
+import cn.cercis.ui.chat.ChatFragmentDirections
 import cn.cercis.ui.chat.ChatListFragment
 import cn.cercis.ui.contacts.ContactListFragment
+import cn.cercis.ui.contacts.UserInfoFragmentDirections
 import cn.cercis.ui.empty.EmptyFragment
 import cn.cercis.ui.profile.ProfileFragment
 import cn.cercis.util.resource.NetworkResponse
@@ -34,9 +41,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-@FlowPreview
 class MainActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
@@ -44,8 +51,10 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var authRepository: AuthRepository
+    private var isDialogShowed = false
     private val loggedInObserver = Observer<Boolean?> {
-        if (it == false) {
+        if (it == false && !isDialogShowed) {
+            isDialogShowed = true
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.main_401_dialog_title)
                 .setMessage(
@@ -57,7 +66,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 .setOnDismissListener { finishActivity() }
                 .show()
-
         }
     }
 
@@ -184,6 +192,63 @@ class MainActivity : AppCompatActivity() {
     private fun finishActivity() {
         startActivity(Intent(this, AuthActivity::class.java))
         finish()
+    }
+
+    private fun scheduleNavigation(
+        @IdRes navGraph: Int,
+        navigate: NavController.() -> Unit
+    ) {
+        currentNavController.observe(this, object : Observer<NavController> {
+            override fun onChanged(t: NavController?) {
+                Log.d(LOG_TAG, "scheduled navigation for $navGraph, now ${t?.graph?.id}")
+                if (t != null && t.graph.id == navGraph) {
+                    t.navigate()
+                    currentNavController.removeObserver(this)
+                }
+            }
+        })
+    }
+
+    fun openChat(chat: Chat) {
+        Log.d(LOG_TAG, "opening chat $chat")
+        binding.reusedView.bottomNavigation.selectedItemId = R.id.chat_list_nav_graph
+        Log.d(LOG_TAG, "is it ok?")
+        scheduleNavigation(R.id.chat_list_nav_graph) {
+            navigate(ChatFragmentDirections.actionToChatFragment(chat.id, chat))
+        }
+    }
+
+    private fun popOtherUserInfo() {
+        detailHost.navController.apply {
+            while (currentBackStackEntry?.destination?.id == R.id.action_global_userInfoFragment) {
+                Log.d(LOG_TAG, "trying to pop")
+                if (!popBackStack()) break
+            }
+        }
+    }
+
+    fun openUserInfo(user: User, popOthers: Boolean = true) {
+        if (popOthers) {
+            popOtherUserInfo()
+        }
+        doDetailNavigation(
+            UserInfoFragmentDirections.actionGlobalUserInfoFragment(
+                user = user,
+                userId = user.id
+            )
+        )
+    }
+
+    fun openUserInfo(userId: UserId, popOthers: Boolean = true) {
+        if (popOthers) {
+            popOtherUserInfo()
+        }
+        doDetailNavigation(
+            UserInfoFragmentDirections.actionGlobalUserInfoFragment(
+                user = null,
+                userId = userId
+            )
+        )
     }
 
     private val isMasterDetail: Boolean by lazy {

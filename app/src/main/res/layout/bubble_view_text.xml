@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/bubble_text"
+        tools:text="测试消息"
+        style="@style/TextAppearance.Cercis.Message.Text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>
