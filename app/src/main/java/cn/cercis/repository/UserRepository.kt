@@ -48,7 +48,6 @@ class UserRepository @Inject constructor(
         }
 
         override fun loadFromDb(): Flow<User?> {
-            Log.d(LOG_TAG, "fetch user $userId from ${this.hashCode()}")
             return userDao.loadUser(userId)
         }
     }
@@ -62,21 +61,17 @@ class UserRepository @Inject constructor(
      */
     fun getUserWithFriendDisplay(
         userId: UserId,
-        fetchUser: Boolean
-    ): Flow<CommonListItemData?> =
+        fetchUser: Boolean,
+    ): Flow<CommonListItemData> =
         getUser(userId).let { if (fetchUser) it.flow().map { res -> res.data } else it.dbFlow() }
+            .filterNotNull()
             .flatMapLatest { user ->
-                Log.d(LOG_TAG, "receiving user info: $user")
-                when (user) {
-                    null -> MutableStateFlow(null)
-                    else -> friendDao.loadFriendEntry(user.id).map { entry ->
-                        Log.d(LOG_TAG, "loaded friend entry: $entry")
-                        CommonListItemData(
-                            avatar = user.avatar,
-                            displayName = entry?.displayName.let { if (it.isNullOrEmpty()) user.nickname else it },
-                            description = user.bio,
-                        )
-                    }
+                friendDao.loadFriendEntry(user.id).map { entry ->
+                    CommonListItemData(
+                        avatar = user.avatar,
+                        displayName = entry?.displayName.let { if (it.isNullOrEmpty()) user.nickname else it },
+                        description = user.bio,
+                    )
                 }
             }
 

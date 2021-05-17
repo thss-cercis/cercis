@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@id/chat_action_extra"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@id/chat_bottom_placeholder" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@id/chat_action_extra"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@null"
+            app:layout_constraintBottom_toBottomOf="@id/chat_bottom_placeholder" />
+    </ConstraintSet>
+
+    <Transition
+        app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@id/start"
+        app:duration="500" />
+</MotionScene>

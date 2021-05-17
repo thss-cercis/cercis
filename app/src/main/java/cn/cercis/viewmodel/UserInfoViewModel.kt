@@ -14,7 +14,7 @@ import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
-import cn.cercis.util.livedata.asInitiatedLiveData
+import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,7 +38,7 @@ class UserInfoViewModel @Inject constructor(
     private val initialUserInfo = savedStateHandle.get<User>("user")
     private val userInfoFlow = userRepository.getUser(userId).flow()
     val userInfo = userInfoFlow.map { it.data }
-        .asInitiatedLiveData(coroutineContext, initialUserInfo)
+        .asInitializedLiveData(coroutineContext, initialUserInfo)
     val busyGettingChat = MutableLiveData(false)
     val isFriend: LiveData<Boolean?> = friendRepository.getFriendList().flow().map {
         it.data?.firstOrNull { friendEntry -> friendEntry.friendUserId == userId } != null

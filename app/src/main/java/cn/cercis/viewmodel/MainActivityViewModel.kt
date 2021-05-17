@@ -13,11 +13,8 @@ import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
 import cn.cercis.service.WSMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @FlowPreview
@@ -46,19 +43,29 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        // TODO inform service to end itself
+    }
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            notificationRepository.messageFlow().collect {
+            // set to current user to clear previous unprocessed messages
+            notificationRepository.setCurrentUserId(authRepository.currentUserId)
+            for (it in notificationRepository.messageChannel) {
                 Log.d(LOG_TAG, "processing message: $it")
                 when (val message = it.first) {
-                    WSMessage.WebSocketConnected -> {
+                    WSMessage.WebSocketConnected, WSMessage.ForceUpdate -> {
                         launch {
                             // load friends
-                            friendRepository.getFriendList().fetchAndSave().apply { Log.d(LOG_TAG, "$this") }
+                            friendRepository.getFriendList().fetchAndSave()
+                                .apply { Log.d(LOG_TAG, "$this") }
                             // load chat list
-                            messageRepository.getChatList().fetchAndSave().apply { Log.d(LOG_TAG, "$this") }
+                            messageRepository.getChatList().fetchAndSave()
+                                .apply { Log.d(LOG_TAG, "$this") }
                             // load latest message list
-                            messageRepository.fetchAndSaveLatestMessages().apply { Log.d(LOG_TAG, "$this") }
+                            messageRepository.fetchAndSaveLatestMessages()
+                                .apply { Log.d(LOG_TAG, "$this") }
                         }
                     }
                     WSMessage.FriendListUpdated -> {
@@ -75,7 +82,7 @@ class MainActivityViewModel @Inject constructor(
                     is WSMessage.NewMessageReceived -> {
                         launch {
                             messageRepository.getSingleMessage(message.chatId, message.messageId)
-                                .fetchAndSave()
+                                .fetchAndSave().apply { Log.d(LOG_TAG, "$this") }
                         }
                     }
                     is WSMessage.NewActivity -> {
@@ -84,5 +91,13 @@ class MainActivityViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            // re-fetch latest messages every 5000 ms
+            while (true) {
+                delay(5000)
+                messageRepository.fetchAndSaveLatestMessages()
+            }
+        }
+        messageRepository.processMessageSending(viewModelScope)
     }
 }

@@ -129,8 +129,9 @@ class NotificationService : LifecycleService() {
         }
         lifecycleScope.launch(Dispatchers.IO) {
             socketService.observeWebSocketMessage().consumeEach {
-                Log.d(LOG_TAG, "$it")
+                Log.d(LOG_TAG, "trying to submit $it as ${it.get()}")
                 it.get()?.let { msg ->
+                    Log.d(LOG_TAG, "sending")
                     notificationRepository.submitWSMessage(msg)
                 }
             }

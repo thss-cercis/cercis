@@ -12,7 +12,7 @@
             type="ChatViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.motion.widget.MotionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/fragmentBackground"
@@ -20,6 +20,7 @@
         android:fitsSystemWindows="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        app:layoutDescription="@xml/fragment_chat_scene"
         tools:context=".ui.chat.ChatFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -32,16 +33,22 @@
             app:title="@{viewModel.chatDisplay.displayName}" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/chat_swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@id/chat_text_box_barrier"
             app:layout_constraintTop_toBottomOf="@id/topAppBar">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/chat_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:clipToPadding="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/chat_item_other_with_icon" />
+                tools:listitem="@layout/chat_item_incoming" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <androidx.constraintlayout.widget.Barrier
@@ -57,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="?attr/colorSurfaceDark"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_button_barrier"
             app:layout_constraintTop_toBottomOf="@id/chat_text_box_barrier" />
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -71,7 +78,89 @@
             android:inputType="textMultiLine"
             android:maxLength="@integer/message_max_length"
             android:maxLines="3"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_button_barrier"
             tools:text="测试文本" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/chat_action_button_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="chat_action_send_image" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chat_action_send_audio"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            app:icon="@drawable/ic_mic_24"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
+            app:layout_constraintEnd_toStartOf="@id/chat_action_send_image"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chat_action_send_image"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_insert_photo_24"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
+            app:layout_constraintEnd_toStartOf="@id/chat_action_send_emoji"
+            app:layout_constraintStart_toEndOf="@id/chat_action_send_audio" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chat_action_send_emoji"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_insert_emoticon_24"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
+            app:layout_constraintEnd_toStartOf="@id/chat_action_send_addition"
+            app:layout_constraintStart_toEndOf="@id/chat_action_send_image" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chat_action_send_addition"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            app:icon="@drawable/ic_add_circle_24"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/chat_action_send_emoji" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/chat_action_extra_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="chat_action_extra" />
+
+        <ViewFlipper
+            android:id="@+id/chat_action_extra"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@id/chat_bottom_placeholder">
+
+            <LinearLayout
+                android:id="@+id/chat_action_send_audio_page"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+            </LinearLayout>
+        </ViewFlipper>
+
+
+        <View
+            android:id="@+id/chat_bottom_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="parent" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

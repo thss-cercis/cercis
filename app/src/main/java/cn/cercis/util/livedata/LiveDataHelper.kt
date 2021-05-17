@@ -51,7 +51,7 @@ fun <T> generateMediatorLiveData(
  * * NOTE: this method should only be called from the main thread
  */
 @MainThread
-fun <T> Flow<T>.asInitiatedLiveData(
+fun <T> Flow<T>.asInitializedLiveData(
     coroutineContext: CoroutineContext,
     initialValue: T,
 ): LiveData<T> {

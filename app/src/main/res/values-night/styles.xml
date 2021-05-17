@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Cercis.DayNight" parent="Theme.Cercis">
+        <item name="colorPrimary">@color/cercis_main_night</item>
+        <item name="colorPrimaryDark">@color/cercis_main_night</item>
+        <item name="colorPrimaryVariant">@color/cercis_main_night</item>
+        <item name="colorOnPrimary">@color/cercis_on_main_night</item>
+        <item name="colorAccent">@color/cercis_accent_night</item>
+        <item name="colorSecondary">@color/cercis_accent_night</item>
+        <item name="colorSecondaryVariant">@color/cercis_accent_night</item>
+        <item name="colorOnSecondary">@color/cercis_on_accent_night</item>
         <item name="colorSurface">@color/surface_night</item>
         <item name="colorOnSurface">@color/on_surface_night</item>
         <item name="colorSurfaceDark">@color/surface_night_light</item>

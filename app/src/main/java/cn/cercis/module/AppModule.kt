@@ -14,6 +14,10 @@ import cn.cercis.util.resource.NetworkResponse
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
+import com.qiniu.android.common.FixedZone
+import com.qiniu.android.storage.Configuration
+import com.qiniu.android.storage.KeyGenerator
+import com.qiniu.android.storage.UploadManager
 import com.squareup.moshi.Types
 import com.squareup.moshi.rawType
 import dagger.Module
@@ -32,6 +36,7 @@ import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -107,6 +112,21 @@ object AppModule {
                 }
             }
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideQiniuUploadManager(): UploadManager {
+        val config = Configuration.Builder()
+            .connectTimeout(90)
+            .useHttps(true)
+            .useConcurrentResumeUpload(true)
+            .concurrentTaskCount(3)
+            .responseTimeout(90)
+            .recorder(null)
+            .zone(FixedZone.zone0)
+            .build()
+        return UploadManager(config)
     }
 
     @Singleton

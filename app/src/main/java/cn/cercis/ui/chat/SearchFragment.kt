@@ -19,6 +19,7 @@ import cn.cercis.databinding.CommonListItemBinding
 import cn.cercis.databinding.FragmentSearchBinding
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
 import cn.cercis.util.helper.DataBindingViewHolder
+import cn.cercis.util.helper.closeIme
 import cn.cercis.viewmodel.CommonListItemData
 import cn.cercis.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -110,12 +111,7 @@ class SearchFragment : Fragment() {
             when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
                     searchViewModel.doSearch()
-                    val ime: InputMethodManager? =
-                        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                    ime?.hideSoftInputFromWindow(
-                        view.applicationWindowToken,
-                        InputMethodManager.HIDE_NOT_ALWAYS
-                    )
+                    closeIme()
                     true
                 }
                 else -> false

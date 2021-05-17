@@ -4,10 +4,7 @@ import androidx.room.*
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.common.UserId
-import cn.cercis.entity.Chat
-import cn.cercis.entity.ChatLastRead
-import cn.cercis.entity.ChatMember
-import cn.cercis.entity.Message
+import cn.cercis.entity.*
 import kotlinx.coroutines.flow.Flow
 
 @Database(
@@ -36,7 +33,7 @@ interface MessageDao {
     @Transaction
     fun insertIgnoreAndInsertReplace(
         insertIgnoreMessages: List<Message>,
-        insertReplaceMessages: List<Message>
+        insertReplaceMessages: List<Message>,
     ) {
         insertMessage(*insertIgnoreMessages.toTypedArray())
         insertAndReplaceMessage(*insertReplaceMessages.toTypedArray())
@@ -45,29 +42,33 @@ interface MessageDao {
     @Delete
     fun deleteMessage(vararg messages: Message)
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId AND id = :messageId")
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId = :messageId")
     fun loadSingleMessage(chatId: ChatId, messageId: MessageId): Flow<Message?>
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId AND id >= :messageId")
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId >= :messageId")
     fun loadChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): Flow<List<Message>>
 
     @Query("SELECT * FROM message WHERE chatId = :chatId")
     fun loadChatAllMessages(chatId: ChatId): Flow<List<Message>>
 
-    @Query("SELECT COUNT(*) FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
+    @Query("SELECT COUNT(*) FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end")
     suspend fun countMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Long
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
-    suspend fun loadMessagesBetweenOnce(chatId: ChatId, start: MessageId, end: MessageId): List<Message>
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end ORDER BY messageId")
+    suspend fun loadMessagesBetweenOnce(
+        chatId: ChatId,
+        start: MessageId,
+        end: MessageId,
+    ): List<Message>
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId AND id >= :start AND id <= :end")
+    @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end ORDER BY messageId")
     fun loadMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Flow<List<Message>>
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM message WHERE chatId = :chatId ORDER BY messageId DESC LIMIT 1")
     fun loadLatestMessage(chatId: ChatId): Flow<Message?>
 
-    @Query("SELECT * FROM message WHERE chatId in (SELECT id FROM chat) ORDER BY id DESC LIMIT 1")
-    suspend fun loadAllChatLatestMessages(): List<Message>
+    @Query("SELECT chatId, MAX(messageId) AS messageId FROM message GROUP BY chatId")
+    suspend fun loadAllChatLatestMessages(): List<ChatIdMessageId>
 }
 
 @Dao
@@ -94,7 +95,15 @@ interface ChatDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateChatLastRead(chatLastRead: ChatLastRead)
+    suspend fun uncheckedInsertChatLastRead(chatLastRead: ChatLastRead)
+
+    @Transaction
+    suspend fun updateChatLastRead(chatId: ChatId, messageId: MessageId) {
+        val lastRead = loadChatLastReadOnce(chatId)
+        if (lastRead == null || lastRead < messageId) {
+            uncheckedInsertChatLastRead(ChatLastRead(chatId, messageId))
+        }
+    }
 
     @Query("SELECT lastReadMessageId FROM chatLastRead WHERE chatId = :chatId")
     suspend fun loadChatLastReadOnce(chatId: ChatId): MessageId?

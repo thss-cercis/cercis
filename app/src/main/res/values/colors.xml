@@ -8,6 +8,11 @@
     <color name="cercis_accent_dark">#BF5200</color>
     <color name="cercis_on_accent">#FFFFFF</color>
 
+    <color name="cercis_main_night">#8CC9FE</color>
+    <color name="cercis_on_main_night">#000000</color>
+    <color name="cercis_accent_night">#D6C381</color>
+    <color name="cercis_on_accent_night">#000000</color>
+
     <color name="cercis_alt_1">#00C6C9</color>
     <color name="cercis_alt_2">#0300C9</color>
     <color name="cercis_alt_3">#6800C9</color>
@@ -15,10 +20,10 @@
 
     <color name="surface_day">#FFFFFF</color>
     <color name="on_surface_day">#000000</color>
-    <color name="surface_night">#000000</color>
+    <color name="surface_night">#121212</color>
     <color name="on_surface_night">#EEEEEE</color>
     <color name="surface_day_dark">#F4F5F9</color>
-    <color name="surface_night_light">#2A2C2F</color>
+    <color name="surface_night_light">#383838</color>
 
     <!-- Color used for views displaying list. i.e. RecyclerView -->
     <color name="list_background">#FFFFFF</color>
@@ -35,7 +40,7 @@
     <color name="on_error">#FFFFFF</color>
     <color name="in_bubble">#CFDFEF</color>
     <color name="on_in_bubble">#000000</color>
-    <color name="out_bubble">#00C6C9</color>
+    <color name="out_bubble">#7CDEDC</color>
     <color name="on_out_bubble">#000000</color>
     <color name="dark_bubble">#333333</color>
     <color name="on_dark_bubble">#FFFFFF</color>

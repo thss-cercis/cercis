@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.LiveData" />
+
+        <import type="cn.cercis.viewmodel.CommonListItemData" />
+
+        <variable
+            name="user"
+            type="LiveData&lt;CommonListItemData>" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/chat_item_avatar_right"
+            avatarUrl="@{user.avatar}"
+            android:layout_width="@dimen/chat_avatar_size"
+            android:layout_height="@dimen/chat_avatar_size"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/roundedCorner" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chat_item_username"
+            style="@style/TextAppearance.Cercis.ChatItem.Username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="@dimen/chat_bubble_margin"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{user.displayName}"
+            android:textAlignment="textEnd"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintLeft_toRightOf="@id/chat_item_avatar_right"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlHardcoded"
+            tools:text="测试用户名" />
+
+        <LinearLayout
+            style="@style/Widget.Cercis.Bubble.Incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="@dimen/chat_bubble_margin"
+            android:minWidth="@dimen/chat_bubble_min_width"
+            android:minHeight="@dimen/chat_bubble_min_height"
+            android:orientation="vertical"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintLeft_toRightOf="@id/chat_item_avatar_right"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chat_item_username"
+            app:layout_constraintWidth_max="360dp"
+            tools:ignore="RtlHardcoded">
+
+            <ImageView
+                android:id="@+id/chat_item_message_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/message_type_image"
+                android:maxHeight="400dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/chat_item_message_text"
+                style="@style/Widget.Cercis.Bubble.TextView.Incoming"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Cercis.Bubble"
+                app:drawableTint="?attr/colorOnOutgoingBubble"
+                tools:text="短测试消息" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

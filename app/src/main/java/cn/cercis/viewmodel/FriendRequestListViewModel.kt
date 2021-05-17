@@ -81,29 +81,8 @@ class FriendRequestListViewModel @Inject constructor(
                 source?.let {
                     liveData.removeSource(it)
                 }
-
-                // TODO replace with real data
-                // ********
-//                MutableLiveData(Resource.Success((0L..10L).map {
-//                    FriendRequest(
-//                        applyId = it,
-//                        fromId = it,
-//                        toId = it,
-//                        state = 0,
-//                        displayName = "$it",
-//                        remark = "$it",
-//                        createdAt = it,
-//                    )
-//                }) as Resource<List<FriendRequest>>).let { newSource ->
-//                    source = newSource
-//                    liveData.addSource(newSource) {
-//                        liveData.value = it
-//                    }
-//                }
-                // * replace the code above with the following code to enable real data
                 source = friendRepository.getFriendRequestReceivedList()
                     .asLiveData(coroutineContext).also { liveData.addSource(it) }
-                // ********
             }
 
             val liveData = liveData
@@ -112,7 +91,6 @@ class FriendRequestListViewModel @Inject constructor(
         }
     }
     val requests: LiveData<List<RecyclerData>> by lazy {
-        // enable force fresh
         Transformations.map(requestSource.liveData) { resource ->
             val updateMark = atomicInteger.get()
             Log.d(LOG_TAG, "updated with mark $updateMark")

@@ -133,7 +133,7 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/divider" />
+                    android:background="?attr/colorDivider" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/link_user_signup"

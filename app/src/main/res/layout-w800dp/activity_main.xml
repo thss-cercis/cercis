@@ -39,7 +39,7 @@
             android:id="@+id/master_detail_divider"
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@color/divider"
+            android:background="?attr/colorDivider"
             app:layout_constraintStart_toEndOf="@id/master_view" />
 
         <androidx.fragment.app.FragmentContainerView

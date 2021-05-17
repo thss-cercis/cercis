@@ -3,27 +3,32 @@ package cn.cercis.repository
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.dao.ChatDao
 import cn.cercis.dao.ChatMemberDao
 import cn.cercis.dao.MessageDao
 import cn.cercis.entity.*
-import cn.cercis.http.CercisHttpService
-import cn.cercis.http.CreatePrivateChatRequest
-import cn.cercis.http.GetChatsLatestMessagesRequest
+import cn.cercis.http.*
+import cn.cercis.repository.MessageRepository.PendingMessage.*
 import cn.cercis.util.getString
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
+import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
+import com.qiniu.android.storage.UploadManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.*
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
@@ -37,15 +42,9 @@ class MessageRepository @Inject constructor(
     private val chatMemberDao: ChatMemberDao,
     private val httpService: CercisHttpService,
     private val userRepository: UserRepository,
+    private val qiniuUploadManager: UploadManager,
     @ApplicationContext val context: Context,
 ) {
-    /**
-     * This field keeps the oldest liable messageId for each chat. Not persisted.
-     *
-     * The field helps the repo to decide whether an attempt to fetch chat history is necessary.
-     */
-    private val liableOldestMessageId = ConcurrentHashMap<Long, Long>()
-
     fun getAllChats() = object : DataSource<List<Chat>>() {
         override suspend fun fetch(): NetworkResponse<List<Chat>> {
             return httpService.getChatList()
@@ -60,13 +59,6 @@ class MessageRepository @Inject constructor(
         }
     }
 
-    /**
-     * Gets the most recent messages that is newer than messageId.
-     */
-    fun getChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): Flow<List<Message>> {
-        return messageDao.loadChatMessagesNewerThan(chatId, messageId)
-    }
-
     fun debugInsertAllChats(chatList: List<Chat>) {
         chatDao.updateAllChats(chatList)
     }
@@ -79,10 +71,10 @@ class MessageRepository @Inject constructor(
             it.type == MessageType.WITHDRAW.type
         }.map {
             Message(
-                id = it.id,
+                messageId = it.messageId,
                 chatId = it.chatId,
                 type = MessageType.DELETED.type,
-                content = "",
+                message = "",
                 senderId = it.senderId,
             )
         }
@@ -108,48 +100,238 @@ class MessageRepository @Inject constructor(
         override fun shouldFetch(data: Message?) = data == null
     }
 
-    /**
-     * Gets all chat message.
-     */
-    fun getChatAllMessages(chatId: ChatId): Flow<List<Message>> {
-        return messageDao.loadChatAllMessages(chatId)
+    private suspend fun sendMessage(
+        chatId: ChatId,
+        type: MessageType,
+        content: String,
+    ): NetworkResponse<Message> {
+        return httpService.sendMessage(
+            SendMessageRequest(
+                chatId, message = content, type = type.type
+            )
+        ).apply {
+            if (this is Success) {
+                insertMessagesAndPerformWithdraw(listOf(this.data))
+            }
+        }
     }
 
     /**
-     * Requests for `count` more messages and gets a new newer than live data.
-     *
-     * This method returns a live data giving both messages not older than `messageId` and
-     * `previousCount` messages that are older than `messageId`.
-     *
-     * * NOTE: if no Internet connection is available, previous messages will be given via local
-     * cache.
-     *
-     * @param chatId Chat ID
-     * @param messageId Message ID as a baseline
-     * @param previousCount loads [previousCount] more messages before messageId
+     * Indicates uploading progress of a message.
      */
-    suspend fun getChatMessagesNewerThanWithPreviousMessages(
-        chatId: ChatId,
-        messageId: MessageId,
-        previousCount: Long,
-    ): LiveData<List<Message>> {
-        TODO("finish this")
+    sealed class MessageUploadProgress(val unsentMessage: UnsentMessage) {
+        data class Uploading(
+            val pendingMessage: PendingMessage,
+        ) : MessageUploadProgress(pendingMessage)
+
+        data class UploadFailed(
+            val pendingMessage: PendingMessage,
+            val message: String,
+        ) : MessageUploadProgress(pendingMessage)
+
+        data class Submitting(
+            val preparedMessage: PreparedMessage,
+        ) : MessageUploadProgress(preparedMessage)
+
+        data class SubmitFailed(
+            val preparedMessage: PreparedMessage,
+            val message: String,
+        ) : MessageUploadProgress(preparedMessage)
     }
 
-    suspend fun getChatRecentMessages(
+    sealed interface UnsentMessage {
+        val messageSerial: Int
+    }
+
+    /**
+     * Message with resource to upload.
+     */
+    sealed class PendingMessage(
+        open val chatId: ChatId,
+        val messageType: MessageType,
+        override val messageSerial: Int = PendingMessageIndex.incrementAndGet(),
+    ) : UnsentMessage {
+        data class TextMessage(
+            override val chatId: ChatId,
+            val text: String,
+        ) : PendingMessage(chatId, MessageType.TEXT)
+
+        data class ImageMessage(
+            override val chatId: ChatId,
+            val file: File,
+        ) : PendingMessage(chatId, MessageType.IMAGE)
+
+        data class AudioMessage(
+            override val chatId: ChatId,
+            val file: File,
+        ) : PendingMessage(chatId, MessageType.AUDIO)
+
+        data class VideoMessage(
+            override val chatId: ChatId,
+            val file: File,
+        ) : PendingMessage(chatId, MessageType.VIDEO)
+
+        data class LocationMessage(
+            override val chatId: ChatId,
+            val latitude: Double,
+            val longitude: Double,
+            val description: String,
+        ) : PendingMessage(chatId, MessageType.LOCATION)
+
+        data class WithdrawMessage(override val chatId: ChatId, val messageId: MessageId) :
+            PendingMessage(chatId, MessageType.WITHDRAW)
+    }
+
+    /**
+     * Message with resource uploaded and ready to be submitted to Cercis server.
+     */
+    data class PreparedMessage(
+        override val messageSerial: Int,
+        val chatId: ChatId,
+        val messageType: MessageType,
+        val content: String,
+    ) : UnsentMessage
+
+    private val messagesWaitingToUploadResource =
+        Channel<PendingMessage>(capacity = Channel.UNLIMITED)
+    private val messagesWaitingToSubmit = Channel<PreparedMessage>(capacity = Channel.UNLIMITED)
+
+    /**
+     * This list is edited in:
+     * * [addMessageToPendingList]
+     * * [processMessageSending]
+     */
+    private val pendingMessages = ConcurrentHashMap<Int, MessageUploadProgress>()
+
+    val pendingMessageList = MutableLiveData<List<MessageUploadProgress>>(listOf())
+    private fun updatePendingMessageList() {
+        pendingMessageList.postValue(pendingMessages.toList().sortedBy { it.first }
+            .map { it.second })
+    }
+
+    /**
+     * Called from [cn.cercis.MainActivity] to start message processing.
+     */
+    fun processMessageSending(scope: CoroutineScope) {
+        repeat(5) {
+            Log.d(LOG_TAG, "started queue consumer")
+            // resource uploading handlers
+            scope.launch(Dispatchers.IO) {
+                for (pendingMessage in messagesWaitingToUploadResource) {
+                    val res = uploadResource(pendingMessage)
+                    Log.d(LOG_TAG, "tried to upload(${pendingMessage.messageSerial}): $res")
+                    if (res is Success) {
+                        messagesWaitingToSubmit.send(res.data)
+                        pendingMessages[pendingMessage.messageSerial] =
+                            MessageUploadProgress.Submitting(res.data)
+                    } else {
+                        pendingMessages[pendingMessage.messageSerial] =
+                            MessageUploadProgress.UploadFailed(pendingMessage, res.message ?: "")
+                    }
+                    updatePendingMessageList()
+                }
+            }
+        }
+        repeat(3) {
+            scope.launch(Dispatchers.IO) {
+                // message submitting handlers
+                for (preparedMessage in messagesWaitingToSubmit) {
+                    val res = sendMessage(
+                        preparedMessage.chatId,
+                        preparedMessage.messageType,
+                        preparedMessage.content
+                    )
+                    Log.d(LOG_TAG, "tried to send(${preparedMessage.messageSerial}): $res")
+                    if (res is Success) {
+                        pendingMessages.remove(preparedMessage.messageSerial)
+                    } else {
+                        pendingMessages[preparedMessage.messageSerial] =
+                            MessageUploadProgress.SubmitFailed(preparedMessage, res.message ?: "")
+                    }
+                    updatePendingMessageList()
+                }
+            }
+        }
+    }
+
+    fun addMessageToPendingList(message: PendingMessage) {
+        Log.d(LOG_TAG, "added to pending list: $message")
+        pendingMessages[message.messageSerial] = MessageUploadProgress.Uploading(message)
+        messagesWaitingToUploadResource.sendBlocking(message)
+    }
+
+    fun resubmitUploadFailedMessage(messageSerial: Int) {
+        pendingMessages.remove(messageSerial)?.unsentMessage.let {
+            if (it is PendingMessage) {
+                addMessageToPendingList(it)
+            }
+        }
+    }
+
+    fun resubmitSubmitFailedMessage(messageSerial: Int) {
+        pendingMessages.remove(messageSerial)?.unsentMessage.let {
+            if (it is PreparedMessage) {
+                messagesWaitingToSubmit.sendBlocking(it)
+                pendingMessages[it.messageSerial] =
+                    MessageUploadProgress.Submitting(it)
+            }
+        }
+    }
+
+    /**
+     * Uploads resources for a message, and returns a PreparedMessage if succeeded, or null if failed.
+     */
+    private suspend fun uploadResource(message: PendingMessage): NetworkResponse<PreparedMessage> {
+        when (message) {
+            is AudioMessage, is ImageMessage, is VideoMessage -> {
+                // TODO upload file
+                // simulate upload
+                delay(400)
+            }
+            is LocationMessage -> return Success(
+                PreparedMessage(
+                    message.messageSerial,
+                    message.chatId,
+                    MessageType.LOCATION,
+                    "${message.longitude}#${message.latitude}#${message.description}"
+                )
+            )
+            is TextMessage -> return Success(
+                PreparedMessage(
+                    message.messageSerial,
+                    message.chatId,
+                    MessageType.TEXT,
+                    message.text
+                )
+            )
+            is WithdrawMessage -> return Success(
+                PreparedMessage(
+                    message.messageSerial,
+                    message.chatId,
+                    MessageType.WITHDRAW,
+                    message.messageId.toString()
+                )
+            )
+        }
+        // TODO
+        return NetworkResponse.NetworkError("unsupported operation")
+    }
+
+    private suspend fun submitMessage(
         chatId: ChatId,
-        previousCount: Long,
-    ): LiveData<List<Message>> {
-        TODO("finish this")
+        type: MessageType,
+        content: String,
+    ): NetworkResponse<Message> {
+        return sendMessage(chatId, type, content)
     }
 
     /**
      * Gets chat with another user.
      */
-    suspend fun getPrivateChatWith(userId: UserId, otherId: UserId) = object : DataSource<Chat>() {
+    fun getPrivateChatWith(userId: UserId, otherId: UserId) = object : DataSource<Chat>() {
         override suspend fun fetch(): NetworkResponse<Chat> {
             val chat = httpService.getPrivateChatWith(otherId)
-            if (chat is NetworkResponse.Success) {
+            if (chat is Success) {
                 // save member list
                 Log.d(LOG_TAG, "private chat got. loading chat members.")
                 // no need to double-check a private chat's members, so  no force fetch
@@ -218,16 +400,18 @@ class MessageRepository @Inject constructor(
 
     suspend fun fetchAndSaveLatestMessages(): NetworkResponse<*> {
         val chatLatestMessageIdRes = httpService.getAllChatsLatestMessageId()
-        if (chatLatestMessageIdRes !is NetworkResponse.Success) {
+        if (chatLatestMessageIdRes !is Success) {
             return chatLatestMessageIdRes
         }
-        val allLatest = messageDao.loadAllChatLatestMessages().map { it.id }.toSet()
+        val allLatest = messageDao.loadAllChatLatestMessages().toSet()
         Log.d(LOG_TAG, "latestMessages: $allLatest")
-        val shouldFetch = chatLatestMessageIdRes.data.filter { it.latestMessageId !in allLatest }
+        val shouldFetch = chatLatestMessageIdRes.data.filter {
+            ChatIdMessageId(it.chatId, it.latestMessageId) !in allLatest
+        }
         Log.d(LOG_TAG, "shouldFetch: $shouldFetch")
         return httpService.getChatsLatestMessages(GetChatsLatestMessagesRequest(shouldFetch.map { it.chatId }))
             .apply {
-                if (this is NetworkResponse.Success) {
+                if (this is Success) {
                     insertMessagesAndPerformWithdraw(data)
                 }
             }
@@ -247,17 +431,17 @@ class MessageRepository @Inject constructor(
      */
     fun getChatDisplay(currentUserId: UserId, chat: Chat): Flow<CommonListItemData?> {
         return messageDao.loadLatestMessage(chat.id).flatMapLatest { msg ->
+            Log.d(LOG_TAG, "(chat: ${chat.id}) latest message received $msg")
             when (chat.type) {
                 ChatType.CHAT_PRIVATE -> {
                     getOtherUserId(
                         currentUserId,
                         chat.id
-                    ).flatMapLatest {
-                        Log.d(LOG_TAG, "receiving other's user id: $it")
-                        it.data?.let { userId ->
+                    ).map { it.data }.filterNotNull().flatMapLatest {
+                        it.let { userId ->
                             userRepository.getUserWithFriendDisplay(userId, true)
-                                .map { it?.copy(description = digest(msg)) }
-                        } ?: MutableStateFlow(null)
+                                .map { display -> display.copy(description = digest(msg)) }
+                        }
                     }
                 }
                 else -> {
@@ -272,12 +456,12 @@ class MessageRepository @Inject constructor(
                     } else {
                         userRepository.getUserWithFriendDisplay(msg.senderId, true)
                             .map {
-                                val digestMsg = it?.let {
+                                val digestMsg = it.let {
                                     getString(R.string.message_digest).format(
                                         it.displayName,
                                         digest(msg),
                                     )
-                                } ?: digest(msg)
+                                }
                                 CommonListItemData(
                                     avatar = chat.avatar,
                                     displayName = chat.name,
@@ -290,9 +474,10 @@ class MessageRepository @Inject constructor(
         }
     }
 
-    private fun digest(message: Message?): String {
-        return when (message?.type?.asMessageType()) {
-            MessageType.TEXT -> message.content.substring(0, MESSAGE_DIGEST_LENGTH)
+    private fun digest(messageType: MessageType?, content: String?): String {
+        return when (messageType) {
+            MessageType.TEXT -> content?.substring(0, min(content.length, MESSAGE_DIGEST_LENGTH))
+                ?: ""
             MessageType.IMAGE -> "[${getString(R.string.message_type_image)}]"
             MessageType.AUDIO -> "[${getString(R.string.message_type_audio)}]"
             MessageType.VIDEO -> "[${getString(R.string.message_type_video)}]"
@@ -302,6 +487,10 @@ class MessageRepository @Inject constructor(
             MessageType.DELETED -> ""
             null -> ""
         }
+    }
+
+    private fun digest(message: Message?): String {
+        return digest(message?.type?.asMessageType(), message?.message)
     }
 
     /**
@@ -317,7 +506,7 @@ class MessageRepository @Inject constructor(
     fun unreadCount(chatId: ChatId): Flow<Long> {
         return chatDao.loadChatLastRead(chatId)
             .combine(messageDao.loadLatestMessage(chatId)) { read, msg ->
-                msg?.let { msg.id - (read ?: 0) } ?: 0
+                msg?.let { msg.messageId - (read ?: 0) } ?: 0
             }
     }
 
@@ -325,28 +514,36 @@ class MessageRepository @Inject constructor(
      * Updates the last read message id for a chat.
      */
     suspend fun updateLastRead(chatId: ChatId, messageId: MessageId) {
-        chatDao.updateChatLastRead(ChatLastRead(chatId, messageId))
+        chatDao.updateChatLastRead(chatId, messageId)
     }
+
+    fun getLastRead(chatId: ChatId): Flow<MessageId?> = chatDao.loadChatLastRead(chatId)
 
     fun createMessageDataSource(chatId: ChatId, pageSize: Long): MessageDataSource {
         return MessageDataSource(chatId, pageSize)
     }
 
     suspend fun checkNeedLoadingMessageRange(
-        chatId: ChatId, start: MessageId, end: MessageId
+        chatId: ChatId, start: MessageId, end: MessageId,
     ): List<Pair<MessageId, MessageId>> {
-        val messageList = messageDao.loadMessagesBetweenOnce(chatId, start, end).sortedBy { it.id }
+        if (start > end) {
+            return listOf()
+        }
+        val messageList =
+            messageDao.loadMessagesBetweenOnce(chatId, start, end).sortedBy { it.messageId }
         val pairs = arrayListOf<Pair<MessageId, MessageId>>()
         var last = start
         for (message in messageList) {
-            if (message.id != last) {
-                pairs.add(last to message.id - 1)
+            if (message.messageId != last) {
+                pairs.add(last to message.messageId - 1)
             }
-            last = message.id + 1
+            last = message.messageId + 1
         }
-        if (last != end) {
+        if (last < end) {
             pairs.add(last to end)
         }
+        Log.d(LOG_TAG, "requested range: $start to $end")
+        Log.d(LOG_TAG, "need loading ranges: $pairs")
         return pairs
     }
 
@@ -358,18 +555,18 @@ class MessageRepository @Inject constructor(
                 val result = ArrayList<Message>()
                 // load ranged messages
                 for (range in ranges) {
-                    val res = httpService.getRangeMessages(chatId, range.first, range.second)
-                    if (res !is NetworkResponse.Success) {
+                    val res = httpService.getRangeMessages(chatId, range.first, range.second + 1)
+                    if (res !is Success) {
                         return if (result.isEmpty()) {
                             res
                         } else {
-                            NetworkResponse.Success(result)
+                            Success(result)
                         }
                     } else {
                         result.addAll(res.data)
                     }
                 }
-                return NetworkResponse.Success(result)
+                return Success(result)
             }
 
             override suspend fun saveToDb(data: List<Message>) {
@@ -379,10 +576,16 @@ class MessageRepository @Inject constructor(
             override fun loadFromDb(): Flow<List<Message>> {
                 return messageDao.loadMessagesBetween(chatId, start, end)
             }
+
+            override fun shouldFetch(data: List<Message>?): Boolean {
+                return data != null && data.size.toLong() != end - start + 1
+            }
         }
 
     inner class MessageDataSource(val chatId: ChatId, private val pageSize: Long) {
         val lockToLatest = MutableStateFlow(false)
+        private val reloadTriggerValue = AtomicLong(0L)
+        private val reloadTrigger = MutableStateFlow(0L)
         private val requestedEndIndex = MutableStateFlow(0L)
         private val startIndex: MutableStateFlow<MessageId> = MutableStateFlow(0L)
         private val range = lockToLatest.flatMapLatest { lock ->
@@ -390,7 +593,7 @@ class MessageRepository @Inject constructor(
                 // unload previous messages
                 var start0 = startIndex.value
                 getLatestMessage(chatId).filterNotNull().map {
-                    it.id.apply {
+                    it.messageId.apply {
                         // updates start index
                         if (startIndex.value == start0) {
                             start0 = -1L
@@ -414,7 +617,9 @@ class MessageRepository @Inject constructor(
             startIndex.apply {
                 val prevStart = value
                 val newStart = max(prevStart - count, 0L)
-                value = newStart
+                if (newStart != prevStart) {
+                    value = newStart
+                }
             }
         }
 
@@ -430,19 +635,38 @@ class MessageRepository @Inject constructor(
             lockToLatest.value = lock
         }
 
+        fun triggerReload() {
+            reloadTrigger.value = reloadTriggerValue.incrementAndGet()
+        }
+
+        /**
+         * Gets message List as a flow.
+         * All messages returned are promised to be sorted by message id ascending
+         */
         val messageFlow = flow {
-            val lastRead = chatDao.loadChatLastReadOnce(chatId)
-            val latestMsg = getLatestMessage(chatId).first()?.id
-            val lastIndexV = min(lastRead ?: 0L, latestMsg ?: 0L)
+            val lastRead = (chatDao.loadChatLastReadOnce(chatId) ?: 0L) + pageSize
+            val latestMsg = getLatestMessage(chatId).first()?.messageId ?: 0L
+            val lastIndexV = if (lastRead < latestMsg) lastRead else latestMsg
             startIndex.value = max(lastIndexV - pageSize + 1, 0L)
             requestedEndIndex.value = lastIndexV
-            this.emitAll(range.distinctUntilChanged().flatMapLatest { rangePair ->
-                val (start, end) = rangePair
-                messageRangeDataSource(chatId, start, end).flow()
-                    .map { it.data }
-                    .filterNotNull()
-                    .map { it.sortedBy { msg -> msg.id } }
+            if (latestMsg == lastIndexV) {
+                lockToLatest.value = true
+            }
+            this.emitAll(reloadTrigger.flatMapLatest {
+                range.distinctUntilChanged().flatMapLatest { rangePair ->
+                    val (start, end) = rangePair
+                    Log.d(this@MessageRepository.LOG_TAG, "set range to $rangePair")
+                    messageRangeDataSource(chatId, max(1L, start), end).flow()
+//                    .map { it.data }
+//                    .filterNotNull()
+//                    .map { it.sortedBy { msg -> msg.id } }
+                }
             })
         }
+    }
+
+    companion object {
+        private val PendingMessageIndex = AtomicInteger(0)
+        private val UpdateMark = AtomicInteger(0)
     }
 }

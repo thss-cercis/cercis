@@ -105,8 +105,8 @@ interface CercisHttpService {
     @DELETE("chat/group/member")
     suspend fun deleteGroupMember(@Body request: DeleteGroupMemberRequest): EmptyNetworkResponse
 
-    @DELETE("chat/message")
-    suspend fun sendMessage(@Body request: SendMessageRequest): NetworkResponse<Chat>
+    @POST("chat/message")
+    suspend fun sendMessage(@Body request: SendMessageRequest): NetworkResponse<Message>
 
     @GET("chat/message")
     suspend fun getSingleMessage(

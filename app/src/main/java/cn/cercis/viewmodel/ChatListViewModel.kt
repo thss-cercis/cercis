@@ -1,17 +1,24 @@
 package cn.cercis.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import cn.cercis.common.ChatId
+import cn.cercis.common.LOG_TAG
 import cn.cercis.entity.Chat
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
+import cn.cercis.repository.NotificationRepository
 import cn.cercis.repository.UserRepository
+import cn.cercis.service.WSMessage
 import cn.cercis.util.helper.coroutineContext
+import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -22,6 +29,7 @@ import kotlin.collections.HashMap
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
+    private val notificationRepository: NotificationRepository,
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
@@ -30,8 +38,7 @@ class ChatListViewModel @Inject constructor(
     private val chatListFlow: Flow<Resource<List<Chat>>> = chatRefreshTime.flatMapLatest {
         messageRepository.getAllChats().flow()
     }
-    private val chatListLiveData = chatListFlow.asLiveData(coroutineContext)
-    val chatListData = chatListLiveData.map { it.data ?: listOf() }
+    val chatListData = chatListFlow.map { it.data }.filterNotNull().asLiveData(coroutineContext)
 
     private fun generateTimeString(): String {
         val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.US)
@@ -40,11 +47,15 @@ class ChatListViewModel @Inject constructor(
     }
 
     fun onRefreshListener() {
+        viewModelScope.launch(Dispatchers.IO) {
+            notificationRepository.submitWSMessage(WSMessage.ForceUpdate)
+        }
         refresh()
     }
 
     fun getChatDisplay(chat: Chat): LiveData<CommonListItemData?> {
         return hashMap.computeIfAbsent(chat.id) {
+            Log.d(LOG_TAG, "recreated live data (chat: ${chat.id})")
             messageRepository.getChatDisplay(authRepository.currentUserId, chat)
                 .asLiveData(coroutineContext)
         }

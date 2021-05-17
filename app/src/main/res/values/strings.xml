@@ -34,6 +34,8 @@
     <string name="main_401_dialog_ok_button">确定</string>
     <string name="main_401_dialog_title">登录过期</string>
     <string name="message_digest">%s: %s</string>
+    <string name="message_incorrect_location">不正确的位置</string>
+    <string name="message_text_withdraw">%s 撤回了一条消息</string>
     <string name="message_type_audio">音频</string>
     <string name="message_type_image">图片</string>
     <string name="message_type_location">位置</string>
@@ -71,6 +73,6 @@
     <string name="splash_button_goto_user_signup">新用户注册</string>
     <string name="title_activity_startup">Cercis</string>
     <string name="user_info_add_friend">加好友</string>
-    <string name="user_info_send_messages">发消息</string>
     <string name="user_info_delete_friend">删除好友</string>
+    <string name="user_info_send_messages">发消息</string>
 </resources>

@@ -31,15 +31,15 @@ data class DebugMessage(
 data class NotificationMessage(
     val type: WSMessageTypeId,
     val apply: WSMessage.FriendRequestReceived?,
-    val msg: WSMessage.NewMessageReceived?,
+    @Json(name = "Msg") val msg: WSMessage.NewMessageReceived?,
 ) {
     fun get(): WSMessage? {
-        when (type) {
+        return when (type) {
             100L -> apply
             101L -> WSMessage.FriendListUpdated
             200L -> msg
+            else -> null
         }
-        return null
     }
 }
 
@@ -55,6 +55,8 @@ sealed interface WSMessageWithId {
 sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
     // internal messages
     object WebSocketConnected : WSMessage(-1L)
+
+    object ForceUpdate: WSMessage(-2L)
 
     // 100
     @JsonClass(generateAdapter = true)

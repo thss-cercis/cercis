@@ -109,6 +109,10 @@ dependencies {
     implementation 'com.tinder.scarlet:lifecycle-android:0.1.11'
     implementation 'com.tinder.scarlet:scarlet:0.1.11'
 
+    implementation ('com.qiniu:qiniu-android-sdk:8.2.+'){
+        exclude (group: 'com.squareup.okhttp3', module: 'okhttp')
+    }
+
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
