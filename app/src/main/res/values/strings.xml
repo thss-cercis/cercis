@@ -84,4 +84,11 @@
     <string name="chat_unsent_messages_retry_all">重试</string>
     <string name="chat_unsent_messages_drop_all">放弃</string>
     <string name="chat_unsent_messages_do_nothing">不做处理</string>
+    <string name="hint_friend_request_display_name">好友备注(可选)</string>
+    <string name="hint_friend_request_remark">验证消息(可选)</string>
+    <string name="dialog_friend_request_send">发送申请</string>
+    <string name="dialog_friend_request_cancel">取消</string>
+    <string name="dialog_friend_request_retry">重试</string>
+    <string name="dialog_friend_request_title">添加 %s 为好友</string>
+    <string name="dialog_friend_request_sent">申请已发送</string>
 </resources>

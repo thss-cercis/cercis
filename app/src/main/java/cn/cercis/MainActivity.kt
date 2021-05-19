@@ -9,6 +9,7 @@ import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
@@ -44,7 +45,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
-    private lateinit var currentNavController: LiveData<NavController>
+    private lateinit var currentNavController: LiveData<Pair<NavHostFragment, NavController>>
 
     @Inject
     lateinit var authRepository: AuthRepository
@@ -77,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         mainActivityViewModel.loggedIn.observe(this, loggedInObserver)
 
         binding.reusedView.masterViewContainer.apply {
-            adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+            adapter = object : FragmentStateAdapter(this@MainActivity) {
                 override fun getItemCount(): Int {
                     return 4
                 }
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+            offscreenPageLimit = 2
             isUserInputEnabled = false
         }
 
@@ -180,7 +182,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         controller.observe(this) { navController ->
-            navController?.let {
+            navController?.second?.let {
                 it.removeOnDestinationChangedListener(listener)
                 it.addOnDestinationChangedListener(listener)
                 if (it.currentBackStackEntry == null) {
@@ -201,17 +203,18 @@ class MainActivity : AppCompatActivity() {
         @IdRes navGraph: Int,
         navigate: NavController.() -> Unit,
     ) {
-        currentNavController.observe(this, object : Observer<NavController> {
-            override fun onChanged(controller: NavController?) {
-                if (controller != null && controller.graph.id == navGraph) {
+        currentNavController.observe(this, object : Observer<Pair<NavHostFragment, NavController>> {
+            override fun onChanged(pair: Pair<NavHostFragment, NavController>?) {
+                if (pair == null) {
+                    return
+                }
+                val (host, controller) = pair
+                if (controller.graph.id == navGraph) {
                     val thisObserver = this
-                    // TODO this is a really terrible workaround. considering replacing it
-                    (NavController::class.java.getDeclaredField("mLifecycleOwner")
-                        .apply { isAccessible = true }.get(controller) as LifecycleOwner?)
-                        ?.lifecycleScope?.launchWhenResumed {
-                            controller.navigate()
-                            currentNavController.removeObserver(thisObserver)
-                        }
+                    host.lifecycleScope.launchWhenResumed {
+                        controller.navigate()
+                        currentNavController.removeObserver(thisObserver)
+                    }
                 }
             }
         })

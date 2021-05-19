@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.DiffUtil
 import cn.cercis.R
 import cn.cercis.databinding.CommonListItemBinding
 import cn.cercis.databinding.FragmentSearchBinding
+import cn.cercis.entity.User
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
 import cn.cercis.util.helper.DataBindingViewHolder
 import cn.cercis.util.helper.closeIme
+import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.viewmodel.CommonListItemData
 import cn.cercis.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,14 +43,14 @@ class SearchFragment : Fragment() {
             object : DiffUtil.ItemCallback<UserSearchResult>() {
                 override fun areItemsTheSame(
                     oldItem: UserSearchResult,
-                    newItem: UserSearchResult
+                    newItem: UserSearchResult,
                 ): Boolean {
                     return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(
                     oldItem: UserSearchResult,
-                    newItem: UserSearchResult
+                    newItem: UserSearchResult,
                 ): Boolean {
                     return oldItem == newItem
                 }
@@ -56,7 +58,7 @@ class SearchFragment : Fragment() {
         ) {
         override fun onBindViewHolder(
             holder: DataBindingViewHolder<CommonListItemBinding>,
-            position: Int
+            position: Int,
         ) {
             holder.binding.apply {
                 getItem(position)?.let {
@@ -68,13 +70,20 @@ class SearchFragment : Fragment() {
                 } ?: run {
                     data = null
                 }
+                root.setOnClickListener {
+                    requireMainActivity().openUserInfo(
+                        getItem(position)!!.let {
+                            User(it.id, it.nickname, it.mobile, it.avatar, "", 0L)
+                        }
+                    )
+                }
                 executePendingBindings()
             }
         }
 
         override fun onCreateViewHolder(
             parent: ViewGroup,
-            viewType: Int
+            viewType: Int,
         ): DataBindingViewHolder<CommonListItemBinding> {
             return DataBindingViewHolder(
                 CommonListItemBinding
@@ -89,7 +98,7 @@ class SearchFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = FragmentSearchBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner

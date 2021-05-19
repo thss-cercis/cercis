@@ -69,7 +69,7 @@ interface CercisHttpService {
     @PUT("friend/")
     suspend fun updateFriendRemark(@Body request: UpdateFriendRemarkRequest): EmptyNetworkResponse
 
-    @DELETE("friend/")
+    @HTTP(method = "DELETE", path = "friend/", hasBody = true)
     suspend fun deleteFriend(@Body request: DeleteFriendRequest): EmptyNetworkResponse
 
     @POST("chat/private")
@@ -102,7 +102,7 @@ interface CercisHttpService {
     @PUT("chat/group/member/owner")
     suspend fun giveawayGroupOwner(@Body request: GiveAwayGroupOwnerRequest): EmptyNetworkResponse
 
-    @DELETE("chat/group/member")
+    @HTTP(method = "DELETE", path = "chat/group/member", hasBody = true)
     suspend fun deleteGroupMember(@Body request: DeleteGroupMemberRequest): EmptyNetworkResponse
 
     @POST("chat/message")
@@ -217,8 +217,7 @@ data class WrappedSearchUserPayload(
     data class UserSearchResult(
         val id: UserId,
         val mobile: String,
-        // TODO wait for ayajike to add this
-        // val avatar: String,
+        val avatar: String,
         val nickname: String,
     )
 }

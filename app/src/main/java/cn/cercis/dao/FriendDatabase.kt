@@ -20,9 +20,14 @@ interface FriendDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveFriend(vararg friends: FriendEntry)
 
-    fun saveFriendList(friends: List<FriendEntry>) {
+    @Transaction
+    fun replaceFriendList(friends: List<FriendEntry>) {
+        deleteAllFriends()
         saveFriend(*friends.toTypedArray())
     }
+
+    @Query("DELETE FROM friendEntry")
+    fun deleteAllFriends()
 
     @Delete
     fun deleteFriend(vararg friends: FriendEntry)

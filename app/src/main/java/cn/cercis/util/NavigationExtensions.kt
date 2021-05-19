@@ -34,6 +34,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.lang.IllegalStateException
 
 /**
  * Manages the various graphs needed for a [BottomNavigationView].
@@ -47,13 +48,13 @@ fun BottomNavigationView.setupWithNavController(
     fragmentManager: FragmentManager,
     containerId: Int,
     intent: Intent,
-): LiveData<NavController> {
+): LiveData<Pair<NavHostFragment, NavController>> {
 
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
     val graphIdToIndexMap = SparseIntArray()
     // Result. Mutable live data with the selected controlled
-    val selectedNavController = MutableLiveData<NavController>()
+    val selectedNavController = MutableLiveData<Pair<NavHostFragment, NavController>>()
 
     var firstFragmentGraphId = 0
 
@@ -83,7 +84,7 @@ fun BottomNavigationView.setupWithNavController(
         // Attach or detach nav host fragment depending on whether it's the selected item.
         if (this.selectedItemId == graphId) {
             // Update livedata with the selected graph
-            selectedNavController.value = navHostFragment.navController
+            selectedNavController.value = navHostFragment to navHostFragment.navController
             attachNavHostFragment(fragmentManager, navHostFragment, index == 0)
         } else {
             detachNavHostFragment(fragmentManager, navHostFragment)
@@ -128,10 +129,13 @@ fun BottomNavigationView.setupWithNavController(
                         .commit()
                     fragmentManager.executePendingTransactions()
                 }
-                masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
+                try {
+                    masterViewPager2.setCurrentItem(graphIdToIndexMap[item.itemId], false)
+                } catch (ignore: IllegalStateException) {
+                }
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
-                selectedNavController.value = selectedFragment.navController
+                selectedNavController.value = selectedFragment to selectedFragment.navController
                 true
             } else {
                 false
@@ -156,8 +160,8 @@ fun BottomNavigationView.setupWithNavController(
         // Reset the graph if the currentDestination is not valid (happens when the back
         // stack is popped after using the back button).
         selectedNavController.value?.let { controller ->
-            if (controller.currentDestination == null) {
-                controller.navigate(controller.graph.id)
+            if (controller.second.currentDestination == null) {
+                controller.second.navigate(controller.second.graph.id)
             }
         }
     }

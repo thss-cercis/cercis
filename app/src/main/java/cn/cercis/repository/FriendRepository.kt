@@ -33,7 +33,7 @@ class FriendRepository @Inject constructor(
         }
 
         override suspend fun saveToDb(data: List<FriendEntry>) {
-            friendDao.saveFriendList(data)
+            friendDao.replaceFriendList(data)
         }
 
         override fun loadFromDb(): Flow<List<FriendEntry>?> {

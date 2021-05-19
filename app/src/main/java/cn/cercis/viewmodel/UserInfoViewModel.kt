@@ -16,6 +16,7 @@ import cn.cercis.repository.UserRepository
 import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.asInitializedLiveData
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -68,10 +69,12 @@ class UserInfoViewModel @Inject constructor(
     }
 
     suspend fun deleteFriend(): EmptyNetworkResponse {
-        return friendRepository.deleteFriend(userId)
+        return friendRepository.deleteFriend(userId).apply {
+            friendRepository.getFriendList().fetchAndSave()
+        }
     }
 
-    suspend fun sendFriendApply(displayName: String, remark: String): EmptyNetworkResponse {
+    suspend fun sendFriendApply(displayName: String?, remark: String?): EmptyNetworkResponse {
         return friendRepository.sendFriendRequest(userId, remark, displayName)
     }
 }
