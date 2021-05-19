@@ -83,6 +83,7 @@ class MainActivityViewModel @Inject constructor(
                         launch {
                             messageRepository.getSingleMessage(message.chatId, message.messageId)
                                 .fetchAndSave().apply { Log.d(LOG_TAG, "$this") }
+                            messageRepository.getChatList().fetchAndSave()
                         }
                     }
                     is WSMessage.NewActivity -> {
