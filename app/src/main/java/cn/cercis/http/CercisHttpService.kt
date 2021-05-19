@@ -111,14 +111,14 @@ interface CercisHttpService {
     @GET("chat/message")
     suspend fun getSingleMessage(
         @Query("chat_id") chatId: ChatId,
-        @Query("message_id") messageId: MessageId
+        @Query("message_id") messageId: MessageId,
     ): NetworkResponse<Message>
 
     @GET("chat/messages")
     suspend fun getRangeMessages(
         @Query("chat_id") chatId: ChatId,
         @Query("from_id") fromId: MessageId,
-        @Query("to_id") toId: MessageId
+        @Query("to_id") toId: MessageId,
     ): NetworkResponse<List<Message>>
 
     @GET("chat/messages/all-latest")
@@ -141,6 +141,9 @@ interface CercisHttpService {
 
     @POST("activity/like")
     suspend fun likeActivity(@Body request: LikeActivityRequest): EmptyNetworkResponse
+
+    @GET("upload")
+    suspend fun getUploadToken(): NetworkResponse<UploadTokenResponse>
 }
 
 @JsonClass(generateAdapter = true)
@@ -280,7 +283,7 @@ data class EditGroupChatInfoRequest(
 
 @JsonClass(generateAdapter = true)
 data class CreateGroupChatRequest(
-    @Json(name = "member_ids") val memberIds: List<UserId>?
+    @Json(name = "member_ids") val memberIds: List<UserId>?,
 )
 
 @JsonClass(generateAdapter = true)
@@ -337,7 +340,7 @@ data class WithdrawMessageRequest(
 
 @JsonClass(generateAdapter = true)
 data class GetChatsLatestMessagesRequest(
-    @Json(name = "chat_ids") val chatIds: List<ChatId>
+    @Json(name = "chat_ids") val chatIds: List<ChatId>,
 )
 
 @JsonClass(generateAdapter = true)
@@ -384,3 +387,8 @@ data class ActivityPayload(
         @Json(name = "created_at") val createdAt: String,
     )
 }
+
+@JsonClass(generateAdapter = true)
+data class UploadTokenResponse(
+    @Json(name = "upload_token") val uploadToken: String,
+)

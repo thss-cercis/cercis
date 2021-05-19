@@ -8,6 +8,7 @@ import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.entity.Chat
 import cn.cercis.entity.User
+import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.MessageRepository
@@ -19,6 +20,7 @@ import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeoutOrNull
@@ -29,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    friendRepository: FriendRepository,
+    private val friendRepository: FriendRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val messageRepository: MessageRepository,
@@ -41,10 +43,15 @@ class UserInfoViewModel @Inject constructor(
         .asInitializedLiveData(coroutineContext, initialUserInfo)
     val busyGettingChat = MutableLiveData(false)
     val isFriend: LiveData<Boolean?> = friendRepository.getFriendList().flow().map {
-        it.data?.firstOrNull { friendEntry -> friendEntry.friendUserId == userId } != null
+        it.data
+    }.filterNotNull().map {
+        (it.firstOrNull { friendEntry -> friendEntry.friendUserId == userId } != null)
+            .apply {
+                Log.d(this@UserInfoViewModel.LOG_TAG, "$userId is friend?: $this")
+            }
     }.asLiveData(coroutineContext)
     val showIfFriend = isFriend.map { if (it == true) View.VISIBLE else View.GONE }
-    val showIfNotFriend = isFriend.map { if (it == false) View.GONE else View.VISIBLE }
+    val showIfNotFriend = isFriend.map { if (it == false) View.VISIBLE else View.GONE }
 
     suspend fun getChat(): Resource<Chat> {
         busyGettingChat.postValue(true)
@@ -58,5 +65,13 @@ class UserInfoViewModel @Inject constructor(
         } finally {
             busyGettingChat.postValue(false)
         }
+    }
+
+    suspend fun deleteFriend(): EmptyNetworkResponse {
+        return friendRepository.deleteFriend(userId)
+    }
+
+    suspend fun sendFriendApply(displayName: String, remark: String): EmptyNetworkResponse {
+        return friendRepository.sendFriendRequest(userId, remark, displayName)
     }
 }

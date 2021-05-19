@@ -7,6 +7,6 @@
 
     <dimen name="chat_avatar_size">32dp</dimen>
     <dimen name="chat_bubble_margin">40dp</dimen>
-    <dimen name="chat_bubble_min_width">48dp</dimen>
+    <dimen name="chat_bubble_min_width">32dp</dimen>
     <dimen name="chat_bubble_min_height">@dimen/chat_avatar_size</dimen>
 </resources>

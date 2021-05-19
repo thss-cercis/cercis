@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import cn.cercis.MainActivity
-import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentUserInfoBinding
 import cn.cercis.util.resource.Resource
@@ -17,7 +16,10 @@ import cn.cercis.util.snackbarMakeError
 import cn.cercis.viewmodel.UserInfoViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -29,12 +31,13 @@ class UserInfoFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentUserInfoBinding.inflate(inflater, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
             viewModel = userInfoViewModel
             userInfoSendMessage.setOnClickListener { openChat() }
+            executePendingBindings()
         }
         return binding.root
     }

@@ -5,6 +5,7 @@
     <string name="activity_sample_video_url">http://azusa.one/cercis/1</string>
     <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
+    <string name="chat_sending_message_count">正在发送 %d 条消息…</string>
     <string name="contact_list_action_show_group_notifications">群通知</string>
     <string name="contact_list_action_show_requests">好友请求</string>
     <string name="contact_list_friend_request_remark_on_line">验证消息: %s</string>
@@ -43,6 +44,8 @@
     <string name="message_type_unknown">不支持的消息</string>
     <string name="message_type_video">视频</string>
     <string name="message_type_withdraw">撤回了一条消息</string>
+    <string name="notification_name">Cercis</string>
+    <string name="notification_channel_description">消息通知</string>
     <string name="nav_activity">动态</string>
     <string name="nav_contacts">联系人</string>
     <string name="nav_messages">消息</string>
@@ -75,4 +78,10 @@
     <string name="user_info_add_friend">加好友</string>
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_send_messages">发消息</string>
+    <string name="chat_menu_action_show_members">显示群聊成员</string>
+    <string name="chat_unsent_messages">未发送的消息</string>
+    <string name="chat_unsent_messages_ask_retry">有 %d 条发送失败的消息，是否尝试重新发送？</string>
+    <string name="chat_unsent_messages_retry_all">重试</string>
+    <string name="chat_unsent_messages_drop_all">放弃</string>
+    <string name="chat_unsent_messages_do_nothing">不做处理</string>
 </resources>

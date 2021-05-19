@@ -3,7 +3,7 @@ package cn.cercis.repository
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.key
 import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.dao.ChatDao
@@ -18,7 +18,10 @@ import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
+import com.qiniu.android.http.ResponseInfo
+import com.qiniu.android.storage.UpCompletionHandler
 import com.qiniu.android.storage.UploadManager
+import com.qiniu.android.storage.UploadOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.*
@@ -141,15 +144,17 @@ class MessageRepository @Inject constructor(
 
     sealed interface UnsentMessage {
         val messageSerial: Int
+        val chatId: ChatId
     }
 
     /**
      * Message with resource to upload.
      */
     sealed class PendingMessage(
-        open val chatId: ChatId,
+        override val chatId: ChatId,
         val messageType: MessageType,
         override val messageSerial: Int = PendingMessageIndex.incrementAndGet(),
+        open val file: File? = null,
     ) : UnsentMessage {
         data class TextMessage(
             override val chatId: ChatId,
@@ -158,17 +163,17 @@ class MessageRepository @Inject constructor(
 
         data class ImageMessage(
             override val chatId: ChatId,
-            val file: File,
+            override val file: File,
         ) : PendingMessage(chatId, MessageType.IMAGE)
 
         data class AudioMessage(
             override val chatId: ChatId,
-            val file: File,
+            override val file: File,
         ) : PendingMessage(chatId, MessageType.AUDIO)
 
         data class VideoMessage(
             override val chatId: ChatId,
-            val file: File,
+            override val file: File,
         ) : PendingMessage(chatId, MessageType.VIDEO)
 
         data class LocationMessage(
@@ -187,7 +192,7 @@ class MessageRepository @Inject constructor(
      */
     data class PreparedMessage(
         override val messageSerial: Int,
-        val chatId: ChatId,
+        override val chatId: ChatId,
         val messageType: MessageType,
         val content: String,
     ) : UnsentMessage
@@ -203,10 +208,9 @@ class MessageRepository @Inject constructor(
      */
     private val pendingMessages = ConcurrentHashMap<Int, MessageUploadProgress>()
 
-    val pendingMessageList = MutableLiveData<List<MessageUploadProgress>>(listOf())
+    val pendingMessageList = MutableStateFlow<List<MessageUploadProgress>>(listOf())
     private fun updatePendingMessageList() {
-        pendingMessageList.postValue(pendingMessages.toList().sortedBy { it.first }
-            .map { it.second })
+        pendingMessageList.value = pendingMessages.toList().sortedBy { it.first }.map { it.second }
     }
 
     /**
@@ -258,6 +262,25 @@ class MessageRepository @Inject constructor(
         Log.d(LOG_TAG, "added to pending list: $message")
         pendingMessages[message.messageSerial] = MessageUploadProgress.Uploading(message)
         messagesWaitingToUploadResource.sendBlocking(message)
+        updatePendingMessageList()
+    }
+
+    fun dropAllPendingMessages(chatId: ChatId) {
+        pendingMessages.entries.filter { it.value.unsentMessage.chatId == chatId }.forEach {
+            pendingMessages.remove(it.key)
+        }
+        updatePendingMessageList()
+    }
+
+    fun retryAllPendingMessages(chatId: ChatId) {
+        pendingMessages.entries.filter { it.value.unsentMessage.chatId == chatId }.forEach {
+            if (it.value is MessageUploadProgress.UploadFailed) {
+                resubmitUploadFailedMessage(it.key)
+            } else if (it.value is MessageUploadProgress.SubmitFailed) {
+                resubmitSubmitFailedMessage(it.key)
+            }
+        }
+        updatePendingMessageList()
     }
 
     fun resubmitUploadFailedMessage(messageSerial: Int) {
@@ -285,6 +308,24 @@ class MessageRepository @Inject constructor(
         when (message) {
             is AudioMessage, is ImageMessage, is VideoMessage -> {
                 // TODO upload file
+                val tokenRes = httpService.getUploadToken()
+                if (tokenRes !is Success) {
+                    return tokenRes.use {
+                        PreparedMessage(message.messageSerial,
+                            message.chatId,
+                            MessageType.UNKNOWN,
+                            "")
+                    }
+                }
+                val token = tokenRes.data.uploadToken
+                var isCancelled = false
+                val job = run {
+                    val info: ResponseInfo = qiniuUploadManager.syncPut(
+                        message.file,
+                        null,
+                        token,
+                        UploadOptions.defaultOptions())
+                }
                 // simulate upload
                 delay(400)
             }
@@ -334,11 +375,16 @@ class MessageRepository @Inject constructor(
             if (chat is Success) {
                 // save member list
                 Log.d(LOG_TAG, "private chat got. loading chat members.")
-                // no need to double-check a private chat's members, so  no force fetch
+                // no need to double-check a private chat's members, so no force fetch
                 return getChatMemberList(chat.data.id, false).fetchAndSave().use { chat.data }
             } else if (chat is NetworkResponse.Reject) {
                 // create new private chat if non is given
-                return httpService.createPrivateChat(CreatePrivateChatRequest(otherId))
+                val created = httpService.createPrivateChat(CreatePrivateChatRequest(otherId))
+                if (created is Success) {
+                    return getChatMemberList(created.data.id, false).fetchAndSave()
+                        .use { created.data }
+                }
+                return created
             }
             return chat
         }
@@ -431,7 +477,6 @@ class MessageRepository @Inject constructor(
      */
     fun getChatDisplay(currentUserId: UserId, chat: Chat): Flow<CommonListItemData?> {
         return messageDao.loadLatestMessage(chat.id).flatMapLatest { msg ->
-            Log.d(LOG_TAG, "(chat: ${chat.id}) latest message received $msg")
             when (chat.type) {
                 ChatType.CHAT_PRIVATE -> {
                     getOtherUserId(

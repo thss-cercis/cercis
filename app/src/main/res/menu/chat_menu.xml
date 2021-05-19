@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_chat_show_failed_messages"
+        android:icon="@drawable/ic_sync_problem_24"
+        android:title=""
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_chat_info"
+        android:icon="@drawable/ic_menu_white_24dp"
+        android:title=""
+        app:showAsAction="always" />
+</menu>

@@ -46,15 +46,15 @@
     <color name="on_dark_bubble">#FFFFFF</color>
 
     <!-- snackbars -->
-    <color name="snackbar_success_background">#4CAF50</color>
+    <color name="snackbar_success_background">#226C25</color>
     <color name="snackbar_success_text">#ffffff</color>
 
-    <color name="snackbar_warning_background">#FF9800</color>
+    <color name="snackbar_warning_background">#C17300</color>
     <color name="snackbar_warning_text">#ffffff</color>
 
-    <color name="snackbar_error_background">#F44336</color>
+    <color name="snackbar_error_background">#BC1B0F</color>
     <color name="snackbar_error_text">#FFFFFF</color>
 
-    <color name="snackbar_information_background">#2196F3</color>
+    <color name="snackbar_information_background">#116EB8</color>
     <color name="snackbar_information_text">#ffffff</color>
 </resources>

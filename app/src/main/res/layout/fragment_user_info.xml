@@ -19,8 +19,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/fragmentBackground"
+        android:clickable="true"
         android:clipToPadding="false"
         android:fillViewport="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:paddingHorizontal="10dp"
         android:paddingTop="8dp"
         android:paddingBottom="16dp">

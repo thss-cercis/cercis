@@ -94,7 +94,7 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             // re-fetch latest messages every 5000 ms
             while (true) {
-                delay(5000)
+                delay(20000)
                 messageRepository.fetchAndSaveLatestMessages()
             }
         }

@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
@@ -19,15 +21,17 @@ import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
-import cn.cercis.util.helper.closeIme
 import cn.cercis.util.helper.setCloseImeOnLoseFocus
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.*
 
 @FlowPreview
@@ -198,10 +202,6 @@ class ChatFragment : Fragment() {
             setOnScrollChangeListener { _, scrollX, scrollY, oldScrollX, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-                Log.d(this@ChatFragment.LOG_TAG,
-                    "scrolled to view $latestVisible(${adapter.currentList.getOrNull(latestVisible)?.messageId}) to $oldestVisible(${
-                        adapter.currentList.getOrNull(oldestVisible)?.messageId
-                    })")
                 adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
                     chatViewModel.submitLastRead(it)
                 }
@@ -217,8 +217,8 @@ class ChatFragment : Fragment() {
             linearLayoutManager.stackFromEnd = true
             linearLayoutManager.reverseLayout = true
             addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-                Log.d(this@ChatFragment.LOG_TAG,
-                    "layout change from $oldBottom to $bottom, with auto scroll $autoScrollToBottom")
+//                Log.d(this@ChatFragment.LOG_TAG,
+//                    "layout change from $oldBottom to $bottom, with auto scroll $autoScrollToBottom")
                 if (autoScrollToBottom) {
                     Log.d(this@ChatFragment.LOG_TAG, "post scrolling to bottom")
                     post {
@@ -228,7 +228,8 @@ class ChatFragment : Fragment() {
                 } else if (firstLoad && adapter.currentList.isNotEmpty()) {
                     Log.d(this@ChatFragment.LOG_TAG, "move to last read")
                     firstLoad = false
-                    val targetPos = adapter.currentList.indexOfFirst { it.messageId == chatViewModel.lastRead.value }
+                    val targetPos =
+                        adapter.currentList.indexOfFirst { it.messageId == chatViewModel.lastRead.value }
                     if (targetPos != -1) {
                         post {
                             scrollToPosition(targetPos)
@@ -253,6 +254,30 @@ class ChatFragment : Fragment() {
             setOnRefreshListener {
                 chatViewModel.onSwipeRefresh()
                 isRefreshing = false
+            }
+        }
+        binding.topAppBar.menu.findItem(R.id.action_chat_show_failed_messages).apply {
+            isVisible = false
+            var value = 0
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                chatViewModel.failedMessageCount.collectLatest {
+                    isVisible = it != 0
+                    value = it
+                }
+            }
+            setOnMenuItemClickListener {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.chat_unsent_messages)
+                    .setMessage(getString(R.string.chat_unsent_messages_ask_retry).format(value))
+                    .setPositiveButton(getString(R.string.chat_unsent_messages_retry_all)) { _, _ ->
+                        chatViewModel.retryAllPendingMessages()
+                    }
+                    .setNegativeButton(getString(R.string.chat_unsent_messages_drop_all)) { _, _ ->
+                        chatViewModel.dropAllPendingMessages()
+                    }
+                    .setNeutralButton(getString(R.string.chat_unsent_messages_do_nothing)) { _, _ -> }
+                    .show()
+                true
             }
         }
         chatViewModel.unreadCount.observe(viewLifecycleOwner) { }

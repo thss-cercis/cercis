@@ -6,17 +6,14 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.annotation.MainThread
-import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.databinding.ActivityMainBinding
@@ -101,7 +98,11 @@ class MainActivity : AppCompatActivity() {
         // starts the notification service
         // NotificationService runs in the background even if MainActivity dies.
         // Calling startService on this service multiple times would make no difference from calling once.
-        startService(Intent(applicationContext, NotificationService::class.java))
+        // Using [startForegroundService] instead of [startService] to adapt to the new Android O
+        // limitations.
+        ContextCompat.startForegroundService(applicationContext,
+            Intent(applicationContext, NotificationService::class.java))
+//        startService(Intent(applicationContext, NotificationService::class.java))
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
@@ -160,6 +161,8 @@ class MainActivity : AppCompatActivity() {
             Log.e(LOG_TAG, "test")
             Log.e(LOG_TAG, "${navIds[0]} == ${R.id.chat_list_nav_graph}")
         }
+        Log.e(LOG_TAG,
+            "??? $navIds ${listOf(R.id.chat_list_nav_graph, R.id.contact_list_nav_graph)}")
 
         val controller = bottomNavigation.setupWithNavController(
             navGraphIds = navIds,
@@ -196,14 +199,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun scheduleNavigation(
         @IdRes navGraph: Int,
-        navigate: NavController.() -> Unit
+        navigate: NavController.() -> Unit,
     ) {
         currentNavController.observe(this, object : Observer<NavController> {
-            override fun onChanged(t: NavController?) {
-                Log.d(LOG_TAG, "scheduled navigation for $navGraph, now ${t?.graph?.id}")
-                if (t != null && t.graph.id == navGraph) {
-                    t.navigate()
-                    currentNavController.removeObserver(this)
+            override fun onChanged(controller: NavController?) {
+                if (controller != null && controller.graph.id == navGraph) {
+                    val thisObserver = this
+                    // TODO this is a really terrible workaround. considering replacing it
+                    (NavController::class.java.getDeclaredField("mLifecycleOwner")
+                        .apply { isAccessible = true }.get(controller) as LifecycleOwner?)
+                        ?.lifecycleScope?.launchWhenResumed {
+                            controller.navigate()
+                            currentNavController.removeObserver(thisObserver)
+                        }
                 }
             }
         })
@@ -214,6 +222,7 @@ class MainActivity : AppCompatActivity() {
         binding.reusedView.bottomNavigation.selectedItemId = R.id.chat_list_nav_graph
         Log.d(LOG_TAG, "is it ok?")
         scheduleNavigation(R.id.chat_list_nav_graph) {
+            Log.d(LOG_TAG, "navigating...")
             navigate(ChatFragmentDirections.actionToChatFragment(chat.id, chat))
         }
     }

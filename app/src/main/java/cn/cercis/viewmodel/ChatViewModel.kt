@@ -4,14 +4,18 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
+import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.entity.Chat
 import cn.cercis.entity.Message
 import cn.cercis.repository.AuthRepository
+import cn.cercis.repository.GlobalConfigRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.MessageRepository.MessageUploadProgress
+import cn.cercis.repository.MessageRepository.MessageUploadProgress.*
 import cn.cercis.repository.MessageRepository.PendingMessage.TextMessage
 import cn.cercis.repository.UserRepository
+import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
@@ -30,6 +34,7 @@ class ChatViewModel @Inject constructor(
     authRepository: AuthRepository,
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
+    private val globalConfigRepository: GlobalConfigRepository,
 ) : ViewModel(), LifecycleObserver {
     // caching user id from auth repository. this should not be a problem since this view model
     // will not survive currentUserId change.
@@ -44,11 +49,6 @@ class ChatViewModel @Inject constructor(
     private val chatParticipants = messageRepository.getChatMemberList(chatId).flow().map { res ->
         res.data?.map { userRepository.getUser(it.userId).dbFlow().asLiveData(coroutineContext) }
     }
-    val chatDisplay = messageRepository.getParticipatedChat(chatId).filterNotNull().flatMapLatest {
-        messageRepository.getChatDisplay(currentUserId, it)
-    }.asInitializedLiveData(coroutineContext, savedStateHandle.get<Chat>("chat")!!.let {
-        CommonListItemData(it.avatar, it.name, "")
-    })
     private val chatMessages = messageRepository.createMessageDataSource(chatId, MESSAGE_PAGE_SIZE)
 
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
@@ -56,6 +56,36 @@ class ChatViewModel @Inject constructor(
     private val users = HashMap<UserId, LiveData<CommonListItemData>>()
     private val pendingMessages = ArrayList<Pair<Message, LiveData<MessageUploadProgress>>>()
     private val lastReadSubmitted: MutableStateFlow<MessageId> = MutableStateFlow(0L)
+
+    // messages that are sending but not sent
+    private val pendingMessageList = messageRepository.pendingMessageList.map {
+        it.filter { pending -> pending.unsentMessage.chatId == chatId }
+    }
+    val failedMessageCount = pendingMessageList.mapLatest { list ->
+        list.count { it is UploadFailed || it is SubmitFailed }
+    }
+    val pendingMessageDisplayCount = pendingMessageList.mapLatest { list ->
+        Log.d(this@ChatViewModel.LOG_TAG, "list size: ${list.size}")
+        val filteredList = list.filter { it is Uploading || it is Submitting }
+        if (filteredList.isNotEmpty()) {
+            // delay 200ms to avoid flickering
+            delay(200)
+        }
+        Log.d(this@ChatViewModel.LOG_TAG, "submit list size: ${filteredList.size}")
+        filteredList.size
+    }
+
+    // display of chat default info
+    val chatDisplay = messageRepository.getParticipatedChat(chatId).filterNotNull().flatMapLatest {
+        messageRepository.getChatDisplay(currentUserId, it)
+    }.combine(pendingMessageDisplayCount) { t1, t2 ->
+        if (t2 == 0) {
+            t1
+        } else t1?.copy(displayName = getString(R.string.chat_sending_message_count).format(t2))
+    }.filterNotNull()
+        .asInitializedLiveData(coroutineContext, savedStateHandle.get<Chat>("chat")!!.let {
+            CommonListItemData(it.avatar, it.name, "")
+        })
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -85,6 +115,14 @@ class ChatViewModel @Inject constructor(
 
     fun sendTextMessage(message: String) {
         messageRepository.addMessageToPendingList(TextMessage(chatId, message))
+    }
+
+    fun retryAllPendingMessages() {
+        messageRepository.retryAllPendingMessages(chatId)
+    }
+
+    fun dropAllPendingMessages() {
+        messageRepository.dropAllPendingMessages(chatId)
     }
 
     fun side(senderId: ChatId): MessageDirection {

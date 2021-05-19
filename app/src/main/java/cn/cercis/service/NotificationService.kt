@@ -1,13 +1,20 @@
 package cn.cercis.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import cn.cercis.Constants.WSS_BASE
+import cn.cercis.R
 import cn.cercis.common.LOG_TAG
+import cn.cercis.common.NOTIFICATION_CHANNEL_ID
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
@@ -73,6 +80,11 @@ class NotificationService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForeground(1, Notification.Builder(this, NOTIFICATION_CHANNEL_ID).build())
+        } else {
+            startForeground(1, Notification())
+        }
         Log.d(LOG_TAG, "Service starting...")
 
         // initializes a WebSocket connection

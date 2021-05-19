@@ -16,7 +16,10 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/master_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <com.google.android.material.appbar.AppBarLayout
             style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
