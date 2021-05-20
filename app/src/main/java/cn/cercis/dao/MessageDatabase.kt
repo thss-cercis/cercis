@@ -1,5 +1,6 @@
 package cn.cercis.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
@@ -48,8 +49,8 @@ interface MessageDao {
     @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId >= :messageId")
     fun loadChatMessagesNewerThan(chatId: ChatId, messageId: MessageId): Flow<List<Message>>
 
-    @Query("SELECT * FROM message WHERE chatId = :chatId")
-    fun loadChatAllMessages(chatId: ChatId): Flow<List<Message>>
+    @Query("SELECT * FROM message WHERE chatId = :chatId ORDER BY messageId")
+    fun loadChatAllMessages(chatId: ChatId): PagingSource<Int, Message>
 
     @Query("SELECT COUNT(*) FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end")
     suspend fun countMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Long
@@ -60,6 +61,13 @@ interface MessageDao {
         start: MessageId,
         end: MessageId,
     ): List<Message>
+
+    @Query("SELECT COUNT(*) FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end")
+    suspend fun countMessagesBetweenOnce(
+        chatId: ChatId,
+        start: MessageId,
+        end: MessageId,
+    ): Long
 
     @Query("SELECT * FROM message WHERE chatId = :chatId AND messageId >= :start AND messageId <= :end ORDER BY messageId")
     fun loadMessagesBetween(chatId: ChatId, start: MessageId, end: MessageId): Flow<List<Message>>

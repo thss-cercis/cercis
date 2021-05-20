@@ -8,13 +8,10 @@ import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.entity.Chat
 import cn.cercis.entity.Message
-import cn.cercis.repository.AuthRepository
-import cn.cercis.repository.GlobalConfigRepository
-import cn.cercis.repository.MessageRepository
+import cn.cercis.repository.*
 import cn.cercis.repository.MessageRepository.MessageUploadProgress
 import cn.cercis.repository.MessageRepository.MessageUploadProgress.*
 import cn.cercis.repository.MessageRepository.PendingMessage.TextMessage
-import cn.cercis.repository.UserRepository
 import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.asInitializedLiveData
@@ -92,7 +89,9 @@ class ChatViewModel @Inject constructor(
             chatMessages.messageFlow.collect { res: Resource<List<Message>> ->
                 when (res) {
                     is Resource.Error -> Unit
-                    is Resource.Loading -> Unit
+                    is Resource.Loading -> res.data?.let {
+                        chatMessageList.postValue(it.reversed())
+                    }
                     is Resource.Success -> chatMessageList.postValue(res.data.reversed())
                 }
             }
@@ -107,6 +106,10 @@ class ChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun informVisibleRange(start: MessageId, end: MessageId) {
+        chatMessages.informVisibleRange(start, end)
     }
 
     fun submitLastRead(messageId: MessageId) {
@@ -133,7 +136,8 @@ class ChatViewModel @Inject constructor(
     }
 
     fun onSwipeRefresh() {
-        chatMessages.loadMorePrevious(MESSAGE_PAGE_SIZE)
+        chatMessages.triggerReload()
+//        chatMessages.loadMorePrevious(MESSAGE_PAGE_SIZE)
     }
 
     fun lockToLatest() {

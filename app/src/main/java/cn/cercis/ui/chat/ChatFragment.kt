@@ -199,11 +199,17 @@ class ChatFragment : Fragment() {
             var autoScrollToBottom = false
             var firstLoad = true
             val linearLayoutManager = layoutManager as LinearLayoutManager
-            setOnScrollChangeListener { _, scrollX, scrollY, oldScrollX, oldScrollY ->
+            setOnScrollChangeListener { _, _, scrollY, oldScrollX, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
                     chatViewModel.submitLastRead(it)
+                }
+                if (latestVisible != -1 && oldestVisible != -1) {
+                    chatViewModel.informVisibleRange(
+                        adapter.currentList[oldestVisible].messageId,
+                        adapter.currentList[latestVisible].messageId,
+                    )
                 }
                 if (latestVisible == 0 && adapter.currentList.firstOrNull()?.messageId == chatViewModel.latestMessage.value?.messageId) {
                     // TODO anchor to bottom

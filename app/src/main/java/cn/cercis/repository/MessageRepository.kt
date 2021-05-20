@@ -3,7 +3,7 @@ package cn.cercis.repository
 import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.compose.runtime.key
+import androidx.paging.*
 import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.dao.ChatDao
@@ -19,7 +19,6 @@ import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
 import com.qiniu.android.http.ResponseInfo
-import com.qiniu.android.storage.UpCompletionHandler
 import com.qiniu.android.storage.UploadManager
 import com.qiniu.android.storage.UploadOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -627,6 +626,63 @@ class MessageRepository @Inject constructor(
             }
         }
 
+//    /**
+//     * Creates a paging source for messages.
+//     */
+//    fun createMessagePagingSource(
+//        chatId: ChatId,
+//    ): PagingSource<MessageRange, Message> {
+//        // although this is not a good design...
+//        val startingPosition = runBlocking(Dispatchers.IO) { chatDao.loadChatLastReadOnce(chatId) }
+//        // invalidate paging source if new messages arrived
+//        return object : PagingSource<MessageRange, Message>() {
+//            override fun getRefreshKey(state: PagingState<MessageRange, Message>): MessageRange? {
+//                state.anchorPosition?.let {
+//                    state.closestPageToPosition(it)?.prevKey?.let {
+//
+//                    }
+//                }
+//            }
+//
+//            override suspend fun load(params: LoadParams<MessageRange>): LoadResult<MessageRange, Message> {
+//                val latestMessage = messageDao.loadLatestMessage(chatId).first()
+//                    ?: return LoadResult.Page(
+//                        data = listOf(),
+//                        prevKey = null,
+//                        nextKey = null,
+//                    )
+//                val latestId = latestMessage.messageId
+//                val loadSize = params.loadSize.toLong()
+//                val range = params.key ?: run {
+//                    val isStartingPositionValid =
+//                        startingPosition != null && startingPosition <= latestId && startingPosition >= 1L
+//                    // there's no need to double check (startingPosition != null), but parser disagrees
+//                    if (isStartingPositionValid && startingPosition != null) {
+//                        max(1L, startingPosition - loadSize) to startingPosition
+//                    } else {
+//                        max(1L, latestId - loadSize) to latestId
+//                    }
+//                }
+//                val result = messageDao.loadMessagesBetweenOnce(chatId, range.first, range.second)
+//                if (result.size.toLong() != range.second - range.first + 1L) {
+//                    // loading for the page failed, need reload
+//                }
+//                val prevKey = if (range.first > 1L) {
+//                    max(1L, range.first - loadSize) to range.first - 1L
+//                } else {
+//                    null
+//                }
+//                val nextKey = if (range.second < latestId) {
+//                    range.second + 1L to min(range.second + loadSize, latestId)
+//                } else {
+//                    null
+//                }
+//                TODO()
+//            }
+//        }
+//    }
+
+
     inner class MessageDataSource(val chatId: ChatId, private val pageSize: Long) {
         val lockToLatest = MutableStateFlow(false)
         private val reloadTriggerValue = AtomicLong(0L)
@@ -637,25 +693,54 @@ class MessageRepository @Inject constructor(
             if (lock) {
                 // unload previous messages
                 var start0 = startIndex.value
-                getLatestMessage(chatId).filterNotNull().map {
-                    it.messageId.apply {
-                        // updates start index
-                        if (startIndex.value == start0) {
-                            start0 = -1L
-                            startIndex.value = max(0L, this - pageSize * 2)
+                getLatestMessage(chatId).filterNotNull()
+                    .combine(visibilityRange) { latest, visible ->
+                        latest.messageId.apply {
+                            // updates start index
+                            if (startIndex.value == start0) {
+                                start0 = -1L
+                                startIndex.value = max(1L, this - pageSize * 2)
+                            }
+                            if (visible.first != 0L) {
+                                val maxStart = max(visible.first - pageSize, 1L)
+                                if (startIndex.value > maxStart) {
+                                    // doubling size to prevent entering this function once and once again
+                                    startIndex.value = max(visible.first - 2 * pageSize, 1L)
+                                    Log.d(LOG_TAG,
+                                        "(1) expand to ${startIndex.value}, because oldest visible is ${visible.first}")
+                                }
+                            }
+                            // updates end index
+                            requestedEndIndex.value = this
                         }
-                        // updates end index
-                        requestedEndIndex.value = this
+                    }.combine(startIndex) { endIdx, startIdx ->
+                        startIdx to endIdx
                     }
-                }.combine(startIndex) { endIdx, startIdx ->
-                    startIdx to endIdx
-                }
             } else {
-                requestedEndIndex.combine(startIndex) { endIdx, startIdx ->
+                combine(requestedEndIndex, startIndex, visibilityRange, getLatestMessage(chatId))
+                { endIdx, startIdx, visible, latest ->
+                    val maxStart = max(visible.first - pageSize, 1L)
+                    if (visible.first != 0L) {
+                        if (startIndex.value > maxStart) {
+                            // doubling size to prevent entering this function once and once again
+                            startIndex.value = max(visible.first - 2 * pageSize, 1L)
+                            Log.d(LOG_TAG,
+                                "(2) expand to ${startIndex.value}, because oldest visible is ${visible.first}")
+                        }
+                        if (latest != null) {
+                            val minEnd = min(visible.second + pageSize, latest.messageId)
+                            if (requestedEndIndex.value < minEnd) {
+                                requestedEndIndex.value = min(visible.second + 2 * pageSize, latest.messageId)
+                            }
+                            Log.d(LOG_TAG,
+                                "(2) expand to ${requestedEndIndex.value}, because latest visible is ${visible.second}")
+                        }
+                    }
                     startIdx to endIdx
                 }
             }
         }
+        private val visibilityRange = MutableStateFlow(0L to 0L)
 
         @MainThread
         fun loadMorePrevious(count: Long) {
@@ -684,6 +769,11 @@ class MessageRepository @Inject constructor(
             reloadTrigger.value = reloadTriggerValue.incrementAndGet()
         }
 
+        @MainThread
+        fun informVisibleRange(start: MessageId, end: MessageId) {
+            visibilityRange.value = start to end
+        }
+
         /**
          * Gets message List as a flow.
          * All messages returned are promised to be sorted by message id ascending
@@ -697,6 +787,11 @@ class MessageRepository @Inject constructor(
             if (latestMsg == lastIndexV) {
                 lockToLatest.value = true
             }
+            /**
+             * When requested range changed, reflect it to [range].
+             *
+             * When [range] changed
+             */
             this.emitAll(reloadTrigger.flatMapLatest {
                 range.distinctUntilChanged().flatMapLatest { rangePair ->
                     val (start, end) = rangePair
@@ -715,3 +810,5 @@ class MessageRepository @Inject constructor(
         private val UpdateMark = AtomicInteger(0)
     }
 }
+
+typealias MessageRange = Pair<MessageId, MessageId>
