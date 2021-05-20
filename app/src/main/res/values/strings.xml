@@ -91,4 +91,5 @@
     <string name="dialog_friend_request_retry">重试</string>
     <string name="dialog_friend_request_title">添加 %s 为好友</string>
     <string name="dialog_friend_request_sent">申请已发送</string>
+    <string name="chat_fab_description">跳转到最新消息</string>
 </resources>

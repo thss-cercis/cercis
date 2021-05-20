@@ -8,12 +8,14 @@
 
         <import type="cn.cercis.viewmodel.ChatViewModel" />
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="ChatViewModel" />
     </data>
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/fragmentBackground"
@@ -51,6 +53,49 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/chat_item_incoming" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chat_go_latest"
+            style="Widget.Cercis.Button.Fab"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/chat_fab_description"
+            android:elevation="3dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:visibility="@{viewModel.isAtBottom ? View.GONE : View.VISIBLE}"
+            app:icon="@drawable/ic_expand_more_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:layout_constraintBottom_toTopOf="@id/chat_text_box_barrier"
+            app:layout_constraintRight_toRightOf="parent"
+            app:shapeAppearanceOverlay="@style/roundedCorner"
+            tools:visibility="visible" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chat_unread_count"
+            style="@style/TextAppearance.Cercis.Chat.Unread"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_chat_unread_bubble"
+            android:elevation="6dp"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="@{viewModel.unreadCount.toString()}"
+            android:visibility="@{viewModel.unreadBubbleVisible ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toTopOf="@id/chat_go_latest"
+            app:layout_constraintEnd_toEndOf="@id/chat_go_latest"
+            app:layout_constraintStart_toStartOf="@id/chat_go_latest"
+            app:layout_constraintTop_toTopOf="@id/chat_go_latest"
+            app:layout_constraintWidth_min="30dp"
+            tools:text="1"
+            tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/chat_text_box_barrier"
@@ -155,7 +200,6 @@
             </LinearLayout>
         </ViewFlipper>
 
-
         <View
             android:id="@+id/chat_bottom_placeholder"
             android:layout_width="match_parent"
@@ -163,5 +207,5 @@
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
-    </androidx.constraintlayout.motion.widget.MotionLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -127,6 +127,15 @@
         <item name="android:minHeight">40dp</item>
     </style>
 
+    <style name="CercisButton">
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="colorOnPrimary">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.Fab" parent="Widget.MaterialComponents.Button">
+        <item name="materialThemeOverlay">@style/CercisButton</item>
+    </style>
+
     <style name="Widget.Cercis.Button.TextButton.Accent" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
     </style>
@@ -188,6 +197,11 @@
 
     <style name="Widget.Cercis.Bubble.TextView.Outgoing" parent="Widget.Cercis.Bubble.TextView">
         <item name="android:textColor">?attr/colorOnOutgoingBubble</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.Chat.Unread" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 
     <style name="Widget.Cercis.ListItem.ActionButton" parent="Widget.MaterialComponents.Button">

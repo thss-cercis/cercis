@@ -2,6 +2,7 @@ package cn.cercis.viewmodel
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.cercis.R
@@ -38,10 +39,11 @@ class ChatViewModel @Inject constructor(
     private val currentUserId = authRepository.currentUserId
     private val chatId = savedStateHandle.get<Long>("chatId")!!
     val chatInitData = savedStateHandle.get<Chat>("chat")!!
+    val chatInitDisplay = savedStateHandle.get<CommonListItemData>("chatInitDisplay")
     val latestMessage = messageRepository.getLatestMessage(chatId).asLiveData(coroutineContext)
     val lastRead = messageRepository.getLastRead(chatId).asLiveData(coroutineContext)
     val unreadCount = generateMediatorLiveData(latestMessage, lastRead) {
-        max(0L, (latestMessage.value?.messageId ?: 0) - (lastRead.value ?: 0))
+        max(0L, (latestMessage.value?.messageId ?: 0L) - (lastRead.value ?: 0L))
     }
     private val chatParticipants = messageRepository.getChatMemberList(chatId).flow().map { res ->
         res.data?.map { userRepository.getUser(it.userId).dbFlow().asLiveData(coroutineContext) }
@@ -50,6 +52,10 @@ class ChatViewModel @Inject constructor(
 
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
     val chatMessageList = MutableLiveData<List<Message>>(listOf())
+    val isAtBottom = MutableLiveData(true)
+    val unreadBubbleVisible = generateMediatorLiveData(unreadCount, isAtBottom) {
+        return@generateMediatorLiveData (unreadCount.value ?: 0L > 0L && isAtBottom.value == false)
+    }
     private val users = HashMap<UserId, LiveData<CommonListItemData>>()
     private val pendingMessages = ArrayList<Pair<Message, LiveData<MessageUploadProgress>>>()
     private val lastReadSubmitted: MutableStateFlow<MessageId> = MutableStateFlow(0L)
@@ -80,18 +86,20 @@ class ChatViewModel @Inject constructor(
             t1
         } else t1?.copy(displayName = getString(R.string.chat_sending_message_count).format(t2))
     }.filterNotNull()
-        .asInitializedLiveData(coroutineContext, savedStateHandle.get<Chat>("chat")!!.let {
-            CommonListItemData(it.avatar, it.name, "")
-        })
+        .asInitializedLiveData(coroutineContext,
+            chatInitDisplay ?: savedStateHandle.get<Chat>("chat")!!.let {
+                CommonListItemData(it.avatar, it.name, "")
+            }).map {
+            Log.d(LOG_TAG, "read: $it")
+            it
+        }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             chatMessages.messageFlow.collect { res: Resource<List<Message>> ->
                 when (res) {
                     is Resource.Error -> Unit
-                    is Resource.Loading -> res.data?.let {
-                        chatMessageList.postValue(it.reversed())
-                    }
+                    is Resource.Loading -> Unit
                     is Resource.Success -> chatMessageList.postValue(res.data.reversed())
                 }
             }
@@ -108,8 +116,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    @MainThread
     fun informVisibleRange(start: MessageId, end: MessageId) {
         chatMessages.informVisibleRange(start, end)
+        isAtBottom.value = (end >= (latestMessage.value?.messageId ?: 0L))
     }
 
     fun submitLastRead(messageId: MessageId) {

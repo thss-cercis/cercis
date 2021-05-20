@@ -66,7 +66,6 @@ class ChatFragment : Fragment() {
         val binding = FragmentChatBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = chatViewModel
-        binding.executePendingBindings()
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
@@ -199,13 +198,15 @@ class ChatFragment : Fragment() {
             var autoScrollToBottom = false
             var firstLoad = true
             val linearLayoutManager = layoutManager as LinearLayoutManager
+            linearLayoutManager.stackFromEnd = true
+            linearLayoutManager.reverseLayout = true
             setOnScrollChangeListener { _, _, scrollY, oldScrollX, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
                     chatViewModel.submitLastRead(it)
                 }
-                if (latestVisible != -1 && oldestVisible != -1) {
+                if (latestVisible != -1 && oldestVisible != -1 && !firstLoad) {
                     chatViewModel.informVisibleRange(
                         adapter.currentList[oldestVisible].messageId,
                         adapter.currentList[latestVisible].messageId,
@@ -220,8 +221,6 @@ class ChatFragment : Fragment() {
                     autoScrollToBottom = false
                 }
             }
-            linearLayoutManager.stackFromEnd = true
-            linearLayoutManager.reverseLayout = true
             addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
 //                Log.d(this@ChatFragment.LOG_TAG,
 //                    "layout change from $oldBottom to $bottom, with auto scroll $autoScrollToBottom")
@@ -240,6 +239,18 @@ class ChatFragment : Fragment() {
                         post {
                             scrollToPosition(targetPos)
                         }
+                    }
+                }
+            }
+            binding.chatGoLatest.setOnClickListener {
+                autoScrollToBottom = true
+                chatViewModel.lockToLatest()
+                adapter.currentList.firstOrNull()?.let {
+                    if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() > 50) {
+                        // too long, direct jump
+                        scrollToPosition(0)
+                    } else {
+                        smoothScrollToPosition(0)
                     }
                 }
             }
@@ -286,7 +297,6 @@ class ChatFragment : Fragment() {
                 true
             }
         }
-        chatViewModel.unreadCount.observe(viewLifecycleOwner) { }
         return binding.root
     }
 }

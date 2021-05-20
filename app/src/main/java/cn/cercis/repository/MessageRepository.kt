@@ -692,15 +692,12 @@ class MessageRepository @Inject constructor(
         private val range = lockToLatest.flatMapLatest { lock ->
             if (lock) {
                 // unload previous messages
-                var start0 = startIndex.value
+                // destroy visibility range on scrolling to bottom
+                visibilityRange.value = 0L to 0L
                 getLatestMessage(chatId).filterNotNull()
                     .combine(visibilityRange) { latest, visible ->
                         latest.messageId.apply {
                             // updates start index
-                            if (startIndex.value == start0) {
-                                start0 = -1L
-                                startIndex.value = max(1L, this - pageSize * 2)
-                            }
                             if (visible.first != 0L) {
                                 val maxStart = max(visible.first - pageSize, 1L)
                                 if (startIndex.value > maxStart) {
@@ -730,7 +727,8 @@ class MessageRepository @Inject constructor(
                         if (latest != null) {
                             val minEnd = min(visible.second + pageSize, latest.messageId)
                             if (requestedEndIndex.value < minEnd) {
-                                requestedEndIndex.value = min(visible.second + 2 * pageSize, latest.messageId)
+                                requestedEndIndex.value =
+                                    min(visible.second + 2 * pageSize, latest.messageId)
                             }
                             Log.d(LOG_TAG,
                                 "(2) expand to ${requestedEndIndex.value}, because latest visible is ${visible.second}")
@@ -762,7 +760,10 @@ class MessageRepository @Inject constructor(
 
         @MainThread
         fun setLockToLatest(lock: Boolean) {
-            lockToLatest.value = lock
+            if (!lockToLatest.value) {
+                lockToLatest.value = lock
+                startIndex.value = max(1L, startIndex.value - pageSize * 2)
+            }
         }
 
         fun triggerReload() {
@@ -782,7 +783,7 @@ class MessageRepository @Inject constructor(
             val lastRead = (chatDao.loadChatLastReadOnce(chatId) ?: 0L) + pageSize
             val latestMsg = getLatestMessage(chatId).first()?.messageId ?: 0L
             val lastIndexV = if (lastRead < latestMsg) lastRead else latestMsg
-            startIndex.value = max(lastIndexV - pageSize + 1, 0L)
+            startIndex.value = max(lastIndexV - pageSize * 2, 0L)
             requestedEndIndex.value = lastIndexV
             if (latestMsg == lastIndexV) {
                 lockToLatest.value = true

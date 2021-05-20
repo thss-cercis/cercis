@@ -223,9 +223,7 @@ class MainActivity : AppCompatActivity() {
     fun openChat(chat: Chat) {
         Log.d(LOG_TAG, "opening chat $chat")
         binding.reusedView.bottomNavigation.selectedItemId = R.id.chat_list_nav_graph
-        Log.d(LOG_TAG, "is it ok?")
         scheduleNavigation(R.id.chat_list_nav_graph) {
-            Log.d(LOG_TAG, "navigating...")
             navigate(ChatFragmentDirections.actionToChatFragment(chat.id, chat))
         }
     }
