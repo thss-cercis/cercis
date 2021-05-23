@@ -34,7 +34,6 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.lang.IllegalStateException
 
 /**
  * Manages the various graphs needed for a [BottomNavigationView].

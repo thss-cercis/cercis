@@ -4,16 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import cn.cercis.R
 import cn.cercis.common.LOG_TAG
-import cn.cercis.common.MediaType
 import cn.cercis.common.UserId
-import cn.cercis.entity.Activity
+import cn.cercis.common.mapRun
+import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.User
 import cn.cercis.repository.ActivityRepository
 import cn.cercis.repository.UserRepository
-import cn.cercis.util.getFakeMediaUrlList
-import cn.cercis.util.getString
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.livedata.unwrapResource
@@ -23,7 +20,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
-import kotlin.random.Random
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -38,10 +34,10 @@ class ActivityViewModel @Inject constructor(
     private val users = HashMap<UserId, LiveData<User>>()
 
     private val activitySource by lazy {
-        object : MappingLiveData<Resource<List<Activity>>>() {
+        object : MappingLiveData<Resource<List<EntireActivity>>>() {
             init { refresh() }
             fun refresh() {
-                setSource(activityRepository.getActivityList(1L..10L).asLiveData(coroutineContext))
+                setSource(activityRepository.getActivityList().asLiveData(coroutineContext))
             }
         }
     }
@@ -53,15 +49,17 @@ class ActivityViewModel @Inject constructor(
             val updateMark = atomicInteger.get()
             Log.d(LOG_TAG, "updated with mark $updateMark")
             (resource?.data ?: listOf()).map {
-                ActivityListItem(
-                    activityId = it.id,
-                    user = getUserLiveData(it.userId),
-                    mediaType = it.mediaType,
-                    text = it.text,
-                    mediaUrlList = getFakeMediaUrlList(it.mediaType),
-                    publishedAt = it.publishedAt,
-                    isLoading = isLoading,
-                )
+                it.activity.run {
+                    ActivityListItem(
+                        activityId = id,
+                        user = getUserLiveData(userId),
+                        mediaType = mediaType,
+                        text = text,
+                        mediaUrlList = it.media.mapRun { url },
+                        publishedAt = publishedAt,
+                        isLoading = isLoading,
+                    )
+                }
             }.sortedByDescending {
                 it.publishedAt
             }

@@ -1,14 +1,7 @@
 package cn.cercis.http
 
-import cn.cercis.common.ApplyId
-import cn.cercis.common.ChatId
-import cn.cercis.common.MessageId
-import cn.cercis.common.UserId
-import cn.cercis.entity.*
 import cn.cercis.common.*
-import cn.cercis.entity.Activity
-import cn.cercis.entity.FriendRequest
-import cn.cercis.entity.UserDetail
+import cn.cercis.entity.*
 import cn.cercis.util.resource.NetworkResponse
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -136,8 +129,10 @@ interface CercisHttpService {
     @POST("auth/recover")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): EmptyNetworkResponse
 
-    @GET("activity/")
-    suspend fun getActivityList(): NetworkResponse<WrappedActivityListPayload>
+    @GET("activity/after")
+    suspend fun getActivityList(
+        @Query("activity_id") activityId: ActivityId = 1
+    ): NetworkResponse<List<ActivityPayload>>
 
     @POST("activity/like")
     suspend fun likeActivity(@Body request: LikeActivityRequest): EmptyNetworkResponse
@@ -350,11 +345,6 @@ data class ResetPasswordRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class WrappedActivityListPayload(
-    val activities: List<Activity>,
-)
-
-@JsonClass(generateAdapter = true)
 data class LikeActivityRequest(
     val id: String,
 )
@@ -365,7 +355,7 @@ data class ActivityPayload(
     val text: String,
     @Json(name = "sender_id") val userId: UserId,
     val media: List<MediaPayload>,
-    val comments: List<CommentPayload>,
+    val comments: List<Comment>,
     @Json(name = "created_at") val createdAt: String,
 ) {
     @JsonClass(generateAdapter = true)
@@ -373,15 +363,6 @@ data class ActivityPayload(
         val id: MediumId,
         @Json(name = "activity_id") val activityId: ActivityId,
         val type: Int,
-        val content: String,
-        @Json(name = "created_at") val createdAt: String,
-    )
-
-    @JsonClass(generateAdapter = true)
-    data class CommentPayload(
-        val id: CommentId,
-        @Json(name = "activity_id") val activityId: ActivityId,
-        @Json(name = "commenter_id") val commenterId: UserId,
         val content: String,
         @Json(name = "created_at") val createdAt: String,
     )

@@ -1,7 +1,9 @@
 package cn.cercis.viewmodel
 
-import android.view.View
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import cn.cercis.entity.UserDetail
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
@@ -10,10 +12,8 @@ import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.livedata.addResource
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @FlowPreview

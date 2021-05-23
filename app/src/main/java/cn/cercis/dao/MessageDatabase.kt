@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.Flow
     exportSchema = false
 )
 abstract class MessageDatabase : RoomDatabase() {
-    abstract fun MessageDao(): MessageDao
-    abstract fun ChatDao(): ChatDao
-    abstract fun ChatMemberDao(): ChatMemberDao
+    abstract fun messageDao(): MessageDao
+    abstract fun chatDao(): ChatDao
+    abstract fun chatMemberDao(): ChatMemberDao
 }
 
 @Dao

@@ -14,7 +14,6 @@ import cn.cercis.repository.NotificationRepository
 import cn.cercis.service.WSMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @FlowPreview

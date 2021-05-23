@@ -1,19 +1,14 @@
 package cn.cercis.ui.activity
 
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
@@ -24,7 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import java.util.*
-import kotlin.math.ceil
 
 @FlowPreview
 @ExperimentalCoroutinesApi

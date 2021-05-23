@@ -7,27 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Adapter
 import cn.cercis.R
-import cn.cercis.common.ChatId
-import cn.cercis.databinding.ChatListItemBinding
 import cn.cercis.databinding.CommonListItemBinding
 import cn.cercis.databinding.FragmentChatListBinding
 import cn.cercis.entity.ChatType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.util.helper.requireMainActivity
-import cn.cercis.viewmodel.ChatListItemData
 import cn.cercis.viewmodel.ChatListViewModel
-import com.bumptech.glide.Glide
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.collections.ArrayList
 
 @FlowPreview
 @ExperimentalCoroutinesApi

@@ -13,12 +13,14 @@ import cn.cercis.http.CercisHttpService
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
-import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @FlowPreview

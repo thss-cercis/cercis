@@ -33,6 +33,7 @@ class ActivityListItem(
 
     init {
         Log.d(LOG_TAG, "Init with imageCount=$imageCount")
+        Log.d(LOG_TAG, "$imageList")
     }
 
     val viewType: Int
@@ -62,8 +63,7 @@ class ActivityListItem(
     val dimensionRatio
         get() = "${columnCount}:${rowCount}"
 
-    val publishedTimeText = getString(R.string.activity_published_time)
-        .format(DateUtils.getRelativeTimeSpanString(publishedAt))
+    val publishedTimeText = DateUtils.getRelativeTimeSpanString(publishedAt)!!
 
     fun getImageUrl(pos: Int): String {
         return when {

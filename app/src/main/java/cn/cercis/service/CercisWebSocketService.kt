@@ -1,7 +1,6 @@
 package cn.cercis.service
 
 import cn.cercis.common.*
-import cn.cercis.entity.Chat
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tinder.scarlet.WebSocket

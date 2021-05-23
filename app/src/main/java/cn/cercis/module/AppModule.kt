@@ -16,7 +16,6 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.qiniu.android.common.FixedZone
 import com.qiniu.android.storage.Configuration
-import com.qiniu.android.storage.KeyGenerator
 import com.qiniu.android.storage.UploadManager
 import com.squareup.moshi.Types
 import com.squareup.moshi.rawType

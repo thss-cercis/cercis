@@ -3,7 +3,6 @@ package cn.cercis.entity
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import cn.cercis.common.ChatId
 import cn.cercis.common.UserId
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize

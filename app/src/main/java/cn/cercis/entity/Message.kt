@@ -1,16 +1,13 @@
 package cn.cercis.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.util.getString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.lang.NumberFormatException
 
 @Entity(
     primaryKeys = ["messageId", "chatId"],

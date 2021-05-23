@@ -3,7 +3,6 @@ package cn.cercis.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cn.cercis.common.ApplyId
-import cn.cercis.common.ChatId
 import cn.cercis.common.Timestamp
 import cn.cercis.common.UserId
 import com.squareup.moshi.Json

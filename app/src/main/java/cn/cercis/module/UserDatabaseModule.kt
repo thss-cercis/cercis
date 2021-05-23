@@ -1,6 +1,7 @@
 package cn.cercis.module
 
 import androidx.room.Room
+import cn.cercis.dao.ActivityDatabase
 import cn.cercis.dao.FriendDatabase
 import cn.cercis.dao.MessageDatabase
 import cn.cercis.dao.UserDatabase
@@ -43,6 +44,15 @@ object UserDatabaseModule {
 
     @Provides
     @ActivityRetainedScoped
+    fun provideActivityDatabase(authRepository: AuthRepository) =
+        Room.databaseBuilder(
+            authRepository.context,
+            ActivityDatabase::class.java,
+            authRepository.getUserDatabaseAbsolutePath("activities")
+        ).build()
+
+    @Provides
+    @ActivityRetainedScoped
     fun providesUserDao(userDatabase: UserDatabase) = userDatabase.userDao()
 
     @Provides
@@ -51,13 +61,17 @@ object UserDatabaseModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun providesMessageDao(messageDatabase: MessageDatabase) = messageDatabase.MessageDao()
+    fun providesMessageDao(messageDatabase: MessageDatabase) = messageDatabase.messageDao()
 
     @Provides
     @ActivityRetainedScoped
-    fun providesChatDao(messageDatabase: MessageDatabase) = messageDatabase.ChatDao()
+    fun providesChatDao(messageDatabase: MessageDatabase) = messageDatabase.chatDao()
 
     @Provides
     @ActivityRetainedScoped
-    fun providesChatMemberDao(messageDatabase: MessageDatabase) = messageDatabase.ChatMemberDao()
+    fun providesChatMemberDao(messageDatabase: MessageDatabase) = messageDatabase.chatMemberDao()
+
+    @Provides
+    @ActivityRetainedScoped
+    fun providesActivityDao(activityDatabase: ActivityDatabase) = activityDatabase.activityDao()
 }

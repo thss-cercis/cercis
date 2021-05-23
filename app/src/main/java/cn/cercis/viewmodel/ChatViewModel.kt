@@ -2,7 +2,6 @@ package cn.cercis.viewmodel
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.View
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.cercis.R

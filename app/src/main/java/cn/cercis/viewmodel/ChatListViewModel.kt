@@ -1,7 +1,10 @@
 package cn.cercis.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.entity.Chat
@@ -11,7 +14,6 @@ import cn.cercis.repository.NotificationRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.service.WSMessage
 import cn.cercis.util.helper.coroutineContext
-import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

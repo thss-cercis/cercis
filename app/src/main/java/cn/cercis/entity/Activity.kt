@@ -5,6 +5,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import cn.cercis.common.*
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 @Entity
 data class Activity(
@@ -35,4 +37,22 @@ data class Medium(
     @PrimaryKey val id: MediumId,
     val activityId: ActivityId,
     val url: String,
+)
+
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Activity::class,
+        parentColumns = ["id"],
+        childColumns = ["activityId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index("activityId")]
+)
+@JsonClass(generateAdapter = true)
+data class Comment(
+    @PrimaryKey val id: CommentId,
+    @Json(name = "activity_id") val activityId: ActivityId,
+    @Json(name = "commenter_id") val commenterId: UserId,
+    val content: String,
+    @Json(name = "created_at") val createdAt: String,
 )

@@ -19,9 +19,8 @@ fun loadAvatar(view: ShapeableImageView, url: String?) {
 @BindingAdapter("imageUrl")
 fun loadImage(view: ImageView, url: String?) {
     Glide.with(view.context)
-        // use null url instead of empty url to allow for quicker fallback without error log
-        .load(if (url.isNullOrEmpty()) null else url)
-        .fallback(R.drawable.ic_cercis)
-        .placeholder(R.drawable.ic_cercis)
+        .load(url?.takeIf(String::isNotEmpty))
+        .fallback(R.color.image_placeholder)
+        .placeholder(R.color.image_placeholder)
         .into(view)
 }
