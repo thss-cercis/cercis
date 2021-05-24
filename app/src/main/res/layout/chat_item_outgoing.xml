@@ -73,7 +73,7 @@
                 android:contentDescription="@string/message_type_image"
                 android:maxHeight="400dp"
                 android:scaleType="centerCrop"
-                tools:src="@drawable/ic_cercis" />
+                tools:src="@drawable/ic_default_avatar" />
 
             <TextView
                 android:id="@+id/chat_item_message_text"

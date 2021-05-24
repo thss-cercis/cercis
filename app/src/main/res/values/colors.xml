@@ -58,4 +58,7 @@
 
     <color name="snackbar_information_background">#116EB8</color>
     <color name="snackbar_information_text">#ffffff</color>
+
+    <!-- others -->
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

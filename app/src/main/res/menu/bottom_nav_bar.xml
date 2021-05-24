@@ -11,7 +11,7 @@
         android:enabled="true"
         android:title="@string/nav_contacts" />
     <item
-        android:icon="@drawable/ic_eco_white_24dp"
+        android:icon="@drawable/ic_auto_awesome_24"
         android:id="@+id/activity_list_nav_graph"
         android:enabled="true"
         android:title="@string/nav_activity" />
