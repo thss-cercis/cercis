@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.chat.CreateGroupFragment">
+
+    <data>
+
+        <import type="cn.cercis.viewmodel.CreateGroupViewModel" />
+
+        <variable
+            name="viewModel"
+            type="CreateGroupViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/fragmentBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/create_group_toolbar"
+            style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/create_group_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/create_group_friend_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/create_group_button_background"
+            app:layout_constraintTop_toBottomOf="@id/create_group_toolbar"
+            tools:itemCount="5"
+            tools:listitem="@layout/select_friend_list_item" />
+
+        <View
+            android:id="@+id/create_group_button_background"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/navigation_view_height"
+            android:background="?attr/colorSurfaceDark"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/create_group_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:clickable="@{viewModel.buttonClickable, default=false}"
+            android:enabled="@{viewModel.buttonClickable, default=false}"
+            android:focusable="@{viewModel.buttonClickable, default=false}"
+            android:paddingVertical="8dp"
+            android:text="@{String.format(@string/create_group_button, viewModel.selectedUserCount)}"
+            app:layout_constraintBottom_toBottomOf="@id/create_group_button_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/create_group_button_background"
+            tools:text="@string/create_group_button" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

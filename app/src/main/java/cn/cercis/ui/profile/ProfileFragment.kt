@@ -33,13 +33,9 @@ class ProfileFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.buttonProfileEdit.setOnClickListener {
             profileViewModel.currentUser.value?.run {
-                doDetailNavigation(
-                    ProfileEditFragmentDirections.actionGlobalProfileEditFragment(
-                        nickname = nickname,
-                        email = email,
-                        bio = bio,
-                    )
-                )
+                doDetailNavigation(ProfileEditFragmentDirections.actionGlobalProfileEditFragment(
+                    user = this
+                ))
             }
         }
         binding.buttonLogout.setOnClickListener {

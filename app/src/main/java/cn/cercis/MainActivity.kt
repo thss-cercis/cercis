@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         controller.observe(this) { navController ->
-            navController?.second?.let {
+            navController.second.let {
                 it.removeOnDestinationChangedListener(listener)
                 it.addOnDestinationChangedListener(listener)
                 if (it.currentBackStackEntry == null) {

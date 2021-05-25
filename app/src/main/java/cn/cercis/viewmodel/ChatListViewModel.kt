@@ -1,5 +1,6 @@
 package cn.cercis.viewmodel
 
+import android.text.format.DateUtils
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -21,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.joda.time.DateTime
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -35,7 +37,7 @@ class ChatListViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val hashMap = HashMap<ChatId, LiveData<CommonListItemData?>>()
+    private val hashMap = HashMap<ChatId, LiveData<ChatListItemData?>>()
     private val chatRefreshTime = MutableStateFlow(System.currentTimeMillis())
     private val chatListFlow: Flow<Resource<List<Chat>>> = chatRefreshTime.flatMapLatest {
         messageRepository.getAllChats().flow()
@@ -55,11 +57,28 @@ class ChatListViewModel @Inject constructor(
         refresh()
     }
 
-    fun getChatDisplay(chat: Chat): LiveData<CommonListItemData?> {
+    fun getChatDisplay(chat: Chat): LiveData<ChatListItemData?> {
         return hashMap.computeIfAbsent(chat.id) {
             Log.d(LOG_TAG, "recreated live data (chat: ${chat.id})")
-            messageRepository.getChatDisplay(authRepository.currentUserId, chat)
-                .asLiveData(coroutineContext)
+            combine(
+                messageRepository.getChatDisplay(authRepository.currentUserId, chat),
+                messageRepository.unreadCount(chat.id),
+                messageRepository.getLatestMessage(chat.id)
+            ) { common, unread, msg ->
+                common?.let {
+                    ChatListItemData(
+                        chatId = chat.id,
+                        avatar = common.avatar,
+                        chatName = common.displayName,
+                        latestMessage = common.description,
+                        lastUpdate = msg?.let {
+                            DateUtils.getRelativeTimeSpanString(DateTime.parse(msg.updatedAt).millis)
+                                .toString()
+                        } ?: "",
+                        unreadCount = unread
+                    )
+                }
+            }.asLiveData(coroutineContext)
         }
     }
 

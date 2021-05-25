@@ -200,13 +200,13 @@ class ChatFragment : Fragment() {
             val linearLayoutManager = layoutManager as LinearLayoutManager
             linearLayoutManager.stackFromEnd = true
             linearLayoutManager.reverseLayout = true
-            setOnScrollChangeListener { _, _, scrollY, oldScrollX, oldScrollY ->
+            setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
                     chatViewModel.submitLastRead(it)
                 }
-                if (latestVisible != -1 && oldestVisible != -1 && !firstLoad) {
+                if (latestVisible != -1 && oldestVisible != -1) {
                     chatViewModel.informVisibleRange(
                         adapter.currentList[oldestVisible].messageId,
                         adapter.currentList[latestVisible].messageId,
@@ -221,7 +221,7 @@ class ChatFragment : Fragment() {
                     autoScrollToBottom = false
                 }
             }
-            addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
 //                Log.d(this@ChatFragment.LOG_TAG,
 //                    "layout change from $oldBottom to $bottom, with auto scroll $autoScrollToBottom")
                 if (autoScrollToBottom) {

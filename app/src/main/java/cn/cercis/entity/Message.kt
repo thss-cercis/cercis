@@ -20,6 +20,8 @@ data class Message(
     @Json(name = "type") val type: Int,
     @Json(name = "message") val message: String,
     @Json(name = "sender_id") var senderId: Long,
+    @Json(name = "created_at") var createdAt: String,
+    @Json(name = "updated_at") var updatedAt: String,
 )
 
 data class ChatIdMessageId(

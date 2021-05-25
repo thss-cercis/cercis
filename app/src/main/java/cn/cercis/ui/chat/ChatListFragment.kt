@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DefaultItemAnimator
 import cn.cercis.R
+import cn.cercis.databinding.ChatListItemBinding
 import cn.cercis.databinding.CommonListItemBinding
 import cn.cercis.databinding.FragmentChatListBinding
 import cn.cercis.entity.ChatType
@@ -34,7 +36,7 @@ class ChatListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = FragmentChatListBinding.inflate(inflater, container, false)
         binding.viewModel = chatListViewModel
@@ -47,18 +49,18 @@ class ChatListFragment : Fragment() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_search -> doDetailNavigation(R.id.action_global_searchFragment)
+                R.id.action_create_group -> doDetailNavigation(R.id.action_global_createGroupFragment)
             }
             true
         }
         // bind item click listener
-        // TODO: use real data and somehow refactor this
         val adapter = DiffRecyclerViewAdapter.getInstance(
             dataSource = chatListViewModel.chatListData,
             viewLifecycleOwnerSupplier = { viewLifecycleOwner },
             itemIndex = { id },
             contentsSameCallback = { a, b -> a.id == b.id && a.type == ChatType.CHAT_GROUP },
             inflater = { inflater1, parent, _ ->
-                CommonListItemBinding.inflate(
+                ChatListItemBinding.inflate(
                     inflater1,
                     parent,
                     false
@@ -71,6 +73,8 @@ class ChatListFragment : Fragment() {
             itemViewType = { type }
         )
         binding.chatListView.adapter = adapter
+        // remove update animation
+        (binding.chatListView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations = false
         return binding.root
     }
 }

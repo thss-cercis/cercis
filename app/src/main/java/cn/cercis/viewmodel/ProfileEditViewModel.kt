@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.cercis.entity.UserDetail
 import cn.cercis.repository.ProfileRepository
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
@@ -27,11 +28,14 @@ class ProfileEditViewModel @Inject constructor(
     enum class NavAction {
         STAY, BACK
     }
+
     val navAction = MutableLiveData(NavAction.STAY)
 
-    val nickname = MutableLiveData(savedStateHandle.get<String>("nickname"))
-    val email = MutableLiveData(savedStateHandle.get<String>("email"))
-    val bio = MutableLiveData(savedStateHandle.get<String>("bio"))
+    private val initialUserDetail = savedStateHandle.get<UserDetail>("user")!!
+    val avatarUrl = MutableLiveData(initialUserDetail.avatar)
+    val nickname = MutableLiveData(initialUserDetail.nickname)
+    val email = MutableLiveData(initialUserDetail.email)
+    val bio = MutableLiveData(initialUserDetail.bio)
 
     val error = MutableLiveData<String?>(null)
 
@@ -39,9 +43,9 @@ class ProfileEditViewModel @Inject constructor(
 
     val canSubmit = generateMediatorLiveData(nickname, email, bio, isBusy) {
         nickname.value!!.isNotEmpty()
-            && email.value!! matches EMAIL_REGEX
-            && bio.value!!.length <= BIO_MAX_LENGTH
-            && isBusy.value == false
+                && email.value!! matches EMAIL_REGEX
+                && bio.value!!.length <= BIO_MAX_LENGTH
+                && isBusy.value == false
     }
 
     fun onSubmit(@Suppress("UNUSED_PARAMETER") view: View) {
@@ -61,7 +65,8 @@ class ProfileEditViewModel @Inject constructor(
                         navAction.postValue(NavAction.BACK)
                     }
                     is NetworkResponse.Reject,
-                    is NetworkResponse.NetworkError -> {
+                    is NetworkResponse.NetworkError,
+                    -> {
                         error.postValue(response.message)
                     }
                 }

@@ -51,9 +51,16 @@ class ChatViewModel @Inject constructor(
 
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
     val chatMessageList = MutableLiveData<List<Message>>(listOf())
-    val isAtBottom = MutableLiveData(true)
-    val unreadBubbleVisible = generateMediatorLiveData(unreadCount, isAtBottom) {
-        return@generateMediatorLiveData (unreadCount.value ?: 0L > 0L && isAtBottom.value == false)
+    val isAtBottom = MutableStateFlow(true)
+    val fabVisible = isAtBottom.mapLatest {
+        if (!it) {
+            // delays being visible
+            delay(200)
+        }
+        it
+    }.asInitializedLiveData(coroutineContext, true)
+    val unreadBubbleVisible = generateMediatorLiveData(unreadCount, fabVisible) {
+        return@generateMediatorLiveData(unreadCount.value ?: 0L > 0L && fabVisible.value == false)
     }
     private val users = HashMap<UserId, LiveData<CommonListItemData>>()
     private val pendingMessages = ArrayList<Pair<Message, LiveData<MessageUploadProgress>>>()

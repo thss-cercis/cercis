@@ -15,14 +15,8 @@
         android:name="cn.cercis.ui.profile.ProfileEditFragment"
         android:label="ProfileEditFragment">
         <argument
-            android:name="nickname"
-            app:argType="string" />
-        <argument
-            android:name="email"
-            app:argType="string" />
-        <argument
-            android:name="bio"
-            app:argType="string" />
+            android:name="user"
+            app:argType="cn.cercis.entity.UserDetail" />
     </fragment>
     <action
         android:id="@+id/action_global_profileEditFragment"

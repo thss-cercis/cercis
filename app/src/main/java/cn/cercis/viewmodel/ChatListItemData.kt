@@ -5,8 +5,8 @@ import cn.cercis.common.ChatId
 class ChatListItemData(
     val chatId: ChatId,
     val avatar: String,
-    val chatName: String,
-    val latestMessage: String,
+    val chatName: CharSequence,
+    val latestMessage: CharSequence,
     val lastUpdate: String,
     val unreadCount: Long,
 )

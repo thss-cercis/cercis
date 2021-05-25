@@ -29,7 +29,6 @@ class ContactListViewModel @Inject constructor(
 ) : ViewModel() {
     data class FriendEntryWithUpdateMark(
         val friendUserId: UserId,
-        val remarks: String,
         val alias: String,
         val updateMark: Int,
     )
@@ -42,7 +41,6 @@ class ContactListViewModel @Inject constructor(
         val avatar: String,
         val bio: String,
         // friend entry
-        val remarks: String,
         val alias: String,
     ) {
         constructor(user: User, friendEntry: FriendEntryWithUpdateMark) : this(
@@ -51,7 +49,6 @@ class ContactListViewModel @Inject constructor(
             mobile = user.mobile,
             avatar = user.avatar,
             bio = user.bio,
-            remarks = friendEntry.remarks,
             alias = friendEntry.alias,
         )
 
@@ -91,7 +88,6 @@ class ContactListViewModel @Inject constructor(
                 FriendEntryWithUpdateMark(
                     friendUserId = friendEntry.friendUserId,
                     alias = friendEntry.displayName,
-                    remarks = friendEntry.remark,
                     updateMark = updateMark,
                 )
             } ?: listOf()

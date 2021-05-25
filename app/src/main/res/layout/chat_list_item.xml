@@ -6,9 +6,13 @@
 
         <import type="cn.cercis.viewmodel.ChatListItemData" />
 
+        <import type="androidx.lifecycle.LiveData" />
+
+        <import type="android.view.View" />
+
         <variable
-            name="viewModel"
-            type="ChatListItemData" />
+            name="data"
+            type="LiveData&lt;ChatListItemData>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,6 +27,7 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"
+            avatarUrl="@{data.avatar}"
             android:layout_width="@dimen/default_avatar_size"
             android:layout_height="@dimen/default_avatar_size"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +42,7 @@
             android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{viewModel.chatName}"
+            android:text="@{data.chatName}"
             app:layout_constraintBottom_toTopOf="@+id/textView"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
             app:layout_constraintStart_toEndOf="@id/avatar"
@@ -52,7 +57,7 @@
             android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{viewModel.latestMessage}"
+            android:text="@{data.latestMessage}"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/unread_view"
@@ -64,7 +69,7 @@
             style="@style/TextAppearance.Cercis.Messages.Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.lastUpdate}"
+            android:text="@{data.lastUpdate}"
             app:layout_constraintBottom_toTopOf="@+id/unread_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -79,9 +84,9 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:paddingHorizontal="8dp"
-            android:text="@{String.valueOf(viewModel.unreadCount)}"
+            android:text="@{String.valueOf(data.unreadCount)}"
             android:textColor="?attr/colorOnPrimary"
-            android:visibility='@{viewModel.unreadCount > 0 ? 0 : 1}'
+            android:visibility='@{data.unreadCount > 0 ? View.VISIBLE : View.INVISIBLE, default=invisible}'
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/time_view" />

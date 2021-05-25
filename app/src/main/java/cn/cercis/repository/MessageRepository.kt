@@ -78,6 +78,8 @@ class MessageRepository @Inject constructor(
                 type = MessageType.DELETED.type,
                 message = "",
                 senderId = it.senderId,
+                createdAt = it.createdAt,
+                updatedAt = it.updatedAt,
             )
         }
         messageDao.insertIgnoreAndInsertReplace(
@@ -460,6 +462,16 @@ class MessageRepository @Inject constructor(
                     insertMessagesAndPerformWithdraw(data)
                 }
             }
+    }
+
+    suspend fun createGroup(groupMemberList: List<UserId>): NetworkResponse<Chat> {
+        return httpService.createGroupChat(CreateGroupChatRequest(
+            memberIds = groupMemberList
+        )).apply {
+            if (this is Success) {
+                chatDao.insertChat(this.data)
+            }
+        }
     }
 
     /**

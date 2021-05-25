@@ -4,10 +4,14 @@ import cn.cercis.common.ApplyId
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
 import cn.cercis.dao.FriendDao
+import cn.cercis.dao.UserDao
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.FriendRequest
+import cn.cercis.entity.FriendUser
+import cn.cercis.entity.User
 import cn.cercis.http.*
 import cn.cercis.util.resource.DataSource
+import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,12 +26,13 @@ class FriendRepository @Inject constructor(
     private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
     private val friendDao: FriendDao,
+    private val userDao: UserDao,
 ) {
     fun getFriendList() = object : DataSource<List<FriendEntry>>() {
         override suspend fun fetch(): NetworkResponse<List<FriendEntry>> {
             return httpService.getFriendList().use { friends }.convert {
                 it.mapRun {
-                    FriendEntry(friendUserId = id, remark = "", displayName = displayName)
+                    FriendEntry(friendUserId = id, displayName = displayName)
                 }
             }
         }
@@ -38,6 +43,25 @@ class FriendRepository @Inject constructor(
 
         override fun loadFromDb(): Flow<List<FriendEntry>?> {
             return friendDao.loadFriendList()
+        }
+    }
+
+    fun getFriendUserList() = object: DataSourceBase<List<FriendUser>, List<Pair<FriendEntry, User?>>>() {
+        override suspend fun fetch(): NetworkResponse<List<Pair<FriendEntry, User?>>> {
+            return httpService.getFriendList().use { friends }.convert {
+                it.mapRun {
+                    Pair(FriendEntry(friendUserId = id, displayName = displayName), null)
+                }
+            }
+        }
+
+        override suspend fun saveToDb(data: List<Pair<FriendEntry, User?>>) {
+            friendDao.replaceFriendList(data.map { it.first })
+            userDao.saveUserList(data.mapNotNull { it.second })
+        }
+
+        override fun loadFromDb(): Flow<List<FriendUser>> {
+            return friendDao.loadFriendDisplayList()
         }
     }
 

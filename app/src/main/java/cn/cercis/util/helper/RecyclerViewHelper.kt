@@ -15,7 +15,7 @@ class DataBindingViewHolder<T : ViewBinding>(val binding: T) :
     RecyclerView.ViewHolder(binding.root)
 
 abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
-    private val itemCallback: DiffUtil.ItemCallback<T>
+    private val itemCallback: DiffUtil.ItemCallback<T>,
 ) : RecyclerView.Adapter<VH>() {
     /**
      * Constructor using equals to judge if contents are the same.
@@ -61,13 +61,13 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
     companion object {
         abstract class BindingAdapter<T, B : ViewDataBinding>(
             itemSameCallback: (T, T) -> Boolean,
-            contentsSameCallback: (T, T) -> Boolean
+            contentsSameCallback: (T, T) -> Boolean,
         ) : DiffRecyclerViewAdapter<T, DataBindingViewHolder<B>>(
             itemSameCallback,
             contentsSameCallback
         )
 
-        fun <T, B : ViewDataBinding, C: Comparable<C>> getInstance(
+        fun <T, B : ViewDataBinding, C : Comparable<C>> getInstance(
             dataSource: LiveData<List<T>>,
             viewLifecycleOwnerSupplier: () -> LifecycleOwner,
             itemIndex: T.() -> C,
@@ -75,7 +75,7 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
             inflater: (inflater: LayoutInflater, parent: ViewGroup, viewType: Int) -> B,
             onBindViewHolderWithExecution: BindingAdapter<T, B>.(
                 holder: DataBindingViewHolder<B>,
-                position: Int
+                position: Int,
             ) -> Unit,
             itemViewType: T.() -> Int = { 0 },
         ) = object : BindingAdapter<T, B>(
@@ -84,7 +84,7 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
         ) {
             override fun onCreateViewHolder(
                 parent: ViewGroup,
-                viewType: Int
+                viewType: Int,
             ): DataBindingViewHolder<B> {
                 // Do not set lifecycleOwner here or it will call executeBinding with null
                 return DataBindingViewHolder(
@@ -94,7 +94,7 @@ abstract class DiffRecyclerViewAdapter<T, VH : RecyclerView.ViewHolder>(
 
             override fun onBindViewHolder(
                 holder: DataBindingViewHolder<B>,
-                position: Int
+                position: Int,
             ) {
                 onBindViewHolderWithExecution(holder, position)
                 holder.binding.run {
