@@ -17,10 +17,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.*
+import cn.cercis.entity.ChatType
 import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.util.helper.setCloseImeOnLoseFocus
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
@@ -286,7 +288,8 @@ class ChatFragment : Fragment() {
             setOnMenuItemClickListener {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.chat_unsent_messages)
-                    .setMessage(getString(R.string.chat_unsent_messages_ask_retry).format(value))
+                    .setMessage(getString(R.string.chat_unsent_messages_ask_retry).format(
+                        value))
                     .setPositiveButton(getString(R.string.chat_unsent_messages_retry_all)) { _, _ ->
                         chatViewModel.retryAllPendingMessages()
                     }
@@ -297,6 +300,25 @@ class ChatFragment : Fragment() {
                     .show()
                 true
             }
+        }
+        binding.topAppBar.menu.findItem(R.id.action_chat_info).setOnMenuItemClickListener {
+            if (chatViewModel.chatInitData.type == ChatType.CHAT_GROUP) {
+                findNavController().navigate(
+                    GroupInfoFragmentDirections.actionGlobalGroupInfoFragment(
+                        chatViewModel.chatInitData
+                    )
+                )
+            } else {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val otherUser = chatViewModel.getOtherUser()
+                    otherUser.data?.let {
+                        launch(Dispatchers.Main) {
+                            requireMainActivity().openUserInfo(it)
+                        }
+                    }
+                }
+            }
+            true
         }
         return binding.root
     }

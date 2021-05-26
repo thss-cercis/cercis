@@ -81,7 +81,8 @@ interface MessageDao {
     @Query("SELECT * FROM message NATURAL JOIN (SELECT chatId, MAX(messageId) AS messageId FROM message GROUP BY chatId)")
     fun loadAllChatLatestMessages(): Flow<List<Message>>
 
-    @Query("""SELECT 
+    @Query("""
+        SELECT 
             chat.id AS chatId, 
             chat.type AS chatType,
             chat.name AS name,
@@ -113,7 +114,7 @@ interface ChatDao {
     fun deleteChat(vararg chats: Chat)
 
     @Query("SELECT * FROM chat WHERE id = :chatId")
-    fun getChat(chatId: ChatId): Flow<Chat?>
+    fun loadChat(chatId: ChatId): Flow<Chat?>
 
     @Query("SELECT * FROM chat")
     fun loadAllChats(): Flow<List<Chat>>

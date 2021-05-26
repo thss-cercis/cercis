@@ -20,16 +20,18 @@
     <string name="contact_list_tab_friends">好友</string>
     <string name="contact_list_tab_groups">群聊</string>
     <string name="contact_list_title">联系人</string>
+    <string name="create_chat_failed_message">创建群聊失败: %s</string>
     <string name="create_group_button">创建 (%d)</string>
+    <string name="create_group_dialog_cancel">取消</string>
+    <string name="create_group_dialog_ok">确定</string>
     <string name="create_group_retry">重试</string>
     <string name="create_group_title">创建群聊</string>
-    <string name="create_group_dialog_ok">确定</string>
-    <string name="create_group_dialog_cancel">取消</string>
     <string name="dialog_friend_request_cancel">取消</string>
     <string name="dialog_friend_request_retry">重试</string>
     <string name="dialog_friend_request_send">发送申请</string>
     <string name="dialog_friend_request_sent">申请已发送</string>
     <string name="dialog_friend_request_title">添加 %s 为好友</string>
+    <string name="empty" />
     <string name="error_authorization">未登录</string>
     <string name="error_network_exception">无法连接到 Cercis 服务器</string>
     <string name="error_server_error">服务器通信异常</string>
@@ -39,7 +41,13 @@
     <string name="friend_request_accept_success">已添加</string>
     <string name="friend_request_finished">已确认</string>
     <string name="friend_request_pending">待确认</string>
+    <string name="group_info_member_count">%d 位成员</string>
+    <string name="group_info_toolbar_title">群聊信息</string>
+    <string name="group_member_admin">管理员</string>
+    <string name="group_member_member">群员</string>
+    <string name="group_member_owner">群主</string>
     <string name="hint_bio">个性签名</string>
+    <string name="hint_create_group_name">群聊名称</string>
     <string name="hint_email">邮箱</string>
     <string name="hint_friend_request_display_name">好友备注(可选)</string>
     <string name="hint_friend_request_remark">验证消息(可选)</string>
@@ -99,6 +107,7 @@
     <string name="user_info_add_friend">加好友</string>
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_send_messages">发消息</string>
-    <string name="create_chat_failed_message">创建群聊失败: %s</string>
-    <string name="hint_create_group_name">群聊名称</string>
+    <string name="group_info_add_member">添加成员</string>
+    <string name="group_info_remove_member">删除成员</string>
+    <string name="select_user_default_title">选择用户</string>
 </resources>

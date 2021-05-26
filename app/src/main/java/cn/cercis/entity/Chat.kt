@@ -88,8 +88,14 @@ object ChatType {
     const val CHAT_GROUP: Int = 1
 }
 
-object GroupChatPermission {
-    const val GROUP_MEMBER: Int = 0
-    const val GROUP_MANAGER: Int = 1
-    const val GROUP_OWNER: Int = 2
+enum class GroupChatPermission(val value: Int) {
+    GROUP_MEMBER(0),
+    GROUP_ADMIN(1),
+    GROUP_OWNER(2);
+
+    companion object {
+        fun Int.toGroupChatPermission(): GroupChatPermission {
+            return values().firstOrNull {it.value == this} ?: GROUP_MEMBER
+        }
+    }
 }

@@ -74,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:text="@{viewModel.userInfo.bio}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                 app:layout_constraintTop_toBottomOf="@id/user_info_profile_barrier"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sollicitudin libero a tortor vehicula, eget facilisis elit pellentesque. Pellentesque auctor tortor mauris, vitae accumsan turpis placerat aliquam. Nunc eget orci vitae erat ullamcorper posuere pulvinar eget mi. Phasellus in mauris finibus, convallis orci vitae, imperdiet eros. Donec eu augue auctor mauris imperdiet feugiat sit amet et erat. Nunc a ex tincidunt, egestas neque ut, facilisis sapien. Donec sagittis volutpat dignissim. Etiam auctor mi ut dolor eleifend, quis suscipit ligula vestibulum. Donec in leo arcu. Proin ut sapien at justo volutpat egestas non in orci. Maecenas et convallis elit. Donec in malesuada lorem. Ut et lacinia mi, in malesuada neque." />

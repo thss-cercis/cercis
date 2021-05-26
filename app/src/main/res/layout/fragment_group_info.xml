@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="cn.cercis.viewmodel.GroupInfoViewModel" />
+
+        <variable
+            name="viewModel"
+            type="GroupInfoViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/fragmentBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/group_info_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            app:layout_collapseMode="pin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/ic_arrow_back_24" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/group_info_top_constraint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/group_info_avatar"
+            avatarUrl="@{viewModel.chat.avatar}"
+            android:layout_width="@dimen/profile_avatar_size"
+            android:layout_height="@dimen/profile_avatar_size"
+            android:elevation="3dp"
+            app:layout_constraintBottom_toTopOf="@id/group_info_collapse_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/group_info_top_constraint"
+            app:shapeAppearanceOverlay="@style/roundedCorner" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/group_info_collapse_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="@{viewModel.chat.name}"
+            android:textAppearance="@style/TextAppearance.Cercis.GroupInfo.Name"
+            app:layout_constraintBottom_toTopOf="@id/group_info_collapse_member_count"
+            app:layout_constraintTop_toBottomOf="@id/group_info_avatar"
+            tools:text="Cercis" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/group_info_collapse_member_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text='@{String.format(@string/group_info_member_count, viewModel.groupMemberCount), default=@string/empty}'
+            android:textAppearance="@style/TextAppearance.Cercis.GroupInfo.Count"
+            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_name"
+            tools:text="3 位成员" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/group_info_bottom_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:barrierMargin="10dp"
+            app:constraint_referenced_ids="group_info_collapse_member_count, group_info_add_members, group_info_remove_members" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/group_info_add_members"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_info_add_member"
+            app:icon="@drawable/ic_add_member_24"
+            app:iconGravity="top"
+            app:layout_constraintEnd_toStartOf="@id/group_info_remove_members"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_member_count" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/group_info_remove_members"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_info_remove_member"
+            android:theme="@style/ErrorThemeOverlay"
+            app:icon="@drawable/ic_remove_member_24"
+            app:iconGravity="top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/group_info_add_members"
+            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_member_count" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/group_info_member_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_info_bottom_barrier"
+            tools:itemCount="3"
+            tools:listitem="@layout/group_info_member_list_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

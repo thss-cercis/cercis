@@ -40,6 +40,12 @@ interface UserDao {
 
     @Query("SELECT * FROM userDetail")
     fun loadUserDetail(): Flow<UserDetail?>
+
+    @Query("SELECT * FROM user WHERE id IN (:userIds)")
+    fun loadUsers(userIds: List<UserId>): Flow<List<User>>
+
+    @Query("SELECT * FROM user WHERE id IN (:userIds)")
+    suspend fun loadUsersOnce(userIds: List<UserId>): List<User>
 }
 
 @Dao

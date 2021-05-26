@@ -110,7 +110,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="?attr/colorSurfaceDark"
-            app:layout_constraintBottom_toTopOf="@id/chat_action_button_barrier"
+            app:layout_constraintBottom_toTopOf="@id/chat_bottom_placeholder"
             app:layout_constraintTop_toBottomOf="@id/chat_text_box_barrier" />
 
         <androidx.appcompat.widget.AppCompatEditText

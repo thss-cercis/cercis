@@ -63,5 +63,14 @@
         android:id="@+id/action_global_createGroupFragment"
         app:destination="@id/createGroupFragment"
         app:popUpTo="@id/emptyFragment" />
+    <fragment
+        android:id="@+id/groupInfoFragment"
+        android:name="cn.cercis.ui.chat.GroupInfoFragment"
+        android:label="GroupInfoFragment" >
+        <argument
+            android:name="chat"
+            app:argType="cn.cercis.entity.Chat" />
+    </fragment>
+    <action android:id="@+id/action_global_groupInfoFragment" app:destination="@id/groupInfoFragment" />
 
 </navigation>

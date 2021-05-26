@@ -28,7 +28,7 @@ import kotlin.math.max
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    authRepository: AuthRepository,
+    private val authRepository: AuthRepository,
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
     private val globalConfigRepository: GlobalConfigRepository,
@@ -48,6 +48,10 @@ class ChatViewModel @Inject constructor(
         res.data?.map { userRepository.getUser(it.userId).dbFlow().asLiveData(coroutineContext) }
     }
     private val chatMessages = messageRepository.createMessageDataSource(chatId, MESSAGE_PAGE_SIZE)
+
+    suspend fun getOtherUser() : Resource<UserId> {
+        return messageRepository.getOtherUserId(authRepository.currentUserId, chatId).first()
+    }
 
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
     val chatMessageList = MutableLiveData<List<Message>>(listOf())
@@ -95,10 +99,7 @@ class ChatViewModel @Inject constructor(
         .asInitializedLiveData(coroutineContext,
             chatInitDisplay ?: savedStateHandle.get<Chat>("chat")!!.let {
                 CommonListItemData(it.avatar, it.name, "")
-            }).map {
-            Log.d(LOG_TAG, "read: $it")
-            it
-        }
+            })
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

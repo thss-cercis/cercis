@@ -6,8 +6,10 @@ import androidx.paging.PagingState
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.SEARCH_PAGE_SIZE
 import cn.cercis.common.UserId
+import cn.cercis.common.mapRun
 import cn.cercis.dao.FriendDao
 import cn.cercis.dao.UserDao
+import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.User
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.WrappedSearchUserPayload.UserSearchResult
@@ -15,12 +17,8 @@ import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.viewmodel.CommonListItemData
 import dagger.hilt.android.scopes.ActivityRetainedScoped
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @FlowPreview
@@ -51,6 +49,74 @@ class UserRepository @Inject constructor(
 
         override fun loadFromDb(): Flow<User?> {
             return userDao.loadUser(userId)
+        }
+    }
+
+    private suspend fun getUsersAndSave(
+        userIds: List<UserId>,
+        loadOnlyMissingUsers: Boolean = true,
+    ) {
+        if (loadOnlyMissingUsers) {
+            userDao.loadUsersOnce(userIds).let {
+                val set = HashSet(it.mapRun { id })
+                getUsersAndSave(userIds.filterNot { userId -> userId in set })
+            }
+        } else {
+            for (userId in userIds) {
+                getUser(userId).fetchAndSave()
+            }
+        }
+    }
+
+    /**
+     * Combines list with users.
+     */
+    fun <T> CoroutineScope.withUsers(
+        input: Flow<List<T>>,
+        toUserId: T.() -> UserId,
+        loadOnlyMissingUsers: Boolean = true,
+    ): Flow<List<Pair<T, User?>>> {
+        return input.flatMapLatest { inputList ->
+            val userIdList = inputList.map(toUserId)
+            launch(Dispatchers.IO) { getUsersAndSave(userIdList, loadOnlyMissingUsers) }
+            userDao.loadUsers(userIdList).map { userList ->
+                val userSet = HashMap<UserId, User>().apply { userList.forEach { put(it.id, it) } }
+                inputList.mapRun {
+                    toUserId().let {
+                        this to userSet[it]
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Combines list with friend entry.
+     *
+     * @param loadOnlyMissingUsers if true, only uncached users are downloaded
+     */
+    fun <T> CoroutineScope.withFriends(
+        input: Flow<List<T>>,
+        toUserId: T.() -> UserId,
+        loadOnlyMissingUsers: Boolean = true,
+    ): Flow<List<Triple<T, User?, FriendEntry?>>> {
+        return input.flatMapLatest { inputList ->
+            val userIdList = inputList.map(toUserId)
+            launch(Dispatchers.IO) { getUsersAndSave(userIdList, loadOnlyMissingUsers) }
+            userDao.loadUsers(userIdList)
+                .combine(friendDao.loadFriendList()) { userList, friendList ->
+                    val userSet = HashMap<UserId, User>().apply {
+                        userList.forEach { put(it.id, it) }
+                    }
+                    val friendSet = HashMap<UserId, FriendEntry>().apply {
+                        friendList.forEach { put(it.friendUserId, it) }
+                    }
+                    inputList.mapRun {
+                        toUserId().let {
+                            Triple(this, userSet[it], friendSet[it])
+                        }
+                    }
+                }
         }
     }
 

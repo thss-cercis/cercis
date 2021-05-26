@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
+import cn.cercis.databinding.CompactUserListItemCheckableBinding
 import cn.cercis.databinding.FragmentCreateGroupBinding
-import cn.cercis.databinding.SelectFriendListItemBinding
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.util.resource.NetworkResponse
@@ -45,13 +45,14 @@ class CreateGroupFragment : Fragment() {
             itemIndex = { first.friendUserId },
             contentsSameCallback = Objects::equals,
             inflater = { itemInflater, parent, _ ->
-                SelectFriendListItemBinding.inflate(itemInflater, parent, false)
+                CompactUserListItemCheckableBinding.inflate(itemInflater, parent, false)
             },
             onBindViewHolderWithExecution = { holder, position ->
                 val (friend, friendSelected) = currentList[position]
                 holder.binding.apply {
                     data = friend.toCommonListItemData()
                     selected = friendSelected
+                    checkable = true
                     root.setOnClickListener {
                         createGroupViewModel.toggleUserSelected(friend.friendUserId)
                     }

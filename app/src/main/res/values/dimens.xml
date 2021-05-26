@@ -7,6 +7,10 @@
     <dimen name="profile_avatar_size">80dp</dimen>
     <dimen name="profile_card_height">128dp</dimen>
 
+    <dimen name="group_info_header_height">180dp</dimen>
+
+    <dimen name="select_user_avatar_size">48dp</dimen>
+
     <dimen name="chat_avatar_size">48dp</dimen>
     <dimen name="chat_bubble_margin">56dp</dimen>
     <dimen name="chat_bubble_min_width">32dp</dimen>

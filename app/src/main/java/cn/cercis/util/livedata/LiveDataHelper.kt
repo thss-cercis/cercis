@@ -1,10 +1,7 @@
 package cn.cercis.util.livedata
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import cn.cercis.util.resource.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlin.coroutines.CoroutineContext
@@ -29,7 +26,7 @@ fun <T> LiveData<Resource<T>>.unwrapResource(): LiveData<T> {
 
 fun <T> MediatorLiveData<T>.addMultipleSource(
     vararg sources: LiveData<*>,
-    onChanged: () -> Unit
+    onChanged: () -> Unit,
 ) {
     sources.forEach {
         addSource(it) { onChanged() }
@@ -38,7 +35,7 @@ fun <T> MediatorLiveData<T>.addMultipleSource(
 
 fun <T> generateMediatorLiveData(
     vararg sources: LiveData<*>,
-    updateValue: () -> T
+    updateValue: () -> T,
 ) = MediatorLiveData<T>().apply {
     addMultipleSource(*sources) {
         value = updateValue()
@@ -58,4 +55,28 @@ fun <T> Flow<T>.asInitializedLiveData(
     return this.asLiveData(coroutineContext).apply {
         (this as MutableLiveData).value = initialValue
     }
+}
+
+fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<in T>) {
+    this.observe(lifecycleOwner, object : Observer<T> {
+        override fun onChanged(t: T) {
+            removeObserver(this)
+            observer.onChanged(t)
+        }
+    })
+}
+
+fun <T> LiveData<T>.waitUtilOnce(
+    lifecycleOwner: LifecycleOwner,
+    until: (T) -> Boolean,
+    observer: Observer<in T>,
+) {
+    this.observe(lifecycleOwner, object : Observer<T> {
+        override fun onChanged(t: T) {
+            if (until(t)) {
+                removeObserver(this)
+                observer.onChanged(t)
+            }
+        }
+    })
 }

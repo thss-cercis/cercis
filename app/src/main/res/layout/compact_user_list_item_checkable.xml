@@ -5,14 +5,16 @@
 
     <data>
 
-        <import type="androidx.lifecycle.LiveData" />
-
         <variable
             name="data"
             type="cn.cercis.viewmodel.CommonListItemData" />
 
         <variable
             name="selected"
+            type="boolean" />
+
+        <variable
+            name="checkable"
             type="boolean" />
     </data>
 
@@ -22,18 +24,36 @@
         android:background="@drawable/selectable_item_background"
         android:clickable="true"
         android:focusable="true"
-        android:selectable="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="8dp">
+        android:paddingVertical="8dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="10dp"
+        android:selectable="true">
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/select_user_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@{selected}"
+            android:clickable="false"
+            android:enabled="@{checkable}"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:checked="true"
+            tools:enabled="false"
+            tools:text="" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"
             avatarUrl="@{data.avatar}"
             android:layout_width="@dimen/default_avatar_size"
             android:layout_height="@dimen/default_avatar_size"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="6dp"
+            app:layout_constraintStart_toEndOf="@id/select_user_checkbox"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/roundedCorner"
             tools:src="@drawable/ic_default_avatar" />
@@ -45,6 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
+            android:enabled="@{checkable}"
             android:maxLines="1"
             android:text="@{data.displayName}"
             android:textSize="17sp"
@@ -53,6 +74,7 @@
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread"
+            tools:enabled="false"
             tools:text="Example displayName" />
 
         <TextView
@@ -62,6 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
+            android:enabled="@{checkable}"
             android:maxLines="1"
             android:text="@{data.description}"
             android:textSize="15sp"
@@ -69,6 +92,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toBottomOf="@id/text_display_name"
+            tools:enabled="false"
             tools:text="Example bio" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

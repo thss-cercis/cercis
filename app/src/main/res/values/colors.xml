@@ -40,7 +40,9 @@
     <color name="image_placeholder">#CCC</color>
 
     <color name="error">#B00020</color>
+    <color name="error_night">#FB6C87</color>
     <color name="on_error">#FFFFFF</color>
+    <color name="on_error_night">#000000</color>
     <color name="in_bubble">#CFDFEF</color>
     <color name="on_in_bubble">#000000</color>
     <color name="out_bubble">#7CDEDC</color>

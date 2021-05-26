@@ -62,6 +62,8 @@ class MessageRepository @Inject constructor(
         }
     }
 
+    fun getChat(chatId: ChatId): Flow<Chat?> = chatDao.loadChat(chatId)
+
     fun getAllChatsWithLatestMessageOrderedByUpdate() =
         object : DataSourceBase<List<ChatWithLatestMessage>, List<Chat>>() {
             override suspend fun fetch(): NetworkResponse<List<Chat>> {
@@ -437,11 +439,12 @@ class MessageRepository @Inject constructor(
      * Gets another user's id in a private chat.
      */
     fun getOtherUserId(selfUserId: UserId, chatId: ChatId): Flow<Resource<UserId>> =
-        getChatMemberList(chatId, false).flow().map { member ->
-            member.data?.firstOrNull { it.userId != selfUserId }?.userId?.let {
-                Resource.Success(it)
-            } ?: Resource.Error(0, "Unknown error", null)
-        }
+        getChatMemberList(chatId, false).flow().map { it.data }
+            .filterNotNull().filter { it.isNotEmpty() }.map { member ->
+                member.firstOrNull { it.userId != selfUserId }?.userId?.let {
+                    Resource.Success(it)
+                } ?: Resource.Error(0, "Unknown error", null)
+            }
 
     /**
      * Gets a full chat list.
@@ -496,7 +499,7 @@ class MessageRepository @Inject constructor(
      *
      * * NOTE: this method will not trigger chat list loading.
      */
-    fun getParticipatedChat(chatId: ChatId) = chatDao.getChat(chatId)
+    fun getParticipatedChat(chatId: ChatId) = chatDao.loadChat(chatId)
 
     /**
      * Gets the display info for a chat.

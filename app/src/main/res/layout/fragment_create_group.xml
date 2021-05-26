@@ -41,7 +41,7 @@
             app:layout_constraintBottom_toTopOf="@id/create_group_button_background"
             app:layout_constraintTop_toBottomOf="@id/create_group_toolbar"
             tools:itemCount="5"
-            tools:listitem="@layout/select_friend_list_item" />
+            tools:listitem="@layout/group_info_member_list_item" />
 
         <View
             android:id="@+id/create_group_button_background"
