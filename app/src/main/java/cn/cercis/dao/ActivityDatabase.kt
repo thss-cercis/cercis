@@ -42,9 +42,11 @@ interface ActivityDao {
         saveActivity(*activities.toTypedArray())
     }
 
+    @Transaction
     @Query("SELECT * FROM activity WHERE id = :activityId")
     fun loadEntireActivity(activityId: ActivityId): Flow<EntireActivity>
 
+    @Transaction
     @Query("SELECT * FROM activity")
     fun loadEntireActivityList(): Flow<List<EntireActivity>>
 
@@ -69,7 +71,11 @@ interface ActivityDao {
     fun loadCommentList(activityId: ActivityId): Flow<List<Comment>>
 
     @Transaction
-    fun saveEntireActivityList(activities: List<Activity>, media: List<Medium>, comments: List<Comment>) {
+    fun saveEntireActivityList(
+        activities: List<Activity>,
+        media: List<Medium>,
+        comments: List<Comment>,
+    ) {
         saveActivityList(activities)
         saveMediumList(media)
         saveCommentList(comments)

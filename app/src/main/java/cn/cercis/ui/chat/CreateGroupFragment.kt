@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.databinding.FragmentCreateGroupBinding
 import cn.cercis.databinding.SelectFriendListItemBinding
@@ -54,7 +55,10 @@ class CreateGroupFragment : Fragment() {
             },
             itemViewType = { 0 },
         )
-        createGroupViewModel.networkResponse.observe(viewLifecycleOwner) {
+        binding.createGroupToolbar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
+        createGroupViewModel.createGroupChatResponse.observe(viewLifecycleOwner) {
             it?.let {
                 when (it) {
                     is NetworkResponse.NetworkError, is NetworkResponse.Reject ->
@@ -71,7 +75,7 @@ class CreateGroupFragment : Fragment() {
                         requireMainActivity().openChat(it.data)
                     }
                 }
-                createGroupViewModel.networkResponse.value = null
+                createGroupViewModel.createGroupChatResponse.value = null
             }
         }
         return binding.root

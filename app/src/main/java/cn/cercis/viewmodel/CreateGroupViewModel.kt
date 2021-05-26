@@ -53,7 +53,7 @@ class CreateGroupViewModel @Inject constructor(
     val buttonClickable = generateMediatorLiveData(busyLoading, selectedUserCount) {
         busyLoading.value == false && (selectedUserCount.value ?: 0) > 0
     }
-    val networkResponse = MutableLiveData<NetworkResponse<Chat>>(null)
+    val createGroupChatResponse = MutableLiveData<NetworkResponse<Chat>>(null)
 
     fun toggleUserSelected(userId: UserId) {
         selectedUsers.value!!.let {
@@ -83,7 +83,8 @@ class CreateGroupViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 selectedUserList.value?.let {
-                    networkResponse.postValue(chatRepository.createGroup(it.mapRun { friendUserId }))
+//                    createGroupChatResponse.postValue(chatRepository.createGroup(it.mapRun { friendUserId }))
+                    createGroupChatResponse.postValue(NetworkResponse.NetworkError("网络 error!"))
                 }
             } finally {
                 busyLoading.postValue(false)
