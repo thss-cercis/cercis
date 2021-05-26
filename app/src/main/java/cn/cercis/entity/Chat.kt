@@ -5,7 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
+import cn.cercis.common.Timestamp
 import cn.cercis.common.UserId
+import cn.cercis.util.helper.TimeString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
@@ -18,9 +20,53 @@ data class Chat(
     @Json(name = "type") val type: Int,
     @Json(name = "name") val name: String,
     @Json(name = "avatar") val avatar: String,
-    @Json(name = "created_at") val createdAt: String,
-    @Json(name = "updated_at") val updatedAt: String,
+    @Json(name = "created_at") @TimeString val createdAt: Timestamp,
+    @Json(name = "updated_at") @TimeString val updatedAt: Timestamp,
 ) : Parcelable
+
+@Entity
+@Parcelize
+data class ChatWithLatestMessage(
+    val chatId: Long,
+    val chatType: Int,
+    val name: String,
+    val avatar: String,
+    val chatCreatedAt: Timestamp,
+    val chatUpdatedAt: Timestamp,
+
+    val messageId: MessageId?,
+    val message: String?,
+    val messageType: Int?,
+    val senderId: Long?,
+    val messageCreatedAt: Timestamp?,
+    val messageUpdatedAt: Timestamp?,
+
+    // overall last update
+    val lastUpdate: Timestamp,
+) : Parcelable {
+    fun toChat() = Chat(
+        id = chatId,
+        type = chatType,
+        name = name,
+        avatar = avatar,
+        createdAt = chatCreatedAt,
+        updatedAt = chatUpdatedAt,
+    )
+
+    fun toMessage(): Message? {
+        return messageId?.let {
+            Message(
+                messageId = messageId,
+                chatId = chatId,
+                message = message!!,
+                type = messageType!!,
+                senderId = senderId!!,
+                createdAt = messageCreatedAt!!,
+                updatedAt = messageUpdatedAt!!
+            )
+        }
+    }
+}
 
 @Entity(primaryKeys = ["userId", "chatId"])
 @JsonClass(generateAdapter = true)

@@ -12,14 +12,15 @@ sealed class NetworkResponse<out T>(open val message: String?) {
     /**
      * Server responded with error message.
      */
-    data class Reject<out T>(val code: Int, override val message: String) : NetworkResponse<T>(message)
+    data class Reject<out T>(val code: Int, override val message: String) :
+        NetworkResponse<T>(message)
 
     /**
      * Failed to connect to server due to possible network issues.
      */
     data class NetworkError<out T>(override val message: String) : NetworkResponse<T>(message)
 
-    fun <ToType> use(block: T.() -> ToType) : NetworkResponse<ToType> {
+    fun <ToType> use(block: T.() -> ToType): NetworkResponse<ToType> {
         return when (this) {
             is Success -> Success(data.block())
             is Reject -> Reject(code, message)
@@ -28,4 +29,10 @@ sealed class NetworkResponse<out T>(open val message: String?) {
     }
 
     fun <ToType> convert(transform: (T) -> ToType) = use(transform)
+
+    fun runOnSuccess(block: T.() -> Unit) {
+        if (this is Success) {
+            data.block()
+        }
+    }
 }

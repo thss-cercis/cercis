@@ -58,7 +58,6 @@
             android:clickable="@{viewModel.buttonClickable, default=false}"
             android:enabled="@{viewModel.buttonClickable, default=false}"
             android:focusable="@{viewModel.buttonClickable, default=false}"
-            android:onClick="@{(view) -> viewModel.createGroup()}"
             android:paddingVertical="8dp"
             android:text="@{String.format(@string/create_group_button, viewModel.selectedUserCount)}"
             app:layout_constraintBottom_toBottomOf="@id/create_group_button_background"

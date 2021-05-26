@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,7 +17,9 @@ import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.snackbarMakeError
 import cn.cercis.viewmodel.CreateGroupViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -52,11 +56,41 @@ class CreateGroupFragment : Fragment() {
                         createGroupViewModel.toggleUserSelected(friend.friendUserId)
                     }
                 }
+                holder.binding.root.isSelected = friendSelected
             },
             itemViewType = { 0 },
         )
         binding.createGroupToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
+        }
+        binding.createGroupButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext()).apply {
+                setTitle(R.string.create_group_title)
+                setView(R.layout.dialog_create_group)
+                setPositiveButton(R.string.create_group_dialog_ok) { dialog, _ ->
+                    dialog as AlertDialog
+                    val chatName =
+                        dialog.findViewById<TextInputEditText>(R.id.dialog_create_group_name_edit_text)!!.text?.toString()
+                    if (!chatName.isNullOrEmpty()) {
+                        createGroupViewModel.createGroup(chatName)
+                    } else {
+                        // prevent from submitting empty request
+                        dialog.dismiss()
+                    }
+                }
+                setNegativeButton(R.string.create_group_dialog_cancel) { _, _ -> }
+            }.show().apply {
+                getButton(AlertDialog.BUTTON_POSITIVE).let {
+                    it.isEnabled = false
+                    findViewById<TextInputEditText>(R.id.dialog_create_group_name_edit_text)!!
+                        .addTextChangedListener { text ->
+                            when (text?.length) {
+                                null, 0 -> it.isEnabled = false
+                                else -> it.isEnabled = true
+                            }
+                        }
+                }
+            }
         }
         createGroupViewModel.createGroupChatResponse.observe(viewLifecycleOwner) {
             it?.let {
@@ -66,11 +100,7 @@ class CreateGroupFragment : Fragment() {
                             binding.root,
                             getString(R.string.create_chat_failed_message).format(it.message ?: ""),
                             Snackbar.LENGTH_SHORT
-                        ) {
-                            setAction(R.string.create_group_retry) {
-                                createGroupViewModel.createGroup()
-                            }
-                        }
+                        )
                     is NetworkResponse.Success -> {
                         requireMainActivity().openChat(it.data)
                     }

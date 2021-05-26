@@ -69,7 +69,7 @@ class UserInfoViewModel @Inject constructor(
 
     suspend fun deleteFriend(): EmptyNetworkResponse {
         return friendRepository.deleteFriend(userId).apply {
-            friendRepository.getFriendList().fetchAndSave()
+            friendRepository.getFriendListAndSave()
         }
     }
 

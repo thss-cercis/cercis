@@ -8,11 +8,10 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
-import cn.cercis.entity.Chat
+import cn.cercis.entity.ChatWithLatestMessage
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
-import cn.cercis.repository.UserRepository
 import cn.cercis.service.WSMessage
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.resource.Resource
@@ -22,7 +21,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.joda.time.DateTime
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -34,14 +32,14 @@ import kotlin.collections.HashMap
 class ChatListViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
     private val notificationRepository: NotificationRepository,
-    private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val hashMap = HashMap<ChatId, LiveData<ChatListItemData?>>()
     private val chatRefreshTime = MutableStateFlow(System.currentTimeMillis())
-    private val chatListFlow: Flow<Resource<List<Chat>>> = chatRefreshTime.flatMapLatest {
-        messageRepository.getAllChats().flow()
-    }
+    private val chatListFlow: Flow<Resource<List<ChatWithLatestMessage>>> =
+        chatRefreshTime.flatMapLatest {
+            messageRepository.getAllChatsWithLatestMessageOrderedByUpdate().flow()
+        }
     val chatListData = chatListFlow.map { it.data }.filterNotNull().asLiveData(coroutineContext)
 
     private fun generateTimeString(): String {
@@ -57,24 +55,22 @@ class ChatListViewModel @Inject constructor(
         refresh()
     }
 
-    fun getChatDisplay(chat: Chat): LiveData<ChatListItemData?> {
-        return hashMap.computeIfAbsent(chat.id) {
-            Log.d(LOG_TAG, "recreated live data (chat: ${chat.id})")
+    fun getChatDisplay(chat: ChatWithLatestMessage): LiveData<ChatListItemData?> {
+        return hashMap.computeIfAbsent(chat.chatId) {
+            Log.d(LOG_TAG, "recreated live data (chat: ${chat.chatId})")
             combine(
-                messageRepository.getChatDisplay(authRepository.currentUserId, chat),
-                messageRepository.unreadCount(chat.id),
-                messageRepository.getLatestMessage(chat.id)
-            ) { common, unread, msg ->
+                messageRepository.getChatDisplay(authRepository.currentUserId, chat.toChat()),
+                messageRepository.unreadCount(chat.chatId),
+            ) { common, unread ->
+                val msg = chat.toMessage()
                 common?.let {
                     ChatListItemData(
-                        chatId = chat.id,
+                        chatId = chat.chatId,
                         avatar = common.avatar,
                         chatName = common.displayName,
                         latestMessage = common.description,
-                        lastUpdate = msg?.let {
-                            DateUtils.getRelativeTimeSpanString(DateTime.parse(msg.updatedAt).millis)
-                                .toString()
-                        } ?: "",
+                        lastUpdate = DateUtils.getRelativeTimeSpanString(chat.lastUpdate)
+                            .toString(),
                         unreadCount = unread
                     )
                 }

@@ -12,6 +12,7 @@
         <item name="colorSurface">@color/surface_night</item>
         <item name="colorOnSurface">@color/on_surface_night</item>
         <item name="colorSurfaceDark">@color/surface_night_light</item>
+        <item name="colorSurfaceSelected">@color/surface_night_selected</item>
         <item name="colorDivider">@color/divider_night</item>
         <item name="colorIncomingBubble">@color/dark_bubble</item>
         <item name="colorOutgoingBubble">@color/dark_bubble</item>

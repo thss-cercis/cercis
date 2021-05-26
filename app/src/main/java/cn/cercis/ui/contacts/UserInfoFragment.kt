@@ -20,6 +20,7 @@ import cn.cercis.util.resource.Resource
 import cn.cercis.util.snackbarMakeError
 import cn.cercis.util.snackbarMakeSuccess
 import cn.cercis.viewmodel.UserInfoViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
@@ -76,7 +77,7 @@ class UserInfoFragment : Fragment() {
     }
 
     private fun sendFriendRequest() {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setView(R.layout.dialog_send_friend_request)
             .setTitle(getString(R.string.dialog_friend_request_title)
                 .format(userInfoViewModel.userInfo.value?.nickname ?: ""))

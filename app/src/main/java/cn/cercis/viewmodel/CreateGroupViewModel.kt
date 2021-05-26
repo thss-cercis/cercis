@@ -1,6 +1,9 @@
 package cn.cercis.viewmodel
 
+import android.app.AlertDialog
+import android.util.Log
 import androidx.lifecycle.*
+import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
 import cn.cercis.entity.Chat
@@ -13,11 +16,8 @@ import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -33,12 +33,8 @@ class CreateGroupViewModel @Inject constructor(
 ) : ViewModel() {
     private val refreshTime = MutableStateFlow(System.currentTimeMillis())
     private val listFlow: Flow<List<FriendUser>> = refreshTime.flatMapLatest {
-        friendRepository.getFriendUserList().flow().map { it.data }.filterNotNull().map { list ->
-            userLoaded.addAll(list.filter { it.nickname != null }.mapRun { friendUserId })
-            list
-        }
+        friendRepository.getFriendUserList()
     }
-    private val userLoaded = Collections.newSetFromMap(ConcurrentHashMap<UserId, Boolean>())
     private val selectedUsers = MutableLiveData<HashSet<UserId>>(HashSet())
     private val listLiveData = listFlow.asInitializedLiveData(coroutineContext, listOf())
     private val busyLoading = MutableLiveData<Boolean>(false)
@@ -65,26 +61,12 @@ class CreateGroupViewModel @Inject constructor(
         selectedUsers.postValue(selectedUsers.value)
     }
 
-    private fun loadUser(userId: UserId) {
-        if (!userLoaded.contains(userId)) {
-            // prevent double submit
-            userLoaded.add(userId)
-            viewModelScope.launch(Dispatchers.IO) {
-                if (userRepository.getUser(userId).fetchAndSave() !is NetworkResponse.Success) {
-                    // encourage reload
-                    userLoaded.remove(userId)
-                }
-            }
-        }
-    }
-
-    fun createGroup() {
+    fun createGroup(name: String) {
         busyLoading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 selectedUserList.value?.let {
-//                    createGroupChatResponse.postValue(chatRepository.createGroup(it.mapRun { friendUserId }))
-                    createGroupChatResponse.postValue(NetworkResponse.NetworkError("网络 error!"))
+                    createGroupChatResponse.postValue(chatRepository.createGroup(name, it.mapRun { friendUserId }))
                 }
             } finally {
                 busyLoading.postValue(false)

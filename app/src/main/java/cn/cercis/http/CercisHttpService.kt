@@ -1,5 +1,6 @@
 package cn.cercis.http
 
+import androidx.room.PrimaryKey
 import cn.cercis.common.*
 import cn.cercis.entity.*
 import cn.cercis.util.resource.NetworkResponse
@@ -277,6 +278,7 @@ data class EditGroupChatInfoRequest(
 
 @JsonClass(generateAdapter = true)
 data class CreateGroupChatRequest(
+    val name: String,
     @Json(name = "member_ids") val memberIds: List<UserId>?,
 )
 

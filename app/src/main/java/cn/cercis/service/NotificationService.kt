@@ -14,6 +14,7 @@ import cn.cercis.common.NOTIFICATION_CHANNEL_ID
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.NotificationRepository
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
+import com.squareup.moshi.Moshi
 import com.tinder.scarlet.Lifecycle
 import com.tinder.scarlet.Scarlet
 import com.tinder.scarlet.WebSocket
@@ -47,6 +48,9 @@ class NotificationService : LifecycleService() {
     @Inject
     lateinit var cookieJar: PersistentCookieJar
 
+    @Inject
+    lateinit var moshi: Moshi
+
     enum class ConnectionStatus {
         DISCONNECTED,
         CONNECTING,
@@ -55,7 +59,7 @@ class NotificationService : LifecycleService() {
     }
 
     inner class LoggedInLifecycle constructor(
-        lifecycleRegistry: LifecycleRegistry = LifecycleRegistry()
+        lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(),
     ) : Lifecycle by lifecycleRegistry {
         init {
             LiveDataReactiveStreams.toPublisher(
@@ -104,7 +108,7 @@ class NotificationService : LifecycleService() {
                     return Request.Builder().url("$WSS_BASE?session_id=${sessionId}").build()
                 }
             }))
-            .addMessageAdapterFactory(MoshiMessageAdapter.Factory())
+            .addMessageAdapterFactory(MoshiMessageAdapter.Factory(moshi))
             .addStreamAdapterFactory(CoroutinesStreamAdapterFactory())
             .backoffStrategy(backoffStrategy)
             .lifecycle(lifecycle)

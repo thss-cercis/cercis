@@ -14,6 +14,7 @@ import cn.cercis.http.*
 import cn.cercis.repository.MessageRepository.PendingMessage.*
 import cn.cercis.util.getString
 import cn.cercis.util.resource.DataSource
+import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
@@ -60,6 +61,21 @@ class MessageRepository @Inject constructor(
             return chatDao.loadAllChats()
         }
     }
+
+    fun getAllChatsWithLatestMessageOrderedByUpdate() =
+        object : DataSourceBase<List<ChatWithLatestMessage>, List<Chat>>() {
+            override suspend fun fetch(): NetworkResponse<List<Chat>> {
+                return httpService.getChatList()
+            }
+
+            override suspend fun saveToDb(data: List<Chat>) {
+                chatDao.updateAllChats(data)
+            }
+
+            override fun loadFromDb(): Flow<List<ChatWithLatestMessage>> {
+                return messageDao.loadAllChatsOrderedByUpdateOrLatestMessage()
+            }
+        }
 
     fun debugInsertAllChats(chatList: List<Chat>) {
         chatDao.updateAllChats(chatList)
@@ -450,7 +466,7 @@ class MessageRepository @Inject constructor(
         if (chatLatestMessageIdRes !is Success) {
             return chatLatestMessageIdRes
         }
-        val allLatest = messageDao.loadAllChatLatestMessages().toSet()
+        val allLatest = messageDao.loadAllChatLatestMessagesOnce().toSet()
         Log.d(LOG_TAG, "latestMessages: $allLatest")
         val shouldFetch = chatLatestMessageIdRes.data.filter {
             ChatIdMessageId(it.chatId, it.latestMessageId) !in allLatest
@@ -464,9 +480,10 @@ class MessageRepository @Inject constructor(
             }
     }
 
-    suspend fun createGroup(groupMemberList: List<UserId>): NetworkResponse<Chat> {
+    suspend fun createGroup(name: String, groupMemberList: List<UserId>): NetworkResponse<Chat> {
         return httpService.createGroupChat(CreateGroupChatRequest(
-            memberIds = groupMemberList
+            name = name,
+            memberIds = groupMemberList,
         )).apply {
             if (this is Success) {
                 chatDao.insertChat(this.data)

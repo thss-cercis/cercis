@@ -26,6 +26,7 @@ import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -283,7 +284,7 @@ class ChatFragment : Fragment() {
                 }
             }
             setOnMenuItemClickListener {
-                AlertDialog.Builder(requireContext())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.chat_unsent_messages)
                     .setMessage(getString(R.string.chat_unsent_messages_ask_retry).format(value))
                     .setPositiveButton(getString(R.string.chat_unsent_messages_retry_all)) { _, _ ->

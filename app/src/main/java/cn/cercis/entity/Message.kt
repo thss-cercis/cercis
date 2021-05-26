@@ -5,7 +5,9 @@ import androidx.room.Index
 import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
+import cn.cercis.common.Timestamp
 import cn.cercis.util.getString
+import cn.cercis.util.helper.TimeString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -19,9 +21,9 @@ data class Message(
     @Json(name = "chat_id") val chatId: ChatId,
     @Json(name = "type") val type: Int,
     @Json(name = "message") val message: String,
-    @Json(name = "sender_id") var senderId: Long,
-    @Json(name = "created_at") var createdAt: String,
-    @Json(name = "updated_at") var updatedAt: String,
+    @Json(name = "sender_id") val senderId: Long,
+    @Json(name = "created_at") @TimeString val createdAt: Timestamp,
+    @Json(name = "updated_at") @TimeString val updatedAt: Timestamp,
 )
 
 data class ChatIdMessageId(

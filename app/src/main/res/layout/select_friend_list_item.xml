@@ -19,13 +19,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="@drawable/selectable_item_background"
         android:clickable="true"
         android:focusable="true"
+        android:selectable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
         android:paddingHorizontal="10dp"
-        android:paddingVertical="8dp"
-        app:selected="@{selected}">
+        android:paddingVertical="8dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatar"

@@ -29,6 +29,9 @@ interface UserDao {
     @Query("SELECT * FROM user WHERE id = :userId")
     fun loadUser(userId: UserId): Flow<User>
 
+    @Query("SELECT * FROM user WHERE id = :userId")
+    fun loadUserOnce(userId: UserId): User?
+
     @Query("SELECT * FROM user")
     fun loadUserList(): Flow<List<User>>
 
@@ -65,6 +68,9 @@ interface FriendDao {
     @Query("""SELECT friendUserId, displayName, nickname, avatar, bio
         FROM friendEntry LEFT OUTER JOIN user on friendEntry.friendUserId = user.id""")
     fun loadFriendDisplayList(): Flow<List<FriendUser>>
+
+    @Query("SELECT friendUserId FROM friendEntry WHERE NOT EXISTS (SELECT id FROM user WHERE id = friendUserId)")
+    fun unloadedUsers(): Flow<List<UserId>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveFriendRequest(vararg friendRequests: FriendRequest)

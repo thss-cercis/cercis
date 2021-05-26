@@ -76,7 +76,32 @@ interface MessageDao {
     fun loadLatestMessage(chatId: ChatId): Flow<Message?>
 
     @Query("SELECT chatId, MAX(messageId) AS messageId FROM message GROUP BY chatId")
-    suspend fun loadAllChatLatestMessages(): List<ChatIdMessageId>
+    suspend fun loadAllChatLatestMessagesOnce(): List<ChatIdMessageId>
+
+    @Query("SELECT * FROM message NATURAL JOIN (SELECT chatId, MAX(messageId) AS messageId FROM message GROUP BY chatId)")
+    fun loadAllChatLatestMessages(): Flow<List<Message>>
+
+    @Query("""SELECT 
+            chat.id AS chatId, 
+            chat.type AS chatType,
+            chat.name AS name,
+            chat.avatar AS avatar,
+            chat.createdAt AS chatCreatedAt,
+            chat.updatedAt AS chatUpdatedAt,
+            latestMsg.messageId AS messageId,
+            latestMsg.message AS message,
+            latestMsg.type AS messageType,
+            latestMsg.senderId AS senderId,
+            latestMsg.createdAt AS messageCreatedAt,
+            latestMsg.updatedAt AS messageUpdatedAt,
+            IFNULL(latestMsg.updatedAt, chat.createdAt) AS lastUpdate FROM chat
+        LEFT OUTER JOIN (
+            SELECT chatId AS maxChatId, MAX(messageId) AS maxMsgId FROM message GROUP BY chatId
+        ) ON chat.id = maxChatId
+        LEFT OUTER JOIN message AS latestMsg ON messageId = maxMsgId AND chatId = chat.id
+        ORDER BY lastUpdate DESC
+    """)
+    fun loadAllChatsOrderedByUpdateOrLatestMessage(): Flow<List<ChatWithLatestMessage>>
 }
 
 @Dao

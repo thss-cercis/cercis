@@ -10,6 +10,7 @@ import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyPayload
 import cn.cercis.http.HttpStatusCode
 import cn.cercis.http.PayloadResponseBody
+import cn.cercis.util.helper.TimeStringAdapter
 import cn.cercis.util.resource.NetworkResponse
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -17,6 +18,7 @@ import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersisto
 import com.qiniu.android.common.FixedZone
 import com.qiniu.android.storage.Configuration
 import com.qiniu.android.storage.UploadManager
+import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.rawType
 import dagger.Module
@@ -51,10 +53,16 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideMoshi() = Moshi.Builder()
+        .add(TimeStringAdapter())
+        .build()
+
+    @Singleton
+    @Provides
     fun providePersistentCookieJar(
         @ApplicationContext context: Context,
     ): PersistentCookieJar {
-        return object: PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)) {
+        return object : PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)) {
             @Synchronized
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
                 val result = super.loadForRequest(url)
@@ -68,7 +76,7 @@ object AppModule {
     fun provideOkHttpClient(
         @AuthorizedEvent authorized: MutableLiveData<Boolean?>,
         @ApplicationContext context: Context,
-        cookieJar: PersistentCookieJar
+        cookieJar: PersistentCookieJar,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
@@ -131,13 +139,14 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRetrofit(
+        moshi: Moshi,
         okHttpClient: OkHttpClient,
         @ApplicationContext context: Context,
     ): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .addConverterFactory(object : Converter.Factory() {
-                val moshi = MoshiConverterFactory.create()
+                val factory = MoshiConverterFactory.create(moshi)
                 val serverErrorMsg = { context.getString(R.string.error_server_error) }
 
                 override fun responseBodyConverter(
@@ -146,10 +155,10 @@ object AppModule {
                     retrofit: Retrofit,
                 ): Converter<ResponseBody?, *>? {
                     if (type.rawType != NetworkResponse::class.java) {
-                        return moshi.responseBodyConverter(type, annotations, retrofit)
+                        return factory.responseBodyConverter(type, annotations, retrofit)
                     }
                     val responseType = (type as ParameterizedType).actualTypeArguments[0]
-                    val responseBodyConverter = moshi.responseBodyConverter(
+                    val responseBodyConverter = factory.responseBodyConverter(
                         Types.newParameterizedType(
                             PayloadResponseBody::class.java,
                             responseType
@@ -189,7 +198,7 @@ object AppModule {
                     methodAnnotations: Array<Annotation>,
                     retrofit: Retrofit,
                 ): Converter<*, RequestBody>? {
-                    return moshi.requestBodyConverter(
+                    return factory.requestBodyConverter(
                         type,
                         parameterAnnotations,
                         methodAnnotations,

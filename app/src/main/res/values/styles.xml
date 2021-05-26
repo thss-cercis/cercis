@@ -6,6 +6,7 @@
     <attr name="colorOutgoingBubble" format="color" />
     <attr name="colorOnIncomingBubble" format="color" />
     <attr name="colorOnOutgoingBubble" format="color" />
+    <attr name="colorSurfaceSelected" format="color" />
 
     <!-- Base application theme. -->
     <style name="Theme.Cercis" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -30,6 +31,7 @@
         <item name="colorOnIncomingBubble">@color/on_in_bubble</item>
         <item name="colorOnOutgoingBubble">@color/on_out_bubble</item>
         <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="colorSurfaceSelected">@color/surface_selected</item>
         <item name="fragmentBackground">?attr/colorSurface</item>
     </style>
 

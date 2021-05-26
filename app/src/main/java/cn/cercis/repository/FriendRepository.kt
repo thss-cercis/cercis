@@ -17,6 +17,7 @@ import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @ActivityRetainedScoped
@@ -25,9 +26,22 @@ import javax.inject.Inject
 class FriendRepository @Inject constructor(
     private val httpService: CercisHttpService,
     private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val friendDao: FriendDao,
-    private val userDao: UserDao,
 ) {
+    /**
+     * Gets friend list, and gets unloaded friend users.
+     */
+    suspend fun getFriendListAndSave(): NetworkResponse<List<FriendEntry>> {
+        return getFriendList().fetchAndSave().apply {
+            if (this is NetworkResponse.Success) {
+                friendDao.unloadedUsers().first().forEach {
+                    userRepository.getUser(it).fetchAndSave()
+                }
+            }
+        }
+    }
+
     fun getFriendList() = object : DataSource<List<FriendEntry>>() {
         override suspend fun fetch(): NetworkResponse<List<FriendEntry>> {
             return httpService.getFriendList().use { friends }.convert {
@@ -46,24 +60,7 @@ class FriendRepository @Inject constructor(
         }
     }
 
-    fun getFriendUserList() = object: DataSourceBase<List<FriendUser>, List<Pair<FriendEntry, User?>>>() {
-        override suspend fun fetch(): NetworkResponse<List<Pair<FriendEntry, User?>>> {
-            return httpService.getFriendList().use { friends }.convert {
-                it.mapRun {
-                    Pair(FriendEntry(friendUserId = id, displayName = displayName), null)
-                }
-            }
-        }
-
-        override suspend fun saveToDb(data: List<Pair<FriendEntry, User?>>) {
-            friendDao.replaceFriendList(data.map { it.first })
-            userDao.saveUserList(data.mapNotNull { it.second })
-        }
-
-        override fun loadFromDb(): Flow<List<FriendUser>> {
-            return friendDao.loadFriendDisplayList()
-        }
-    }
+    fun getFriendUserList() = friendDao.loadFriendDisplayList()
 
     suspend fun sendFriendRequest(
         id: UserId,

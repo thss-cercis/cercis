@@ -7,10 +7,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.cercis.common.LOG_TAG
-import cn.cercis.repository.AuthRepository
-import cn.cercis.repository.FriendRepository
-import cn.cercis.repository.MessageRepository
-import cn.cercis.repository.NotificationRepository
+import cn.cercis.repository.*
 import cn.cercis.service.WSMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -24,6 +21,7 @@ class MainActivityViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
     private val messageRepository: MessageRepository,
     private val friendRepository: FriendRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     val loggedIn = authRepository.loggedIn
 
@@ -57,7 +55,7 @@ class MainActivityViewModel @Inject constructor(
                     WSMessage.WebSocketConnected, WSMessage.ForceUpdate -> {
                         launch {
                             // load friends
-                            friendRepository.getFriendList().fetchAndSave()
+                            friendRepository.getFriendListAndSave()
                                 .apply { Log.d(LOG_TAG, "$this") }
                             // load chat list
                             messageRepository.getChatList().fetchAndSave()
@@ -65,12 +63,14 @@ class MainActivityViewModel @Inject constructor(
                             // load latest message list
                             messageRepository.fetchAndSaveLatestMessages()
                                 .apply { Log.d(LOG_TAG, "$this") }
+                            // saves self
+                            userRepository.getUser(authRepository.currentUserId).fetchAndSave()
                         }
                     }
                     WSMessage.FriendListUpdated -> {
                         launch {
                             // prevent blocking message looper
-                            friendRepository.getFriendList().fetchAndSave()
+                            friendRepository.getFriendListAndSave()
                         }
                     }
                     is WSMessage.FriendRequestReceived -> {

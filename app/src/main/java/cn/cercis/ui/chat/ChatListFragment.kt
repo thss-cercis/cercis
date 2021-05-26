@@ -58,7 +58,7 @@ class ChatListFragment : Fragment() {
             dataSource = chatListViewModel.chatListData,
             viewLifecycleOwnerSupplier = { viewLifecycleOwner },
             itemIndex = { id },
-            contentsSameCallback = { a, b -> a.id == b.id && a.type == ChatType.CHAT_GROUP },
+            contentsSameCallback = { a, b -> a.chatId == b.chatId && a.chatType == ChatType.CHAT_GROUP },
             inflater = { inflater1, parent, _ ->
                 ChatListItemBinding.inflate(
                     inflater1,
@@ -68,9 +68,9 @@ class ChatListFragment : Fragment() {
             },
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.data = chatListViewModel.getChatDisplay(currentList[position])
-                holder.binding.root.setOnClickListener { requireMainActivity().openChat(currentList[position]) }
+                holder.binding.root.setOnClickListener { requireMainActivity().openChat(currentList[position].toChat()) }
             },
-            itemViewType = { type }
+            itemViewType = { chatType }
         )
         binding.chatListView.adapter = adapter
         // remove update animation
