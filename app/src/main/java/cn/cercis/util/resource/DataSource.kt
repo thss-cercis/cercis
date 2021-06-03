@@ -38,14 +38,13 @@ abstract class DataSourceBase<DataType, ResponseType> {
 
 //    fun networkFlow(): Flow<Resource<DataType>> = flow(emitNetworkResources)
 
-    suspend fun fetchAndSave() : NetworkResponse<ResponseType> {
+    suspend fun fetchAndSave(): NetworkResponse<ResponseType> {
         val response = fetch()
         when (response) {
             is NetworkResponse.Success -> {
                 saveToDb(response.data)
             }
-            is NetworkResponse.Reject,
-            is NetworkResponse.NetworkError -> {
+            is NetworkResponse.Reject, is NetworkResponse.NetworkError -> {
                 onFetchFailed()
             }
         }

@@ -7,6 +7,8 @@
             <CustomAttribute
                 app:attributeName="ColorFilter"
                 app:customColorValue="?attr/colorControlNormal" />
+        </Constraint>
+        <Constraint android:id="@id/chat_action_send_audio_hint">
             <CustomAttribute
                 app:attributeName="text"
                 app:customStringValue="@string/chat_action_send_audio_hint_press" />
@@ -18,6 +20,8 @@
             <CustomAttribute
                 app:attributeName="ColorFilter"
                 app:customColorValue="?attr/colorControlNormal" />
+        </Constraint>
+        <Constraint android:id="@id/chat_action_send_audio_hint">
             <CustomAttribute
                 app:attributeName="text"
                 app:customStringValue="@string/chat_action_send_audio_hint_release" />
@@ -29,6 +33,8 @@
             <CustomAttribute
                 app:attributeName="ColorFilter"
                 app:customColorValue="#fd3333" />
+        </Constraint>
+        <Constraint android:id="@id/chat_action_send_audio_hint">
             <CustomAttribute
                 app:attributeName="text"
                 app:customStringValue="@string/chat_action_send_audio_hint_cancel" />

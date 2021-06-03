@@ -20,7 +20,7 @@ sealed class NetworkResponse<out T>(open val message: String?) {
      */
     data class NetworkError<out T>(override val message: String) : NetworkResponse<T>(message)
 
-    fun <ToType> use(block: T.() -> ToType): NetworkResponse<ToType> {
+    inline fun <ToType> use(block: T.() -> ToType): NetworkResponse<ToType> {
         return when (this) {
             is Success -> Success(data.block())
             is Reject -> Reject(code, message)

@@ -6,6 +6,7 @@ import cn.cercis.R
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.common.Timestamp
+import cn.cercis.common.WSMessageTypeId
 import cn.cercis.util.getString
 import cn.cercis.util.helper.TimeString
 import com.squareup.moshi.Json

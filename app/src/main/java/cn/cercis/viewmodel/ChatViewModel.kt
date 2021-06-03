@@ -1,6 +1,7 @@
 package cn.cercis.viewmodel
 
 import android.annotation.SuppressLint
+import android.media.MediaRecorder
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
@@ -13,15 +14,20 @@ import cn.cercis.repository.MessageRepository.MessageUploadProgress
 import cn.cercis.repository.MessageRepository.MessageUploadProgress.*
 import cn.cercis.repository.MessageRepository.PendingMessage.TextMessage
 import cn.cercis.util.getString
+import cn.cercis.util.getTempFile
+import cn.cercis.util.helper.Progress
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.io.File
 import javax.inject.Inject
 import kotlin.math.max
+
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -191,6 +197,32 @@ class ChatViewModel @Inject constructor(
 
     fun isLockedToLatest(): Boolean {
         return chatMessages.lockToLatest.value
+    }
+
+    private val mediaRecorder = MediaRecorder()
+    private val isRecording = MutableLiveData(false)
+
+    @MainThread
+    fun onPermissionGranted(isPermissionGranted: Boolean) {
+        if (isPermissionGranted && isRecording.value == false) {
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            mediaRecorder.setOutputFile(getTempFile(".3gp").absolutePath)
+            mediaRecorder.prepare()
+            mediaRecorder.start()
+            isRecording.value = true
+        }
+    }
+
+    @MainThread
+    fun stopMediaRecorder() {
+        if (isRecording.value == true) {
+            mediaRecorder.stop()
+            mediaRecorder.reset()
+            mediaRecorder.release()
+            isRecording.value = false
+        }
     }
 
     @MainThread

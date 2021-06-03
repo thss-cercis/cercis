@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.databinding.ActivityMainBinding
@@ -30,6 +31,9 @@ import cn.cercis.ui.profile.ProfileFragment
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setupWithNavController
 import cn.cercis.viewmodel.MainActivityViewModel
+import cn.cercis.viewmodel.MainActivityViewModel.Companion.ACTION_KEY
+import cn.cercis.viewmodel.MainActivityViewModel.Companion.ACTION_OPEN_CHAT
+import cn.cercis.viewmodel.MainActivityViewModel.Companion.CHAT_ID_KEY
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -115,6 +119,13 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         // todo finish logic here
         Log.d(LOG_TAG, "started intent: ${intent.toString()}")
+        if (intent != null) {
+            when (intent.getStringExtra(ACTION_KEY)!!) {
+                ACTION_OPEN_CHAT -> {
+                    openChat(intent.getLongExtra(CHAT_ID_KEY, -1))
+                }
+            }
+        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -224,6 +235,18 @@ class MainActivity : AppCompatActivity() {
         binding.reusedView.bottomNavigation.selectedItemId = R.id.chat_list_nav_graph
         scheduleNavigation(R.id.chat_list_nav_graph) {
             navigate(ChatFragmentDirections.actionToChatFragment(chat.id, chat))
+        }
+    }
+
+    fun openChat(chatId: ChatId) {
+        lifecycleScope.launch {
+            mainActivityViewModel.getChat(chatId)?.let {
+                Log.d(LOG_TAG, "opening chat $it")
+                binding.reusedView.bottomNavigation.selectedItemId = R.id.chat_list_nav_graph
+                scheduleNavigation(R.id.chat_list_nav_graph) {
+                    navigate(ChatFragmentDirections.actionToChatFragment(chatId, it))
+                }
+            }
         }
     }
 

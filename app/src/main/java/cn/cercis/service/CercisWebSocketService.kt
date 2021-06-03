@@ -72,7 +72,7 @@ sealed class WSMessage(override val typeId: WSMessageTypeId) : WSMessageWithId {
     data class NewMessageReceived(
         @Json(name = "chat_id") val chatId: ChatId,
         @Json(name = "msg_id") val messageId: MessageId,
-        @Json(name = "type") val type: WSMessageTypeId,
+        @Json(name = "type") val type: Int,
         @Json(name = "sum") val sum: String,
     ) : WSMessage(200L)
 

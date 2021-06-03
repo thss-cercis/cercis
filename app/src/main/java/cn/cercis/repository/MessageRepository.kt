@@ -106,6 +106,15 @@ class MessageRepository @Inject constructor(
         )
     }
 
+    suspend fun saveSingleMessage(chatId: ChatId, messageId: MessageId): NetworkResponse<Message> {
+        return getSingleMessage(chatId, messageId).fetchAndSave().use {
+            if (chatDao.loadChatOnce(chatId) == null) {
+                getChatList().fetchAndSave()
+            }
+            this
+        }
+    }
+
     fun getSingleMessage(chatId: ChatId, messageId: MessageId) = object : DataSource<Message>() {
         override suspend fun fetch(): NetworkResponse<Message> {
             return httpService.getSingleMessage(chatId, messageId)
@@ -551,7 +560,7 @@ class MessageRepository @Inject constructor(
         }
     }
 
-    private fun digest(messageType: MessageType?, content: String?): String {
+    fun digest(messageType: MessageType?, content: String?): String {
         return when (messageType) {
             MessageType.TEXT -> content?.substring(0, min(content.length, MESSAGE_DIGEST_LENGTH))
                 ?: ""
@@ -566,7 +575,7 @@ class MessageRepository @Inject constructor(
         }
     }
 
-    private fun digest(message: Message?): String {
+    fun digest(message: Message?): String {
         return digest(message?.type?.asMessageType(), message?.message)
     }
 
