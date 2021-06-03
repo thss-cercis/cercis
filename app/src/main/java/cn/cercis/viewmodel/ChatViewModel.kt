@@ -49,7 +49,7 @@ class ChatViewModel @Inject constructor(
     }
     private val chatMessages = messageRepository.createMessageDataSource(chatId, MESSAGE_PAGE_SIZE)
 
-    suspend fun getOtherUser() : Resource<UserId> {
+    suspend fun getOtherUser(): Resource<UserId> {
         return messageRepository.getOtherUserId(authRepository.currentUserId, chatId).first()
     }
 
@@ -64,7 +64,7 @@ class ChatViewModel @Inject constructor(
         it
     }.asInitializedLiveData(coroutineContext, true)
     val unreadBubbleVisible = generateMediatorLiveData(unreadCount, fabVisible) {
-        return@generateMediatorLiveData(unreadCount.value ?: 0L > 0L && fabVisible.value == false)
+        return@generateMediatorLiveData (unreadCount.value ?: 0L > 0L && fabVisible.value == false)
     }
     private val users = HashMap<UserId, LiveData<CommonListItemData>>()
     private val pendingMessages = ArrayList<Pair<Message, LiveData<MessageUploadProgress>>>()
@@ -100,6 +100,15 @@ class ChatViewModel @Inject constructor(
             chatInitDisplay ?: savedStateHandle.get<Chat>("chat")!!.let {
                 CommonListItemData(it.avatar, it.name, "")
             })
+
+    // panel
+    val expanded = MutableLiveData<Boolean>(false)
+    val selectedPage = MutableLiveData<Int>(0)
+    val buttonSelected = (0..3).map {
+        generateMediatorLiveData(expanded, selectedPage) {
+            expanded.value == true && selectedPage.value == it
+        }
+    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -159,6 +168,25 @@ class ChatViewModel @Inject constructor(
 
     fun lockToLatest() {
         chatMessages.setLockToLatest(true)
+    }
+
+    @MainThread
+    fun expandPanel() {
+        if (expanded.value != true) {
+            expanded.value = true
+        }
+    }
+
+    @MainThread
+    fun foldPanel() {
+        if (expanded.value != false) {
+            expanded.value = false
+        }
+    }
+
+    @MainThread
+    fun togglePanel() {
+        expanded.value = expanded.value?.not() ?: true
     }
 
     fun isLockedToLatest(): Boolean {

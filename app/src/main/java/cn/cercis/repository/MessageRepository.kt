@@ -470,11 +470,12 @@ class MessageRepository @Inject constructor(
             return chatLatestMessageIdRes
         }
         val allLatest = messageDao.loadAllChatLatestMessagesOnce().toSet()
-        Log.d(LOG_TAG, "latestMessages: $allLatest")
         val shouldFetch = chatLatestMessageIdRes.data.filter {
             ChatIdMessageId(it.chatId, it.latestMessageId) !in allLatest
         }
-        Log.d(LOG_TAG, "shouldFetch: $shouldFetch")
+        if (shouldFetch.isNotEmpty()) {
+            Log.d(LOG_TAG, "should fetch: $shouldFetch")
+        }
         return httpService.getChatsLatestMessages(GetChatsLatestMessagesRequest(shouldFetch.map { it.chatId }))
             .apply {
                 if (this is Success) {

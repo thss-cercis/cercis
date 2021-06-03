@@ -1,5 +1,7 @@
 package cn.cercis.ui.chat
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -7,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AlertDialog
+import android.view.inputmethod.InputMethodManager
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,8 +24,10 @@ import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.helper.closeIme
 import cn.cercis.util.helper.requireMainActivity
 import cn.cercis.util.helper.setCloseImeOnLoseFocus
+import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
@@ -41,7 +45,7 @@ import java.util.*
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
-    private val chatViewModel: ChatViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels()
 
     companion object {
         data class MessageViewType(
@@ -59,8 +63,14 @@ class ChatFragment : Fragment() {
                 }
             }
         }
+
+        const val PAGE_AUDIO = 0
+        const val PAGE_IMAGE = 1
+        const val PAGE_EMOJI = 2
+        const val PAGE_ADDITION = 3
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,13 +78,15 @@ class ChatFragment : Fragment() {
     ): View {
         val binding = FragmentChatBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = chatViewModel
+        binding.viewModel = viewModel
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+
+        // initialize recycler view
         binding.chatRecyclerView.apply {
             val adapter = DiffRecyclerViewAdapter.getInstance(
-                dataSource = chatViewModel.chatMessageList,
+                dataSource = viewModel.chatMessageList,
                 viewLifecycleOwnerSupplier = { viewLifecycleOwner },
                 itemIndex = { messageId },
                 contentsSameCallback = Objects::equals,
@@ -144,19 +156,19 @@ class ChatFragment : Fragment() {
                         MessageType.DELETED -> Unit
                         MessageType.WITHDRAW -> {
                             (holder.binding as ChatItemWithdrawedBinding)
-                                .user = chatViewModel.loadUser(data.senderId)
+                                .user = viewModel.loadUser(data.senderId)
                         }
                         else -> {
                             val itemBinding = holder.binding
                             val (imageView, textView) = when (mvt.direction) {
                                 OUTGOING.type -> (itemBinding as ChatItemOutgoingBinding)
                                     .let {
-                                        it.user = chatViewModel.loadUser(data.senderId)
+                                        it.user = viewModel.loadUser(data.senderId)
                                         it.chatItemMessageImage to it.chatItemMessageText
                                     }
                                 INCOMING.type -> (itemBinding as ChatItemIncomingBinding)
                                     .let {
-                                        it.user = chatViewModel.loadUser(data.senderId)
+                                        it.user = viewModel.loadUser(data.senderId)
                                         it.chatItemMessageImage to it.chatItemMessageText
                                     }
                                 else -> throw IllegalStateException("erroneous view type")
@@ -195,7 +207,7 @@ class ChatFragment : Fragment() {
                         }
                     }
                 },
-                itemViewType = { MessageViewType(chatViewModel.side(senderId).type, type).viewType }
+                itemViewType = { MessageViewType(viewModel.side(senderId).type, type).viewType }
             )
             this.adapter = adapter
             var autoScrollToBottom = false
@@ -203,30 +215,30 @@ class ChatFragment : Fragment() {
             val linearLayoutManager = layoutManager as LinearLayoutManager
             linearLayoutManager.stackFromEnd = true
             linearLayoutManager.reverseLayout = true
+            // when scrolled to bottom and autoScrollToBottom is true, chat will scroll to bottom on new messages
             setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
                 adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
-                    chatViewModel.submitLastRead(it)
+                    viewModel.submitLastRead(it)
                 }
                 if (latestVisible != -1 && oldestVisible != -1) {
-                    chatViewModel.informVisibleRange(
+                    viewModel.informVisibleRange(
                         adapter.currentList[oldestVisible].messageId,
                         adapter.currentList[latestVisible].messageId,
                     )
                 }
-                if (latestVisible == 0 && adapter.currentList.firstOrNull()?.messageId == chatViewModel.latestMessage.value?.messageId) {
-                    // TODO anchor to bottom
-                    chatViewModel.lockToLatest()
+                if (latestVisible == 0 && adapter.currentList.firstOrNull()?.messageId == viewModel.latestMessage.value?.messageId) {
+                    viewModel.lockToLatest()
                     autoScrollToBottom = true
                     Log.d(this@ChatFragment.LOG_TAG, "scrolled to bottom")
                 } else if (oldScrollY != scrollY) {
                     autoScrollToBottom = false
                 }
             }
+
+            // layout would change if new messages are added to the list
             addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-//                Log.d(this@ChatFragment.LOG_TAG,
-//                    "layout change from $oldBottom to $bottom, with auto scroll $autoScrollToBottom")
                 if (autoScrollToBottom) {
                     Log.d(this@ChatFragment.LOG_TAG, "post scrolling to bottom")
                     post {
@@ -237,7 +249,7 @@ class ChatFragment : Fragment() {
                     Log.d(this@ChatFragment.LOG_TAG, "move to last read")
                     firstLoad = false
                     val targetPos =
-                        adapter.currentList.indexOfFirst { it.messageId == chatViewModel.lastRead.value }
+                        adapter.currentList.indexOfFirst { it.messageId == viewModel.lastRead.value }
                     if (targetPos != -1) {
                         post {
                             scrollToPosition(targetPos)
@@ -245,9 +257,11 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
+
+            // add click listener for go to bottom button
             binding.chatGoLatest.setOnClickListener {
                 autoScrollToBottom = true
-                chatViewModel.lockToLatest()
+                viewModel.lockToLatest()
                 adapter.currentList.firstOrNull()?.let {
                     if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() > 50) {
                         // too long, direct jump
@@ -257,30 +271,47 @@ class ChatFragment : Fragment() {
                     }
                 }
             }
+
+            // when clicked, collapse the panel
+            setOnClickListener {
+                viewModel.foldPanel()
+            }
         }
+
+        // listen to IME option send
         binding.chatTextBox.apply {
             setOnEditorActionListener { view, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
                     val textMsg = view.text.toString()
                     view.text = ""
-                    chatViewModel.sendTextMessage(textMsg)
+                    viewModel.sendTextMessage(textMsg)
                 }
                 true
             }
-            setCloseImeOnLoseFocus()
+            setOnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    closeIme()
+                } else {
+                    viewModel.foldPanel()
+                }
+            }
             setRawInputType(InputType.TYPE_CLASS_TEXT)
         }
+
+        // when swiped down, triggers message list refresh
         binding.chatSwipeRefreshLayout.apply {
             setOnRefreshListener {
-                chatViewModel.onSwipeRefresh()
+                viewModel.onSwipeRefresh()
                 isRefreshing = false
             }
         }
+
+        // add retry menu action on toolbar
         binding.topAppBar.menu.findItem(R.id.action_chat_show_failed_messages).apply {
             isVisible = false
             var value = 0
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-                chatViewModel.failedMessageCount.collectLatest {
+                viewModel.failedMessageCount.collectLatest {
                     isVisible = it != 0
                     value = it
                 }
@@ -291,26 +322,28 @@ class ChatFragment : Fragment() {
                     .setMessage(getString(R.string.chat_unsent_messages_ask_retry).format(
                         value))
                     .setPositiveButton(getString(R.string.chat_unsent_messages_retry_all)) { _, _ ->
-                        chatViewModel.retryAllPendingMessages()
+                        viewModel.retryAllPendingMessages()
                     }
                     .setNegativeButton(getString(R.string.chat_unsent_messages_drop_all)) { _, _ ->
-                        chatViewModel.dropAllPendingMessages()
+                        viewModel.dropAllPendingMessages()
                     }
                     .setNeutralButton(getString(R.string.chat_unsent_messages_do_nothing)) { _, _ -> }
                     .show()
                 true
             }
         }
+
+        // add click listener for chat detail
         binding.topAppBar.menu.findItem(R.id.action_chat_info).setOnMenuItemClickListener {
-            if (chatViewModel.chatInitData.type == ChatType.CHAT_GROUP) {
+            if (viewModel.chatInitData.type == ChatType.CHAT_GROUP) {
                 findNavController().navigate(
                     GroupInfoFragmentDirections.actionGlobalGroupInfoFragment(
-                        chatViewModel.chatInitData
+                        viewModel.chatInitData
                     )
                 )
             } else {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val otherUser = chatViewModel.getOtherUser()
+                    val otherUser = viewModel.getOtherUser()
                     otherUser.data?.let {
                         launch(Dispatchers.Main) {
                             requireMainActivity().openUserInfo(it)
@@ -320,6 +353,39 @@ class ChatFragment : Fragment() {
             }
             true
         }
+
+        // listen to panel expansion
+        viewModel.expanded.observe(viewLifecycleOwner) {
+            if (it == true) {
+                binding.chatMotionLayout.transitionToEnd()
+                closeIme()
+            } else if (it == false) {
+                binding.chatMotionLayout.transitionToStart()
+            }
+        }
+
+        // actions
+        val switchToPanel = { index: Int ->
+            if (viewModel.expanded.value == true && viewModel.selectedPage.value == index) {
+                viewModel.foldPanel()
+            } else {
+                viewModel.selectedPage.value = index
+                viewModel.expandPanel()
+            }
+        }
+
+        // change page
+        viewModel.selectedPage.observe(viewLifecycleOwner) {
+            binding.chatActionFlipper.displayedChild = it!!
+        }
+
+        // close panel on scrim touched
+        binding.chatActionFlipperScrim.setOnTouchListener { _, _ -> viewModel.foldPanel(); true }
+
+        binding.chatActionSendAudio.setOnClickListener { switchToPanel(PAGE_AUDIO) }
+        binding.chatActionSendImage.setOnClickListener { switchToPanel(PAGE_IMAGE) }
+        binding.chatActionSendEmoji.setOnClickListener { switchToPanel(PAGE_EMOJI) }
+        binding.chatActionSendAddition.setOnClickListener { switchToPanel(PAGE_ADDITION) }
         return binding.root
     }
 }

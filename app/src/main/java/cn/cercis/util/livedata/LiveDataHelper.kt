@@ -66,7 +66,7 @@ fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observ
     })
 }
 
-fun <T> LiveData<T>.waitUtilOnce(
+fun <T> LiveData<T>.observeFilterFirst(
     lifecycleOwner: LifecycleOwner,
     until: (T) -> Boolean,
     observer: Observer<in T>,

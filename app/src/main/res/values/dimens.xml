@@ -15,4 +15,5 @@
     <dimen name="chat_bubble_margin">56dp</dimen>
     <dimen name="chat_bubble_min_width">32dp</dimen>
     <dimen name="chat_bubble_min_height">40dp</dimen>
+    <dimen name="chat_extra_action_button_size">80dp</dimen>
 </resources>

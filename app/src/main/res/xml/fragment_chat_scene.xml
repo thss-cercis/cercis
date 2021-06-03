@@ -4,33 +4,39 @@
 
     <ConstraintSet android:id="@+id/start">
         <Constraint
-            android:id="@id/chat_action_extra"
+            android:id="@id/chat_action_flipper"
             android:layout_width="match_parent"
             android:layout_height="150dp"
             app:layout_constrainedHeight="true"
             app:layout_constraintTop_toBottomOf="@id/chat_bottom_placeholder" />
-        <Constraint
-            android:id="@id/chat_go_latest"
-            app:visibilityMode="ignore" />
-        <Constraint
-            android:id="@id/chat_unread_count"
-            app:visibilityMode="ignore" />
+        <Constraint android:id="@id/chat_go_latest">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint android:id="@id/chat_unread_count">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint android:id="@id/chat_action_flipper_scrim">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
         <Constraint
-            android:id="@id/chat_action_extra"
+            android:id="@id/chat_action_flipper"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="@id/chat_bottom_placeholder"
             app:layout_constraintTop_toBottomOf="@null" />
-        <Constraint
-            android:id="@id/chat_go_latest"
-            app:visibilityMode="ignore" />
-        <Constraint
-            android:id="@id/chat_unread_count"
-            app:visibilityMode="ignore" />
+        <Constraint android:id="@id/chat_go_latest">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint android:id="@id/chat_unread_count">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint android:id="@id/chat_action_flipper_scrim">
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
     </ConstraintSet>
 
     <Transition

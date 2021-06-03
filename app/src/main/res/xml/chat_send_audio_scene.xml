@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint android:id="@id/chat_action_send_audio_cancel_icon">
+            <CustomAttribute
+                app:attributeName="ColorFilter"
+                app:customColorValue="?attr/colorControlNormal" />
+            <CustomAttribute
+                app:attributeName="text"
+                app:customStringValue="@string/chat_action_send_audio_hint_press" />
+        </Constraint>
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/recording">
+        <Constraint android:id="@id/chat_action_send_audio_cancel_icon">
+            <CustomAttribute
+                app:attributeName="ColorFilter"
+                app:customColorValue="?attr/colorControlNormal" />
+            <CustomAttribute
+                app:attributeName="text"
+                app:customStringValue="@string/chat_action_send_audio_hint_release" />
+        </Constraint>
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/send_audio_about_to_delete">
+        <Constraint android:id="@id/chat_action_send_audio_cancel_icon">
+            <CustomAttribute
+                app:attributeName="ColorFilter"
+                app:customColorValue="#fd3333" />
+            <CustomAttribute
+                app:attributeName="text"
+                app:customStringValue="@string/chat_action_send_audio_hint_cancel" />
+        </Constraint>
+    </ConstraintSet>
+
+    <Transition
+        app:constraintSetEnd="@id/recording"
+        app:constraintSetStart="@id/start"
+        app:duration="200" />
+    <Transition
+        app:constraintSetEnd="@id/send_audio_about_to_delete"
+        app:constraintSetStart="@id/recording"
+        app:duration="200" />
+    <Transition
+        app:constraintSetEnd="@id/start"
+        app:constraintSetStart="@id/recording"
+        app:duration="200" />
+    <Transition
+        app:constraintSetEnd="@id/start"
+        app:constraintSetStart="@id/send_audio_about_to_delete"
+        app:duration="200" />
+    <Transition
+        app:constraintSetEnd="@id/recording"
+        app:constraintSetStart="@id/send_audio_about_to_delete"
+        app:duration="200" />
+</MotionScene>

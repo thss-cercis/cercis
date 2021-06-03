@@ -15,7 +15,8 @@
             type="ChatViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/chat_motion_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/fragmentBackground"
@@ -127,6 +128,17 @@
             app:layout_constraintBottom_toTopOf="@id/chat_action_button_barrier"
             tools:text="测试文本" />
 
+        <View
+            android:id="@+id/chat_action_flipper_scrim"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:visibility="@{viewModel.expanded ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintBottom_toTopOf="@id/chat_action_button_barrier"
+            app:layout_constraintTop_toBottomOf="@id/topAppBar" />
+
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/chat_action_button_barrier"
             android:layout_width="wrap_content"
@@ -137,10 +149,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/chat_action_send_audio"
             style="@style/Widget.Cercis.Button.IconButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="10dp"
+            android:checkable="true"
+            android:checked="@{viewModel.buttonSelected[0]}"
             app:icon="@drawable/ic_mic_24"
+            app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
             app:layout_constraintEnd_toStartOf="@id/chat_action_send_image"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -149,9 +164,12 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/chat_action_send_image"
             style="@style/Widget.Cercis.Button.IconButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:checkable="true"
+            android:checked="@{viewModel.buttonSelected[1]}"
             app:icon="@drawable/ic_insert_photo_24"
+            app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
             app:layout_constraintEnd_toStartOf="@id/chat_action_send_emoji"
             app:layout_constraintStart_toEndOf="@id/chat_action_send_audio" />
@@ -159,9 +177,12 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/chat_action_send_emoji"
             style="@style/Widget.Cercis.Button.IconButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:checkable="true"
+            android:checked="@{viewModel.buttonSelected[2]}"
             app:icon="@drawable/ic_insert_emoticon_24"
+            app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
             app:layout_constraintEnd_toStartOf="@id/chat_action_send_addition"
             app:layout_constraintStart_toEndOf="@id/chat_action_send_image" />
@@ -169,10 +190,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/chat_action_send_addition"
             style="@style/Widget.Cercis.Button.IconButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="10dp"
+            android:checkable="true"
+            android:checked="@{viewModel.buttonSelected[3]}"
             app:icon="@drawable/ic_add_circle_24"
+            app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/chat_action_send_emoji" />
@@ -182,22 +206,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="top"
-            app:constraint_referenced_ids="chat_action_extra" />
+            app:constraint_referenced_ids="chat_action_flipper" />
 
         <ViewFlipper
-            android:id="@+id/chat_action_extra"
+            android:id="@+id/chat_action_flipper"
             android:layout_width="match_parent"
             android:layout_height="150dp"
             app:layout_constrainedHeight="true"
             app:layout_constraintTop_toBottomOf="@id/chat_bottom_placeholder">
 
-            <LinearLayout
+            <include
                 android:id="@+id/chat_action_send_audio_page"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                layout="@layout/fragment_chat_page_send_audio" />
 
-            </LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/chat_action_send_image_page"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/chat_action_send_emoji_page"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/chat_action_other"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </ViewFlipper>
 
         <View
@@ -207,5 +242,5 @@
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

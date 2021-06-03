@@ -16,7 +16,7 @@ import cn.cercis.databinding.GroupInfoMemberListItemBinding
 import cn.cercis.entity.GroupChatPermission.GROUP_ADMIN
 import cn.cercis.entity.GroupChatPermission.GROUP_OWNER
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
-import cn.cercis.util.livedata.waitUtilOnce
+import cn.cercis.util.livedata.observeFilterFirst
 import cn.cercis.viewmodel.GroupInfoViewModel
 import cn.cercis.viewmodel.toCommonListItemData
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,7 +63,7 @@ class GroupInfoFragment : Fragment() {
         }
         postponeEnterTransition()
         val start0 = System.currentTimeMillis()
-        groupInfoViewModel.groupMemberList.waitUtilOnce(viewLifecycleOwner,
+        groupInfoViewModel.groupMemberList.observeFilterFirst(viewLifecycleOwner,
             until = { !it.isNullOrEmpty() },
             observer = {
                 (view?.parent as? ViewGroup)?.doOnPreDraw {
