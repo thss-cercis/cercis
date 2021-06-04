@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import cn.cercis.entity.UserDetail
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
+import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.livedata.addResource

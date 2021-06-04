@@ -40,7 +40,7 @@ class MainActivityViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
     val loggedIn = authRepository.loggedIn
-    val atomicInteger = AtomicInteger(0)
+    private val atomicInteger = AtomicInteger(0)
 
     // this initial value is related to the one in [master_nav_graph]
     val detailHasNavigationDestination = MutableLiveData(true)

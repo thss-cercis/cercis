@@ -8,6 +8,8 @@
 
         <import type="cn.cercis.viewmodel.ProfileEditViewModel" />
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="ProfileEditViewModel" />
@@ -54,6 +56,19 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/roundedCorner" />
+
+                <ProgressBar
+                    android:id="@+id/profile_edit_avatar_uploading"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:elevation="4dp"
+                    android:indeterminate="true"
+                    android:visibility="@{viewModel.avatarUploading ? View.VISIBLE : View.INVISIBLE, default=invisible}"
+                    app:layout_constraintBottom_toBottomOf="@id/profile_edit_avatar"
+                    app:layout_constraintEnd_toEndOf="@id/profile_edit_avatar"
+                    app:layout_constraintStart_toStartOf="@id/profile_edit_avatar"
+                    app:layout_constraintTop_toTopOf="@id/profile_edit_avatar"
+                    tools:visibility="visible" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/profile_edit_nickname"

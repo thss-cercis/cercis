@@ -62,13 +62,7 @@ object AppModule {
     fun providePersistentCookieJar(
         @ApplicationContext context: Context,
     ): PersistentCookieJar {
-        return object : PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context)) {
-            @Synchronized
-            override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                val result = super.loadForRequest(url)
-                return result
-            }
-        }
+        return PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
     }
 
     @Singleton
@@ -131,7 +125,7 @@ object AppModule {
             .concurrentTaskCount(3)
             .responseTimeout(90)
             .recorder(null)
-            .zone(FixedZone.zone0)
+            .zone(FixedZone.zone1)
             .build()
         return UploadManager(config)
     }

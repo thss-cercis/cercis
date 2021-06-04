@@ -1,5 +1,6 @@
 package cn.cercis.repository
 
+import android.net.Uri
 import cn.cercis.dao.LoginHistoryDao
 import cn.cercis.dao.UserDao
 import cn.cercis.entity.LoginHistory
@@ -7,6 +8,7 @@ import cn.cercis.entity.UserDetail
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.http.UpdateUserDetailRequest
+import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.livedata.AutoResetLiveData
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.NetworkResponse
@@ -16,13 +18,14 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+
 @FlowPreview
 @ExperimentalCoroutinesApi
 @ActivityRetainedScoped
 class ProfileRepository @Inject constructor(
-    val httpService: CercisHttpService,
-    val userDao: UserDao,
-    val loginHistoryDao: LoginHistoryDao,
+    private val httpService: CercisHttpService,
+    private val userDao: UserDao,
+    private val loginHistoryDao: LoginHistoryDao,
 ) {
     val profileChanged = AutoResetLiveData(false)
 
