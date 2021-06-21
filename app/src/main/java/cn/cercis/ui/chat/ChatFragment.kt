@@ -3,8 +3,9 @@ package cn.cercis.ui.chat
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.Rect
 import android.media.MediaPlayer
 import android.net.Uri
@@ -20,7 +21,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -53,7 +53,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
+import java.io.IOException
 import java.util.*
 
 
@@ -567,22 +567,39 @@ class ChatFragment : Fragment() {
             }
 
             val fromGalleryLauncher =
-                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                registerForActivityResult(object : ActivityResultContracts.GetContent() {
+                    override fun createIntent(context: Context, input: String): Intent {
+                        return super.createIntent(context, input).apply {
+                            this.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                        }
+                    }
+                }) { uri: Uri? ->
                     uri?.let { it ->
                         val cr: ContentResolver = requireContext().contentResolver
                         cr.getType(it)?.let { mime ->
-                            if (mime.startsWith("image/")) {
-                                // image
-                                viewModel.sendImageMessage(it.toFile())
-                            } else if (mime.startsWith("video/")) {
-                                // video
-                                viewModel.sendVideoMessage(it.toFile())
+                            try {
+                                getTempFile(".tmp").apply {
+                                    requireContext().contentResolver.openInputStream(uri)?.let { input ->
+                                        FileOutputStream(this).use {
+                                            input.copyTo(it)
+                                        }
+                                        if (mime.startsWith("image/")) {
+                                            // image
+                                            viewModel.sendImageMessage(this)
+                                        } else if (mime.startsWith("video/")) {
+                                            // video
+                                            viewModel.sendVideoMessage(this)
+                                        }
+                                    }
+                                }
+                            } catch (ex: IOException) {
+                                ex.printStackTrace()
                             }
                         }
                     }
                 }
             this.chatActionSendImageFromGalleryButton.setOnClickListener {
-                fromGalleryLauncher.launch("image/* video/*")
+                fromGalleryLauncher.launch("image/*")
             }
         }
 

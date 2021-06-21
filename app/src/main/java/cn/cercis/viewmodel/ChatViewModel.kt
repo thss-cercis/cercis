@@ -94,7 +94,12 @@ class ChatViewModel @Inject constructor(
         val msgProgress: MessageUploadProgress,
         val currentUserId: UserId,
     ) : DisplayMessage {
-        override val message: String = getString(R.string.chat_message_sending)
+        override val message: String = msgProgress.unsentMessage.let {
+            when (it) {
+                is MessageRepository.PendingMessage -> ""
+                is MessageRepository.PreparedMessage -> it.content
+            }
+        }
         override val senderId: UserId = currentUserId
         override val messageComposeId = MessageComposeId(
             msgProgress.unsentMessage.attachAfter,
@@ -119,13 +124,12 @@ class ChatViewModel @Inject constructor(
         return@generateMediatorLiveData (unreadCount.value ?: 0L > 0L && fabVisible.value == false)
     }
     private val users = HashMap<UserId, LiveData<CommonListItemData>>()
-    private val pendingMessages = ArrayList<Pair<Message, LiveData<MessageUploadProgress>>>()
     private val lastReadSubmitted: MutableStateFlow<MessageId> = MutableStateFlow(0L)
 
     // messages that are sending but not sent
     private val pendingMessageList = messageRepository.pendingMessageList.map {
         it.filter { pending -> pending.unsentMessage.chatId == chatId }
-    }.shareIn(viewModelScope, SharingStarted.Eagerly)
+    }.shareIn(viewModelScope, SharingStarted.Eagerly, 1)
     val failedMessageCount = pendingMessageList.mapLatest { list ->
         list.count { it is UploadFailed || it is SubmitFailed }
     }

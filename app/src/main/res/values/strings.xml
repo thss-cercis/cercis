@@ -13,6 +13,7 @@
     <string name="chat_fab_description">跳转到最新消息</string>
     <string name="chat_menu_action_show_members">显示群聊成员</string>
     <string name="chat_message_sending">发送中</string>
+    <string name="chat_message_uploading">上传中</string>
     <string name="chat_send_audio_page_toast_record_too_short">录音时间过短</string>
     <string name="chat_sending_message_count">正在发送 %d 条消息…</string>
     <string name="chat_unsent_messages">未发送的消息</string>

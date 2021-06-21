@@ -65,7 +65,7 @@ class ProfileEditViewModel @Inject constructor(
             try {
                 fileUploadUtils.uploadFile(uri.toFile()).let {
                     avatarUploadResult.postValue(uri to it)
-                    Log.d(this@ProfileEditViewModel.LOG_TAG, "uploaded avatar: $it")
+                    Log.d(this@ProfileEditViewModel.LOG_TAG, "uploaded avatar: $uri to $it")
                     if (it is NetworkResponse.Success) {
                         avatarUrl.postValue(STATIC_BASE + it.data)
                     }
@@ -90,6 +90,7 @@ class ProfileEditViewModel @Inject constructor(
                 )
                 when (response) {
                     is NetworkResponse.Success -> {
+                        userRepository.getUser(authRepository.currentUserId).fetchAndSave()
                         profileRepository.profileChanged.postValue(true)
                         navAction.postValue(NavAction.BACK)
                     }
@@ -99,7 +100,6 @@ class ProfileEditViewModel @Inject constructor(
                         error.postValue(response.message)
                     }
                 }
-                userRepository.getUser(authRepository.currentUserId).fetchAndSave()
             } finally {
                 isBusy.postValue(false)
             }
