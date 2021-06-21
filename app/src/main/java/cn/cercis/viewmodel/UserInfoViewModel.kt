@@ -7,6 +7,7 @@ import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.entity.Chat
+import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.User
 import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.repository.AuthRepository
@@ -42,14 +43,15 @@ class UserInfoViewModel @Inject constructor(
     val userInfo = userInfoFlow.map { it.data }
         .asInitializedLiveData(coroutineContext, initialUserInfo)
     val busyGettingChat = MutableLiveData(false)
-    val isFriend: LiveData<Boolean?> = friendRepository.getFriendList().flow().map {
+    val friendEntry: LiveData<FriendEntry?> = friendRepository.getFriendList().flow().map {
         it.data
     }.filterNotNull().map {
-        (it.firstOrNull { friendEntry -> friendEntry.friendUserId == userId } != null)
+        it.firstOrNull { friendEntry -> friendEntry.friendUserId == userId }
             .apply {
                 Log.d(this@UserInfoViewModel.LOG_TAG, "$userId is friend?: $this")
             }
     }.asLiveData(coroutineContext)
+    val isFriend: LiveData<Boolean?> = friendEntry.map { it != null }
     val showIfFriend = isFriend.map { if (it == true) View.VISIBLE else View.GONE }
     val showIfNotFriend = isFriend.map { if (it == false) View.VISIBLE else View.GONE }
 
@@ -69,6 +71,12 @@ class UserInfoViewModel @Inject constructor(
 
     suspend fun deleteFriend(): EmptyNetworkResponse {
         return friendRepository.deleteFriend(userId).apply {
+            friendRepository.getFriendListAndSave()
+        }
+    }
+
+    suspend fun editFriendDisplayName(displayName: String): EmptyNetworkResponse {
+        return friendRepository.editFriendDisplayName(userId, displayName).apply {
             friendRepository.getFriendListAndSave()
         }
     }

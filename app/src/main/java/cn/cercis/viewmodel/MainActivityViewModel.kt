@@ -18,12 +18,13 @@ import cn.cercis.common.ChatId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.NOTIFICATION_CHANNEL_ID
 import cn.cercis.entity.Chat
+import cn.cercis.entity.ChatType.CHAT_GROUP
+import cn.cercis.entity.ChatType.CHAT_PRIVATE
 import cn.cercis.entity.asMessageType
 import cn.cercis.repository.*
 import cn.cercis.service.WSMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import java.util.concurrent.atomic.AtomicInteger
@@ -73,11 +74,13 @@ class MainActivityViewModel @Inject constructor(
         // TODO inform service to end itself
     }
 
-    suspend fun createNewMessageNotification(
+    private suspend fun createNewMessageNotification(
         chatId: ChatId,
         type: Int,
         content: String,
+        senderUsername: String,
     ): Notification {
+        val chat = messageRepository.getChat(chatId).first()
         return NotificationCompat.Builder(
             CercisApplication.application,
             NOTIFICATION_CHANNEL_ID,
@@ -91,8 +94,15 @@ class MainActivityViewModel @Inject constructor(
             /* TODO set icon .setSmallIcon(R.drawable.notification_icon) */
             // TODO get chat name
             .setSmallIcon(R.drawable.ic_cercis)
-            .setContentTitle(messageRepository.getChat(chatId).first()?.name ?: "$chatId")
-            .setContentText(messageRepository.digest(type.asMessageType(), content))
+            .setContentTitle(when (chat?.type) {
+                CHAT_PRIVATE -> senderUsername
+                else -> chat?.name ?: "$chatId"
+            })
+            .setContentText(if (chat?.type == CHAT_GROUP) {
+                "$senderUsername: ${messageRepository.digest(type.asMessageType(), content)}"
+            } else {
+                messageRepository.digest(type.asMessageType(), content)
+            })
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
             .apply {
@@ -147,7 +157,8 @@ class MainActivityViewModel @Inject constructor(
                                             notificationManager.notify(atomicInteger.getAndIncrement(),
                                                 createNewMessageNotification(message.chatId,
                                                     message.type,
-                                                    message.sum))
+                                                    message.sum,
+                                                    message.senderUsername))
                                         }
                                     }
                                 }

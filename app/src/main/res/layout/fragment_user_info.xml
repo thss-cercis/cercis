@@ -52,10 +52,23 @@
                 android:text="@{viewModel.userInfo.nickname}"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toTopOf="@id/user_info_id"
+                app:layout_constraintBottom_toTopOf="@id/user_info_display_name"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/user_info_avatar"
                 app:layout_constraintTop_toTopOf="@id/user_info_avatar" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/user_info_display_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@{String.format(@string/profile_display_name, viewModel.friendEntry.displayName)}"
+                android:visibility="@{viewModel.showIfFriend}"
+                app:layout_constraintBottom_toTopOf="@id/user_info_id"
+                app:layout_constraintEnd_toEndOf="@id/user_info_nickname"
+                app:layout_constraintStart_toStartOf="@id/user_info_nickname"
+                app:layout_constraintTop_toBottomOf="@id/user_info_nickname" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/user_info_id"
@@ -67,7 +80,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/user_info_avatar"
                 app:layout_constraintEnd_toEndOf="@id/user_info_nickname"
                 app:layout_constraintStart_toStartOf="@id/user_info_nickname"
-                app:layout_constraintTop_toBottomOf="@id/user_info_nickname" />
+                app:layout_constraintTop_toBottomOf="@id/user_info_display_name" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/user_info_bio"
@@ -95,8 +108,19 @@
                 app:constraint_referenced_ids="user_info_avatar, user_info_id" />
 
             <Button
+                android:id="@+id/user_info_edit_display_name"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:text="@string/user_info_edit_display_name"
+                android:visibility="@{viewModel.showIfFriend, default=gone}"
+                app:layout_constraintBottom_toTopOf="@id/user_info_send_message"
+                tools:visibility="visible" />
+
+            <Button
                 android:id="@+id/user_info_delete_friend"
-                style="@style/Widget.Cercis.Button.TextButton.Accent"
+                style="@style/Widget.Cercis.Button.Outlined.Accent"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"

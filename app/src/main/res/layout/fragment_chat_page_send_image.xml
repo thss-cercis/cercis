@@ -10,9 +10,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/chat_action_send_image_take_photo_button"
-        style="@style/Widget.Cercis.Button.OutlinedIconButton.Surface"
-        android:layout_width="@dimen/chat_extra_action_button_size"
-        android:layout_height="@dimen/chat_extra_action_button_size"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:backgroundTint="?attr/colorSurface"
         android:elevation="2dp"
         android:text="@string/chat_action_send_image_take_photo_button"
@@ -25,9 +25,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/chat_action_send_image_take_video_button"
-        style="@style/Widget.Cercis.Button.OutlinedIconButton.Surface"
-        android:layout_width="@dimen/chat_extra_action_button_size"
-        android:layout_height="@dimen/chat_extra_action_button_size"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:backgroundTint="?attr/colorSurface"
         android:elevation="2dp"
         android:text="@string/chat_action_send_image_take_video_button"
@@ -40,9 +40,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/chat_action_send_image_from_gallery_button"
-        style="@style/Widget.Cercis.Button.OutlinedIconButton.Surface"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="@dimen/chat_extra_action_button_size"
-        android:layout_height="@dimen/chat_extra_action_button_size"
+        android:layout_height="wrap_content"
         android:backgroundTint="?attr/colorSurface"
         android:elevation="2dp"
         android:text="@string/chat_action_send_image_from_gallery_button"

@@ -23,6 +23,7 @@ import cn.cercis.viewmodel.UserInfoViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,6 +48,7 @@ class UserInfoFragment : Fragment() {
             userInfoSendMessage.setOnClickListener { openChat() }
             userInfoAddFriend.setOnClickListener { sendFriendRequest() }
             userInfoDeleteFriend.setOnClickListener { deleteFriend() }
+            userInfoEditDisplayName.setOnClickListener { editFriendDisplayName() }
             executePendingBindings()
         }
         return binding.root
@@ -74,6 +76,59 @@ class UserInfoFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun editFriendDisplayName() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(R.layout.dialog_edit_friend_display_name)
+            .setTitle(R.string.dialog_edit_friend_display_name_title)
+            .setPositiveButton("确认") { dialog, _ ->
+                dialog as AlertDialog
+                val displayName =
+                    dialog.findViewById<TextInputEditText>(R.id.dialog_edit_friend_display_name_edit_text)?.text?.toString()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val makeRequest = suspend {
+                        userInfoViewModel.editFriendDisplayName(displayName ?: "")
+                    }
+                    val result = MutableLiveData(makeRequest())
+                    launch(Dispatchers.Main) {
+                        result.observe(viewLifecycleOwner) {
+                            when (it) {
+                                is NetworkResponse.NetworkError, is NetworkResponse.Reject -> {
+                                    snackbarMakeError(binding.root,
+                                        it.message!!,
+                                        Snackbar.LENGTH_SHORT) {
+                                        setAction(R.string.dialog_edit_friend_display_name_retry) {
+                                            launch {
+                                                result.postValue(makeRequest())
+                                            }
+                                        }
+                                    }
+                                }
+                                is NetworkResponse.Success -> {
+                                    snackbarMakeSuccess(binding.root,
+                                        getString(R.string.dialog_edit_friend_display_name_success),
+                                        Snackbar.LENGTH_SHORT
+                                    )
+                                }
+                                null -> Unit
+                            }
+                        }
+                    }
+                }
+            }
+            .setNegativeButton(R.string.dialog_edit_friend_display_name_cancel) { _, _ -> }
+            .show()
+            .let { dialog ->
+                userInfoViewModel.friendEntry.value?.let {
+                    dialog.findViewById<TextInputLayout>(R.id.dialog_edit_friend_display_name_layout)!!.apply {
+                        isHintAnimationEnabled = false
+                        dialog.findViewById<TextInputEditText>(R.id.dialog_edit_friend_display_name_edit_text)!!
+                            .setText(it.displayName)
+                        isHintAnimationEnabled = true
+                    }
+                }
+            }
     }
 
     private fun sendFriendRequest() {

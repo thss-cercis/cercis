@@ -4,14 +4,10 @@ import cn.cercis.common.ApplyId
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
 import cn.cercis.dao.FriendDao
-import cn.cercis.dao.UserDao
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.FriendRequest
-import cn.cercis.entity.FriendUser
-import cn.cercis.entity.User
 import cn.cercis.http.*
 import cn.cercis.util.resource.DataSource
-import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -115,18 +111,15 @@ class FriendRepository @Inject constructor(
     suspend fun rejectFriendRequest(applyId: ApplyId) =
         httpService.rejectAddingFriend(RejectAddingFriendRequest(applyId))
 
-    suspend fun updateFriendRemark(
+    suspend fun editFriendDisplayName(
         id: UserId,
-        remark: String? = null,
         displayName: String? = null,
-    ) =
-        httpService.updateFriendRemark(
-            UpdateFriendRemarkRequest(
-                id = id,
-                remark = remark,
-                displayName = displayName,
-            )
+    ) = httpService.updateFriendDisplayName(
+        UpdateFriendDisplayNameRequest(
+            id = id,
+            displayName = displayName,
         )
+    )
 
     suspend fun deleteFriend(id: UserId) =
         httpService.deleteFriend(DeleteFriendRequest(id))

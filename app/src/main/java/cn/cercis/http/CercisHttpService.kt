@@ -1,6 +1,5 @@
 package cn.cercis.http
 
-import androidx.room.PrimaryKey
 import cn.cercis.common.*
 import cn.cercis.entity.*
 import cn.cercis.util.resource.NetworkResponse
@@ -61,7 +60,7 @@ interface CercisHttpService {
     suspend fun rejectAddingFriend(@Body request: RejectAddingFriendRequest): EmptyNetworkResponse
 
     @PUT("friend/")
-    suspend fun updateFriendRemark(@Body request: UpdateFriendRemarkRequest): EmptyNetworkResponse
+    suspend fun updateFriendDisplayName(@Body request: UpdateFriendDisplayNameRequest): EmptyNetworkResponse
 
     @HTTP(method = "DELETE", path = "friend/", hasBody = true)
     suspend fun deleteFriend(@Body request: DeleteFriendRequest): EmptyNetworkResponse
@@ -253,9 +252,8 @@ data class AddFriendRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class UpdateFriendRemarkRequest(
+data class UpdateFriendDisplayNameRequest(
     @Json(name = "friend_id") val id: UserId,
-    val remark: String?,
     @Json(name = "alias") val displayName: String?,
 )
 

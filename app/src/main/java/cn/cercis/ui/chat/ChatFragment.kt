@@ -353,16 +353,6 @@ class ChatFragment : Fragment() {
                             )
                         }
                     }
-                } else if (firstLoad && adapter.currentList.isNotEmpty()) {
-                    Log.d(this@ChatFragment.LOG_TAG, "move to last read")
-                    firstLoad = false
-                    val targetPos =
-                        adapter.currentList.indexOfFirst { it.messageComposeId.messageId == viewModel.lastRead.value }
-                    if (targetPos != -1) {
-                        post {
-                            scrollToPosition(targetPos)
-                        }
-                    }
                 }
             }
 

@@ -10,8 +10,13 @@
     <string name="chat_action_send_audio_hint_cancel">松开撤消</string>
     <string name="chat_action_send_audio_hint_press">按住录制</string>
     <string name="chat_action_send_audio_hint_release">松开发送，拖动撤消</string>
+    <string name="chat_action_send_image_from_gallery_button">相册</string>
+    <string name="chat_action_send_image_take_photo_button">拍摄</string>
+    <string name="chat_action_send_image_take_video_button">录制</string>
     <string name="chat_fab_description">跳转到最新消息</string>
+    <string name="chat_item_outgoing_retry">重试消息发送</string>
     <string name="chat_menu_action_show_members">显示群聊成员</string>
+    <string name="chat_message_action_withdraw">撤回</string>
     <string name="chat_message_sending">发送中</string>
     <string name="chat_message_uploading">上传中</string>
     <string name="chat_send_audio_page_toast_record_too_short">录音时间过短</string>
@@ -33,6 +38,10 @@
     <string name="create_group_dialog_ok">确定</string>
     <string name="create_group_retry">重试</string>
     <string name="create_group_title">创建群聊</string>
+    <string name="dialog_edit_friend_display_name_title">修改备注</string>
+    <string name="dialog_edit_friend_display_name_cancel">取消</string>
+    <string name="dialog_edit_friend_display_name_retry">重试</string>
+    <string name="dialog_edit_friend_display_name_success">备注已修改</string>
     <string name="dialog_friend_request_cancel">取消</string>
     <string name="dialog_friend_request_retry">重试</string>
     <string name="dialog_friend_request_send">发送申请</string>
@@ -58,6 +67,7 @@
     <string name="hint_bio">个性签名</string>
     <string name="hint_create_group_name">群聊名称</string>
     <string name="hint_email">邮箱</string>
+    <string name="hint_friend_display_name">好友备注(可以留空)</string>
     <string name="hint_friend_request_display_name">好友备注(可选)</string>
     <string name="hint_friend_request_remark">验证消息(可选)</string>
     <string name="hint_nickname">昵称</string>
@@ -93,6 +103,7 @@
     <string name="permission_not_granted_dialog_title">权限获取失败</string>
     <string name="profile_button_logout">登出</string>
     <string name="profile_cercis_id">Cercis ID: %d</string>
+    <string name="profile_display_name">备注: %s</string>
     <string name="profile_edit_select_avatar">选择头像图片</string>
     <string name="profile_edit_title">修改个人信息</string>
     <string name="select_user_default_title">选择用户</string>
@@ -120,10 +131,6 @@
     <string name="title_activity_startup">Cercis</string>
     <string name="user_info_add_friend">加好友</string>
     <string name="user_info_delete_friend">删除好友</string>
+    <string name="user_info_edit_display_name">编辑好友备注</string>
     <string name="user_info_send_messages">发消息</string>
-    <string name="chat_action_send_image_take_video_button">录制</string>
-    <string name="chat_action_send_image_take_photo_button">拍摄</string>
-    <string name="chat_action_send_image_from_gallery_button">相册</string>
-    <string name="chat_item_outgoing_retry">重试消息发送</string>
-    <string name="chat_message_action_withdraw">撤回</string>
 </resources>
