@@ -22,6 +22,10 @@
         <variable
             name="failed"
             type="boolean" />
+
+        <variable
+            name="messageId"
+            type="long" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

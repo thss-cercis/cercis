@@ -89,10 +89,11 @@ class MessageRepository @Inject constructor(
      */
     private fun insertMessagesAndPerformWithdraw(messages: List<Message>) {
         val withdrawedMessages = messages.filter {
-            it.type == MessageType.WITHDRAW.type
+            //            is withdraw            //          valid content         //
+            it.type == MessageType.WITHDRAW.type && it.message.toLongOrNull() != null
         }.map {
             Message(
-                messageId = it.messageId,
+                messageId = it.message.toLong(),
                 chatId = it.chatId,
                 type = MessageType.DELETED.type,
                 message = "",
@@ -147,6 +148,7 @@ class MessageRepository @Inject constructor(
             }
         }
     }
+
 
     /**
      * Indicates uploading progress of a message.

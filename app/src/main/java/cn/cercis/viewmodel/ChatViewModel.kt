@@ -19,6 +19,7 @@ import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.helper.instantCombine
 import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
+import cn.cercis.util.livedata.observeOnce
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -49,6 +50,7 @@ class ChatViewModel @Inject constructor(
     val unreadCount = generateMediatorLiveData(latestMessage, lastRead) {
         max(0L, (latestMessage.value?.messageId ?: 0L) - (lastRead.value ?: 0L))
     }
+    val initialDataSet = MutableLiveData(false)
     private val chatParticipants = messageRepository.getChatMemberList(chatId).flow().map { res ->
         res.data?.map { userRepository.getUser(it.userId).dbFlow().asLiveData(coroutineContext) }
     }
@@ -110,8 +112,9 @@ class ChatViewModel @Inject constructor(
         val isFailed: Boolean = !isSending
     }
 
+    val initialValue = ArrayList<DisplayMessage>()
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
-    val chatMessageList = MutableLiveData<List<DisplayMessage>>(listOf())
+    val chatMessageList = MutableLiveData<List<DisplayMessage>>(initialValue)
     val isAtBottom = MutableStateFlow(true)
     val fabVisible = isAtBottom.mapLatest {
         if (!it) {
@@ -176,15 +179,17 @@ class ChatViewModel @Inject constructor(
                     null -> Unit
                     is Resource.Error -> Unit
                     is Resource.Loading -> Unit
-                    is Resource.Success -> chatMessageList.postValue(
-                        if (pending != null) {
-                            (res.data.map { SentDisplayMessage(it) } + pending.map {
-                                PendingDisplayMessage(it, currentUserId)
-                            })
-                        } else {
-                            res.data.map { SentDisplayMessage(it) }
-                        }.sortedByDescending { it.messageComposeId }
-                    )
+                    is Resource.Success -> {
+                        chatMessageList.postValue(
+                            if (pending != null) {
+                                (res.data.map { SentDisplayMessage(it) } + pending.map {
+                                    PendingDisplayMessage(it, currentUserId)
+                                })
+                            } else {
+                                res.data.map { SentDisplayMessage(it) }
+                            }.sortedByDescending { it.messageComposeId }
+                        )
+                    }
                 }
             }
         }
@@ -208,6 +213,10 @@ class ChatViewModel @Inject constructor(
 
     fun submitLastRead(messageId: MessageId) {
         lastReadSubmitted.value = max(lastReadSubmitted.value, messageId)
+    }
+
+    fun withdrawMessage(messageId: MessageId) {
+        messageRepository.addMessageToPendingList(WithdrawMessage(chatId, messageId))
     }
 
     fun sendTextMessage(message: String) {

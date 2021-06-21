@@ -22,10 +22,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
@@ -40,6 +42,7 @@ import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.closeIme
 import cn.cercis.util.helper.openApplicationSettingsPage
 import cn.cercis.util.helper.requireMainActivity
+import cn.cercis.util.livedata.observeFilterFirst
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
@@ -121,7 +124,7 @@ class ChatFragment : Fragment() {
                             ChatItemDeletedBinding.inflate(layoutInflater, parent, false)
                         }
                         MessageType.WITHDRAW -> {
-                            ChatItemDeletedBinding.inflate(layoutInflater, parent, false)
+                            ChatItemWithdrawedBinding.inflate(layoutInflater, parent, false)
                         }
                         else -> {
                             val (ret, imageView, textView) = when (mvt.direction) {
@@ -167,6 +170,26 @@ class ChatFragment : Fragment() {
                                 MessageType.LOCATION -> Unit
                                 else -> throw IllegalStateException("unexpected message type")
                             }
+                            if (mvt.direction == OUTGOING.type) {
+                                when (msgType) {
+                                    MessageType.UNKNOWN, MessageType.WITHDRAW, MessageType.DELETED -> {
+                                    }
+                                    else -> {
+                                        (ret as ChatItemOutgoingBinding).chatItemOutgoingBubble.apply {
+                                            setOnCreateContextMenuListener { menu, _, _ ->
+                                                menu.add(getString(R.string.chat_message_action_withdraw))
+                                                    .setOnMenuItemClickListener {
+                                                        viewModel.withdrawMessage((ret as ChatItemOutgoingBinding).messageId)
+                                                        true
+                                                    }
+                                            }
+                                            setOnLongClickListener {
+                                                showContextMenu()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             ret
                         }
                     }
@@ -178,8 +201,14 @@ class ChatFragment : Fragment() {
                         // delete and withdraw has special layouts
                         MessageType.DELETED -> Unit
                         MessageType.WITHDRAW -> {
-                            (holder.binding as ChatItemWithdrawedBinding)
-                                .user = viewModel.loadUser(data.senderId)
+                            (holder.binding as ChatItemWithdrawedBinding).apply {
+                                if (data is ChatViewModel.SentDisplayMessage) {
+                                    holder.binding.root.visibility = View.VISIBLE
+                                    user = viewModel.loadUser(data.senderId)
+                                } else {
+                                    holder.binding.root.visibility = View.GONE
+                                }
+                            }
                         }
                         else -> {
                             val itemBinding = holder.binding
@@ -187,6 +216,8 @@ class ChatFragment : Fragment() {
                                 OUTGOING.type -> (itemBinding as ChatItemOutgoingBinding)
                                     .let {
                                         it.user = viewModel.loadUser(data.senderId)
+                                        // bind messageId for withdraw
+                                        it.messageId = data.messageComposeId.messageId
                                         Triple(it.chatItemMessageImage,
                                             it.chatItemMessageText,
                                             it.chatItemOutgoingBubble)
@@ -278,8 +309,9 @@ class ChatFragment : Fragment() {
             var autoScrollToBottom = false
             var firstLoad = true
             val linearLayoutManager = layoutManager as LinearLayoutManager
-            linearLayoutManager.stackFromEnd = true
             linearLayoutManager.reverseLayout = true
+            itemAnimator = null
+//            (itemAnimator as DefaultItemAnimator).supportsChangeAnimations = false
             // when scrolled to bottom and autoScrollToBottom is true, chat will scroll to bottom on new messages
             setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
@@ -579,18 +611,19 @@ class ChatFragment : Fragment() {
                         cr.getType(it)?.let { mime ->
                             try {
                                 getTempFile(".tmp").apply {
-                                    requireContext().contentResolver.openInputStream(uri)?.let { input ->
-                                        FileOutputStream(this).use {
-                                            input.copyTo(it)
+                                    requireContext().contentResolver.openInputStream(uri)
+                                        ?.let { input ->
+                                            FileOutputStream(this).use {
+                                                input.copyTo(it)
+                                            }
+                                            if (mime.startsWith("image/")) {
+                                                // image
+                                                viewModel.sendImageMessage(this)
+                                            } else if (mime.startsWith("video/")) {
+                                                // video
+                                                viewModel.sendVideoMessage(this)
+                                            }
                                         }
-                                        if (mime.startsWith("image/")) {
-                                            // image
-                                            viewModel.sendImageMessage(this)
-                                        } else if (mime.startsWith("video/")) {
-                                            // video
-                                            viewModel.sendVideoMessage(this)
-                                        }
-                                    }
                                 }
                             } catch (ex: IOException) {
                                 ex.printStackTrace()

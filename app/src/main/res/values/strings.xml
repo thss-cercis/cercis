@@ -125,4 +125,5 @@
     <string name="chat_action_send_image_take_photo_button">拍摄</string>
     <string name="chat_action_send_image_from_gallery_button">相册</string>
     <string name="chat_item_outgoing_retry">重试消息发送</string>
+    <string name="chat_message_action_withdraw">撤回</string>
 </resources>
