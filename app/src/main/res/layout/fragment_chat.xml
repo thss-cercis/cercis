@@ -219,10 +219,9 @@
                 android:id="@+id/chat_action_send_audio_page"
                 layout="@layout/fragment_chat_page_send_audio" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <include
                 android:id="@+id/chat_action_send_image_page"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                layout="@layout/fragment_chat_page_send_image" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/chat_action_send_emoji_page"

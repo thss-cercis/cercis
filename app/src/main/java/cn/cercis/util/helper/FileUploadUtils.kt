@@ -1,14 +1,13 @@
 package cn.cercis.util.helper
 
-import android.net.Uri
 import android.util.Log
-import androidx.core.net.toFile
 import cn.cercis.common.LOG_TAG
 import cn.cercis.http.CercisHttpService
 import cn.cercis.util.resource.NetworkResponse
 import com.qiniu.android.storage.UploadManager
 import com.qiniu.android.storage.UploadOptions
 import kotlinx.coroutines.Job
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,7 +19,7 @@ class FileUploadUtils @Inject constructor(
     /**
      * Uploads a file and gets the result key.
      */
-    suspend fun uploadFile(uri: Uri): NetworkResponse<String> {
+    suspend fun uploadFile(file: File): NetworkResponse<String> {
         val tokenRes = httpService.getUploadToken()
         if (tokenRes !is NetworkResponse.Success) {
             return tokenRes.use { "" }
@@ -29,7 +28,7 @@ class FileUploadUtils @Inject constructor(
         val job = Job()
         var response: NetworkResponse<String>? = null
         qiniuUploadManager.put(
-            uri.toFile(),
+            file,
             null,
             token,
             { _, info, qiniuRes ->

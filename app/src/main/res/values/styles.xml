@@ -148,10 +148,18 @@
         <item name="iconGravity">textStart</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
         <item name="android:minWidth">40dp</item>
         <item name="android:minHeight">40dp</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.OutlinedIconButton.Surface" parent="Widget.Cercis.Button.OutlinedIconButton">
+        <item name="materialThemeOverlay">@style/SurfaceButton</item>
+    </style>
+
+    <style name="SurfaceButton">
+        <item name="colorOnPrimary">?attr/colorSurface</item>
     </style>
 
     <style name="CercisButton">
@@ -202,11 +210,13 @@
 
     <style name="Widget.Cercis.Bubble.Incoming" parent="Widget.Cercis.Bubble">
         <item name="android:background">@drawable/shape_incoming_bubble</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:textColor">?attr/colorOnIncomingBubble</item>
     </style>
 
     <style name="Widget.Cercis.Bubble.Outgoing" parent="Widget.Cercis.Bubble">
         <item name="android:background">@drawable/shape_outgoing_bubble</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:textColor">?attr/colorOnOutgoingBubble</item>
     </style>
 

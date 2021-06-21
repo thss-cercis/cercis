@@ -1,10 +1,9 @@
 package cn.cercis.viewmodel
 
-import android.util.Log
-import androidx.annotation.MainThread
-import androidx.lifecycle.*
-import cn.cercis.common.LOG_TAG
-import cn.cercis.common.UserId
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import cn.cercis.entity.Chat
 import cn.cercis.entity.ChatMember
 import cn.cercis.entity.FriendEntry
@@ -17,8 +16,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @FlowPreview

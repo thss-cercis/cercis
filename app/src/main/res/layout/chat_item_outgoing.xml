@@ -9,9 +9,19 @@
 
         <import type="cn.cercis.viewmodel.CommonListItemData" />
 
+        <import type="android.view.View" />
+
         <variable
             name="user"
             type="LiveData&lt;CommonListItemData>" />
+
+        <variable
+            name="sending"
+            type="boolean" />
+
+        <variable
+            name="failed"
+            type="boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -47,13 +57,42 @@
             tools:ignore="RtlHardcoded"
             tools:text="测试用户名" />
 
+        <ProgressBar
+            android:id="@+id/chat_item_outgoing_sending_bar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginRight="8dp"
+            android:indeterminate="true"
+            android:visibility="@{sending ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintBottom_toBottomOf="@id/chat_item_outgoing_bubble"
+            app:layout_constraintRight_toLeftOf="@id/chat_item_outgoing_bubble"
+            app:layout_constraintTop_toTopOf="@id/chat_item_outgoing_bubble"
+            tools:ignore="RtlHardcoded" />
+
+        <ImageView
+            android:id="@+id/chat_item_outgoing_retry"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginRight="8dp"
+            android:src="@drawable/ic_refresh_24"
+            app:layout_constraintBottom_toBottomOf="@id/chat_item_outgoing_bubble"
+            app:layout_constraintRight_toLeftOf="@id/chat_item_outgoing_bubble"
+            app:layout_constraintTop_toTopOf="@id/chat_item_outgoing_bubble"
+            android:visibility="@{failed ? View.VISIBLE : View.GONE, default=gone}"
+            app:tint="?attr/colorError"
+            tools:ignore="RtlHardcoded"
+            android:contentDescription="@string/chat_item_outgoing_retry" />
+
         <LinearLayout
+            android:id="@+id/chat_item_outgoing_bubble"
             style="@style/Widget.Cercis.Bubble.Outgoing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/chat_bubble_margin"
             android:layout_marginTop="4dp"
             android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:focusable="true"
             android:minWidth="@dimen/chat_bubble_min_width"
             android:minHeight="@dimen/chat_bubble_min_height"
             android:orientation="vertical"
@@ -80,6 +119,7 @@
                 style="@style/Widget.Cercis.Bubble.TextView.Outgoing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:textAppearance="@style/TextAppearance.Cercis.Bubble"
                 app:drawableTint="?attr/colorOnOutgoingBubble"
                 tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel ullamcorper enim. Donec et ex tellus. Donec blandit sed eros non vestibulum. Mauris arcu velit, ultricies in vehicula ut, efficitur a urna. Morbi ut tellus risus. Cras dignissim, tortor nec imperdiet ultricies, elit libero condimentum ligula, ut facilisis purus sem a ipsum. Nam turpis nisl, posuere sed vestibulum eu, iaculis sed urna. Cras accumsan urna gravida est interdum, vel mattis neque fringilla. Nunc eu ullamcorper ex. " />

@@ -6,8 +6,14 @@
     <string name="activity_sample_video_url">http://azusa.one/cercis/1</string>
     <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
+    <string name="chat_action_send_audio_cancel_icon_description">撤销发送</string>
+    <string name="chat_action_send_audio_hint_cancel">松开撤消</string>
+    <string name="chat_action_send_audio_hint_press">按住录制</string>
+    <string name="chat_action_send_audio_hint_release">松开发送，拖动撤消</string>
     <string name="chat_fab_description">跳转到最新消息</string>
     <string name="chat_menu_action_show_members">显示群聊成员</string>
+    <string name="chat_message_sending">发送中</string>
+    <string name="chat_send_audio_page_toast_record_too_short">录音时间过短</string>
     <string name="chat_sending_message_count">正在发送 %d 条消息…</string>
     <string name="chat_unsent_messages">未发送的消息</string>
     <string name="chat_unsent_messages_ask_retry">有 %d 条发送失败的消息，是否尝试重新发送？</string>
@@ -41,7 +47,9 @@
     <string name="friend_request_accept_success">已添加</string>
     <string name="friend_request_finished">已确认</string>
     <string name="friend_request_pending">待确认</string>
+    <string name="group_info_add_member">添加成员</string>
     <string name="group_info_member_count">%d 位成员</string>
+    <string name="group_info_remove_member">删除成员</string>
     <string name="group_info_toolbar_title">群聊信息</string>
     <string name="group_member_admin">管理员</string>
     <string name="group_member_member">群员</string>
@@ -78,10 +86,15 @@
     <string name="nav_profile">我的</string>
     <string name="notification_channel_description">消息通知</string>
     <string name="notification_name">Cercis</string>
+    <string name="permission_not_granted_dialog_cancel">取消</string>
+    <string name="permission_not_granted_dialog_jump_to_app_settings">手动设置</string>
+    <string name="permission_not_granted_dialog_record_audio_required">发送音频需要开启录音权限</string>
+    <string name="permission_not_granted_dialog_title">权限获取失败</string>
     <string name="profile_button_logout">登出</string>
     <string name="profile_cercis_id">Cercis ID: %d</string>
     <string name="profile_edit_select_avatar">选择头像图片</string>
     <string name="profile_edit_title">修改个人信息</string>
+    <string name="select_user_default_title">选择用户</string>
     <string name="signup_button_back_to_login">返回登录界面</string>
     <string name="signup_button_signup">注册</string>
     <string name="signup_code">验证码</string>
@@ -107,11 +120,8 @@
     <string name="user_info_add_friend">加好友</string>
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_send_messages">发消息</string>
-    <string name="group_info_add_member">添加成员</string>
-    <string name="group_info_remove_member">删除成员</string>
-    <string name="select_user_default_title">选择用户</string>
-    <string name="chat_action_send_audio_cancel_icon_description">撤销发送</string>
-    <string name="chat_action_send_audio_hint_press">按住录制</string>
-    <string name="chat_action_send_audio_hint_release">松开发送，拖动撤消</string>
-    <string name="chat_action_send_audio_hint_cancel">松开撤消</string>
+    <string name="chat_action_send_image_take_video_button">录制</string>
+    <string name="chat_action_send_image_take_photo_button">拍摄</string>
+    <string name="chat_action_send_image_from_gallery_button">相册</string>
+    <string name="chat_item_outgoing_retry">重试消息发送</string>
 </resources>

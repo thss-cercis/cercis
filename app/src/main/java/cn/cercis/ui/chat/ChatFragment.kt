@@ -1,16 +1,27 @@
 package cn.cercis.ui.chat
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
+import android.content.ContentResolver
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,11 +34,12 @@ import cn.cercis.entity.ChatType
 import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
+import cn.cercis.util.getSharedTempFile
+import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.closeIme
+import cn.cercis.util.helper.openApplicationSettingsPage
 import cn.cercis.util.helper.requireMainActivity
-import cn.cercis.util.helper.setCloseImeOnLoseFocus
-import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
@@ -39,13 +51,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 import java.util.*
+
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
     private val viewModel: ChatViewModel by viewModels()
+    private val mediaPlayer: MediaPlayer = MediaPlayer()
 
     companion object {
         data class MessageViewType(
@@ -83,12 +100,18 @@ class ChatFragment : Fragment() {
             findNavController().popBackStack()
         }
 
+        // initialize media player
+        mediaPlayer.setOnPreparedListener {
+            it.start()
+            Log.d(LOG_TAG, "mediaplayer prepared, starting...")
+        }
+
         // initialize recycler view
         binding.chatRecyclerView.apply {
             val adapter = DiffRecyclerViewAdapter.getInstance(
                 dataSource = viewModel.chatMessageList,
                 viewLifecycleOwnerSupplier = { viewLifecycleOwner },
-                itemIndex = { messageId },
+                itemIndex = { messageComposeId },
                 contentsSameCallback = Objects::equals,
                 inflater = { layoutInflater, parent, viewType ->
                     val mvt = MessageViewType.fromViewType(viewType)
@@ -160,30 +183,72 @@ class ChatFragment : Fragment() {
                         }
                         else -> {
                             val itemBinding = holder.binding
-                            val (imageView, textView) = when (mvt.direction) {
+                            val (imageView, textView, bubble) = when (mvt.direction) {
                                 OUTGOING.type -> (itemBinding as ChatItemOutgoingBinding)
                                     .let {
                                         it.user = viewModel.loadUser(data.senderId)
-                                        it.chatItemMessageImage to it.chatItemMessageText
+                                        Triple(it.chatItemMessageImage,
+                                            it.chatItemMessageText,
+                                            it.chatItemOutgoingBubble)
                                     }
                                 INCOMING.type -> (itemBinding as ChatItemIncomingBinding)
                                     .let {
                                         it.user = viewModel.loadUser(data.senderId)
-                                        it.chatItemMessageImage to it.chatItemMessageText
+                                        Triple(it.chatItemMessageImage,
+                                            it.chatItemMessageText,
+                                            it.chatItemIncomingBubble)
                                     }
                                 else -> throw IllegalStateException("erroneous view type")
                             }
+
+                            // important for bubble to receive click
+                            bubble.isClickable = true
+
+                            if (itemBinding is ChatItemOutgoingBinding) {
+                                if (data is ChatViewModel.PendingDisplayMessage) {
+                                    itemBinding.apply {
+                                        sending = data.isSending
+                                        failed = data.isFailed
+
+                                        // add retry button on click
+                                        if (failed) {
+                                            chatItemOutgoingRetry.setOnClickListener {
+                                                viewModel.retryMessage(data.msgProgress)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    itemBinding.apply {
+                                        sending = false
+                                        failed = false
+                                    }
+                                }
+                            }
+
+                            // bind message for different types
                             when (msgType) {
                                 MessageType.TEXT -> {
                                     textView.text = data.message
                                 }
                                 MessageType.IMAGE -> {
-                                    Glide.with(imageView)
-                                        .load(data.message)
-                                        .into(imageView)
+                                    if (data is ChatViewModel.SentDisplayMessage) {
+                                        textView.visibility = View.GONE
+                                        Glide.with(imageView)
+                                            .load(data.message)
+                                            .into(imageView)
+                                    }
                                 }
                                 MessageType.AUDIO -> {
                                     // TODO bind audio playing
+                                    if (data is ChatViewModel.SentDisplayMessage) {
+                                        bubble.setOnClickListener {
+                                            mediaPlayer.reset()
+                                            mediaPlayer.setDataSource(requireContext(),
+                                                data.message.toUri())
+                                            mediaPlayer.prepareAsync()
+                                            Log.d(LOG_TAG, "preparing media: ${data.message}")
+                                        }
+                                    }
                                     textView.text = getString(R.string.message_type_audio)
                                 }
                                 MessageType.VIDEO -> {
@@ -219,16 +284,16 @@ class ChatFragment : Fragment() {
             setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
                 val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
                 val oldestVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-                adapter.currentList.getOrNull(latestVisible)?.messageId?.let {
-                    viewModel.submitLastRead(it)
+                adapter.currentList.getOrNull(latestVisible)?.messageComposeId?.let {
+                    viewModel.submitLastRead(it.messageId)
                 }
                 if (latestVisible != -1 && oldestVisible != -1) {
                     viewModel.informVisibleRange(
-                        adapter.currentList[oldestVisible].messageId,
-                        adapter.currentList[latestVisible].messageId,
+                        adapter.currentList[oldestVisible].messageComposeId.messageId,
+                        adapter.currentList[latestVisible].messageComposeId.messageId,
                     )
                 }
-                if (latestVisible == 0 && adapter.currentList.firstOrNull()?.messageId == viewModel.latestMessage.value?.messageId) {
+                if (latestVisible == 0 && adapter.currentList.firstOrNull()?.messageComposeId?.messageId == viewModel.latestMessage.value?.messageId) {
                     viewModel.lockToLatest()
                     autoScrollToBottom = true
                     Log.d(this@ChatFragment.LOG_TAG, "scrolled to bottom")
@@ -244,12 +309,23 @@ class ChatFragment : Fragment() {
                     post {
                         smoothScrollToPosition(0)
                         autoScrollToBottom = true
+
+                        val latestVisible =
+                            linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+                        val oldestVisible =
+                            linearLayoutManager.findLastCompletelyVisibleItemPosition()
+                        if (latestVisible != -1 && oldestVisible != -1) {
+                            viewModel.informVisibleRange(
+                                adapter.currentList[oldestVisible].messageComposeId.messageId,
+                                adapter.currentList[latestVisible].messageComposeId.messageId,
+                            )
+                        }
                     }
                 } else if (firstLoad && adapter.currentList.isNotEmpty()) {
                     Log.d(this@ChatFragment.LOG_TAG, "move to last read")
                     firstLoad = false
                     val targetPos =
-                        adapter.currentList.indexOfFirst { it.messageId == viewModel.lastRead.value }
+                        adapter.currentList.indexOfFirst { it.messageComposeId.messageId == viewModel.lastRead.value }
                     if (targetPos != -1) {
                         post {
                             scrollToPosition(targetPos)
@@ -382,10 +458,144 @@ class ChatFragment : Fragment() {
         // close panel on scrim touched
         binding.chatActionFlipperScrim.setOnTouchListener { _, _ -> viewModel.foldPanel(); true }
 
+        val recordingPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()
+            ) { granted ->
+                if (granted[Manifest.permission.RECORD_AUDIO] != true) {
+                    // if permission is not granted, pop up a dialog.
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.permission_not_granted_dialog_title)
+                        .setMessage(R.string.permission_not_granted_dialog_record_audio_required)
+                        .setPositiveButton(R.string.permission_not_granted_dialog_jump_to_app_settings) { _, _ ->
+                            openApplicationSettingsPage()
+                        }
+                        .setNegativeButton(R.string.permission_not_granted_dialog_cancel) { _, _ -> }
+                        .show()
+                }
+            }
+
+        // bind audio recoding page
+        binding.chatActionSendAudioPage.apply {
+            viewModel.isRecording.observe(viewLifecycleOwner) {
+                if (it == true) {
+                    this.chatActionSendAudioPage.transitionToState(R.id.state_send_audio_recording)
+                }
+            }
+
+            var rect: Rect? = null
+            var recordStartTime: Long = 0
+            this.chatActionSendAudioRecordButton.setOnTouchListener { v, event ->
+                val recording = viewModel.isRecording.value == true
+                when (event.action) {
+                    ACTION_DOWN -> {
+                        v.isPressed = true
+                        rect = Rect(v.left, v.top, v.right, v.bottom)
+                        if (ActivityCompat.checkSelfPermission(requireContext(),
+                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            // if not granted, request for permission
+                            recordingPermissionLauncher.launch(arrayOf(Manifest.permission.RECORD_AUDIO))
+                        } else {
+                            viewModel.startRecording()
+                            recordStartTime = System.currentTimeMillis()
+                        }
+                    }
+                    ACTION_UP -> {
+                        v.isPressed = false
+                        if (System.currentTimeMillis() - recordStartTime < 500) {
+                            Toast.makeText(requireContext(),
+                                getString(R.string.chat_send_audio_page_toast_record_too_short),
+                                Toast.LENGTH_SHORT).show()
+                        }
+                        viewModel.finishRecording()
+                        this.chatActionSendAudioPage.transitionToStart()
+                    }
+                    ACTION_CANCEL -> {
+                        v.isPressed = false
+                        viewModel.cancelRecording()
+                        this.chatActionSendAudioPage.transitionToStart()
+                    }
+                    ACTION_MOVE -> {
+                        // https://stackoverflow.com/a/8069887
+                        rect?.let {
+                            if (recording) {
+                                if (!it.contains(v.left + event.x.toInt(), v.top + event.y.toInt())
+                                ) {
+                                    // User moved outside bounds
+                                    this.chatActionSendAudioPage.transitionToState(R.id.state_send_audio_about_to_delete)
+                                } else {
+                                    this.chatActionSendAudioPage.transitionToState(R.id.state_send_audio_recording)
+                                }
+                            }
+                        }
+                    }
+                }
+                true
+            }
+        }
+
+        binding.chatActionSendImagePage.apply {
+            var imageFile: File? = null
+            val takePictureLauncher =
+                registerForActivityResult(ActivityResultContracts.TakePicture()
+                ) { bool ->
+                    if (bool) {
+                        imageFile?.let { viewModel.sendImageMessage(it) }
+                    }
+                }
+
+            this.chatActionSendImageTakePhotoButton.setOnClickListener {
+                takePictureLauncher.launch(getSharedTempFile(".jpg").let {
+                    imageFile = it.second
+                    it.first
+                })
+            }
+
+            var videoFile: File? = null
+            val takeVideoLauncher =
+                registerForActivityResult(ActivityResultContracts.TakeVideo()
+                ) { bitmap ->
+                    if (bitmap != null && videoFile != null) {
+                        videoFile?.let { viewModel.sendVideoMessage(it) }
+                    }
+                }
+            this.chatActionSendImageTakeVideoButton.setOnClickListener {
+                takeVideoLauncher.launch(getSharedTempFile(".mp4").let {
+                    videoFile = it.second
+                    it.first
+                })
+            }
+
+            val fromGalleryLauncher =
+                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    uri?.let { it ->
+                        val cr: ContentResolver = requireContext().contentResolver
+                        cr.getType(it)?.let { mime ->
+                            if (mime.startsWith("image/")) {
+                                // image
+                                viewModel.sendImageMessage(it.toFile())
+                            } else if (mime.startsWith("video/")) {
+                                // video
+                                viewModel.sendVideoMessage(it.toFile())
+                            }
+                        }
+                    }
+                }
+            this.chatActionSendImageFromGalleryButton.setOnClickListener {
+                fromGalleryLauncher.launch("image/* video/*")
+            }
+        }
+
+        // bind send image/video page
         binding.chatActionSendAudio.setOnClickListener { switchToPanel(PAGE_AUDIO) }
         binding.chatActionSendImage.setOnClickListener { switchToPanel(PAGE_IMAGE) }
         binding.chatActionSendEmoji.setOnClickListener { switchToPanel(PAGE_EMOJI) }
         binding.chatActionSendAddition.setOnClickListener { switchToPanel(PAGE_ADDITION) }
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
     }
 }

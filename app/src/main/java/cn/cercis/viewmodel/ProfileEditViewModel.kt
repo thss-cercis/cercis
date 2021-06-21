@@ -3,6 +3,7 @@ package cn.cercis.viewmodel
 import android.net.Uri
 import android.util.Log
 import android.view.View
+import androidx.core.net.toFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -60,9 +61,9 @@ class ProfileEditViewModel @Inject constructor(
 
     fun uploadAvatar(uri: Uri) {
         avatarUploading.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                fileUploadUtils.uploadFile(uri).let {
+                fileUploadUtils.uploadFile(uri.toFile()).let {
                     avatarUploadResult.postValue(uri to it)
                     Log.d(this@ProfileEditViewModel.LOG_TAG, "uploaded avatar: $it")
                     if (it is NetworkResponse.Success) {
@@ -98,6 +99,7 @@ class ProfileEditViewModel @Inject constructor(
                         error.postValue(response.message)
                     }
                 }
+                userRepository.getUser(authRepository.currentUserId).fetchAndSave()
             } finally {
                 isBusy.postValue(false)
             }

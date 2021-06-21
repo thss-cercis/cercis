@@ -48,12 +48,15 @@
             tools:text="测试用户名" />
 
         <LinearLayout
+            android:id="@+id/chat_item_incoming_bubble"
             style="@style/Widget.Cercis.Bubble.Incoming"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="4dp"
             android:layout_marginRight="@dimen/chat_bubble_margin"
+            android:clickable="true"
+            android:focusable="true"
             android:minWidth="@dimen/chat_bubble_min_width"
             android:minHeight="@dimen/chat_bubble_min_height"
             android:orientation="vertical"
@@ -79,6 +82,7 @@
                 style="@style/Widget.Cercis.Bubble.TextView.Incoming"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:textAppearance="@style/TextAppearance.Cercis.Bubble"
                 app:drawableTint="?attr/colorOnOutgoingBubble"
                 tools:text="短测试消息" />

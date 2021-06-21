@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.paging.*
+import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.dao.ChatDao
@@ -13,15 +14,14 @@ import cn.cercis.entity.*
 import cn.cercis.http.*
 import cn.cercis.repository.MessageRepository.PendingMessage.*
 import cn.cercis.util.getString
+import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.resource.DataSource
 import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
-import com.qiniu.android.http.ResponseInfo
-import com.qiniu.android.storage.UploadManager
-import com.qiniu.android.storage.UploadOptions
+import com.squareup.moshi.JsonAdapter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.*
@@ -36,6 +36,7 @@ import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
+
 @FlowPreview
 @ExperimentalCoroutinesApi
 @ActivityRetainedScoped
@@ -45,7 +46,7 @@ class MessageRepository @Inject constructor(
     private val chatMemberDao: ChatMemberDao,
     private val httpService: CercisHttpService,
     private val userRepository: UserRepository,
-    private val qiniuUploadManager: UploadManager,
+    private val fileUploadUtils: FileUploadUtils,
     @ApplicationContext val context: Context,
 ) {
     fun getAllChats() = object : DataSource<List<Chat>>() {
@@ -173,6 +174,8 @@ class MessageRepository @Inject constructor(
     sealed interface UnsentMessage {
         val messageSerial: Int
         val chatId: ChatId
+        val messageType: MessageType
+        val attachAfter: MessageId
     }
 
     /**
@@ -180,39 +183,45 @@ class MessageRepository @Inject constructor(
      */
     sealed class PendingMessage(
         override val chatId: ChatId,
-        val messageType: MessageType,
+        override val attachAfter: MessageId,
+        override val messageType: MessageType,
         override val messageSerial: Int = PendingMessageIndex.incrementAndGet(),
         open val file: File? = null,
     ) : UnsentMessage {
         data class TextMessage(
             override val chatId: ChatId,
+            override val attachAfter: MessageId,
             val text: String,
-        ) : PendingMessage(chatId, MessageType.TEXT)
+        ) : PendingMessage(chatId, attachAfter, MessageType.TEXT)
 
         data class ImageMessage(
             override val chatId: ChatId,
+            override val attachAfter: MessageId,
             override val file: File,
-        ) : PendingMessage(chatId, MessageType.IMAGE)
+        ) : PendingMessage(chatId, attachAfter, MessageType.IMAGE)
 
         data class AudioMessage(
             override val chatId: ChatId,
+            override val attachAfter: MessageId,
             override val file: File,
-        ) : PendingMessage(chatId, MessageType.AUDIO)
+        ) : PendingMessage(chatId, attachAfter, MessageType.AUDIO)
 
         data class VideoMessage(
             override val chatId: ChatId,
+            override val attachAfter: MessageId,
             override val file: File,
-        ) : PendingMessage(chatId, MessageType.VIDEO)
+        ) : PendingMessage(chatId, attachAfter, MessageType.VIDEO)
 
         data class LocationMessage(
             override val chatId: ChatId,
+            override val attachAfter: MessageId,
             val latitude: Double,
             val longitude: Double,
             val description: String,
-        ) : PendingMessage(chatId, MessageType.LOCATION)
+        ) : PendingMessage(chatId, attachAfter, MessageType.LOCATION)
 
         data class WithdrawMessage(override val chatId: ChatId, val messageId: MessageId) :
-            PendingMessage(chatId, MessageType.WITHDRAW)
+            PendingMessage(chatId, messageId, MessageType.WITHDRAW)
     }
 
     /**
@@ -221,7 +230,8 @@ class MessageRepository @Inject constructor(
     data class PreparedMessage(
         override val messageSerial: Int,
         override val chatId: ChatId,
-        val messageType: MessageType,
+        override val attachAfter: MessageId,
+        override val messageType: MessageType,
         val content: String,
     ) : UnsentMessage
 
@@ -333,42 +343,32 @@ class MessageRepository @Inject constructor(
      * Uploads resources for a message, and returns a PreparedMessage if succeeded, or null if failed.
      */
     private suspend fun uploadResource(message: PendingMessage): NetworkResponse<PreparedMessage> {
-        when (message) {
-            is AudioMessage, is ImageMessage, is VideoMessage -> {
-                // TODO upload file
-                val tokenRes = httpService.getUploadToken()
-                if (tokenRes !is Success) {
-                    return tokenRes.use {
-                        PreparedMessage(message.messageSerial,
+        return when (message) {
+            is AudioMessage, is ImageMessage, is VideoMessage  ->
+                fileUploadUtils.uploadFile(message.file!!)
+                    .use {
+                        PreparedMessage(
+                            message.messageSerial,
                             message.chatId,
-                            MessageType.UNKNOWN,
-                            "")
+                            message.attachAfter,
+                            message.messageType,
+                            STATIC_BASE + this
+                        )
                     }
-                }
-                val token = tokenRes.data.uploadToken
-                var isCancelled = false
-                val job = run {
-                    val info: ResponseInfo = qiniuUploadManager.syncPut(
-                        message.file,
-                        null,
-                        token,
-                        UploadOptions.defaultOptions())
-                }
-                // simulate upload
-                delay(400)
-            }
-            is LocationMessage -> return Success(
+            is LocationMessage -> Success(
                 PreparedMessage(
                     message.messageSerial,
                     message.chatId,
+                    message.attachAfter,
                     MessageType.LOCATION,
                     "${message.longitude}#${message.latitude}#${message.description}"
                 )
             )
-            is TextMessage -> return Success(
+            is TextMessage -> Success(
                 PreparedMessage(
                     message.messageSerial,
                     message.chatId,
+                    message.attachAfter,
                     MessageType.TEXT,
                     message.text
                 )
@@ -377,21 +377,12 @@ class MessageRepository @Inject constructor(
                 PreparedMessage(
                     message.messageSerial,
                     message.chatId,
+                    message.attachAfter,
                     MessageType.WITHDRAW,
                     message.messageId.toString()
                 )
             )
         }
-        // TODO
-        return NetworkResponse.NetworkError("unsupported operation")
-    }
-
-    private suspend fun submitMessage(
-        chatId: ChatId,
-        type: MessageType,
-        content: String,
-    ): NetworkResponse<Message> {
-        return sendMessage(chatId, type, content)
     }
 
     /**
@@ -849,7 +840,8 @@ class MessageRepository @Inject constructor(
     }
 
     companion object {
-        private val PendingMessageIndex = AtomicInteger(0)
+        // * this value should always be greater than or equals to 1
+        private val PendingMessageIndex = AtomicInteger(1)
         private val UpdateMark = AtomicInteger(0)
     }
 }

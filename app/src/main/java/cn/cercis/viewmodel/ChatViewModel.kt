@@ -12,14 +12,13 @@ import cn.cercis.entity.Message
 import cn.cercis.repository.*
 import cn.cercis.repository.MessageRepository.MessageUploadProgress
 import cn.cercis.repository.MessageRepository.MessageUploadProgress.*
-import cn.cercis.repository.MessageRepository.PendingMessage.TextMessage
+import cn.cercis.repository.MessageRepository.PendingMessage.*
 import cn.cercis.util.getString
 import cn.cercis.util.getTempFile
-import cn.cercis.util.helper.Progress
 import cn.cercis.util.helper.coroutineContext
+import cn.cercis.util.helper.instantCombine
 import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
-import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -59,13 +58,60 @@ class ChatViewModel @Inject constructor(
         return messageRepository.getOtherUserId(authRepository.currentUserId, chatId).first()
     }
 
+    data class MessageComposeId(
+        val messageId: MessageId,
+        val messageSerial: Int,
+    ) : Comparable<MessageComposeId> {
+        override fun compareTo(other: MessageComposeId): Int {
+            return when {
+                messageId < other.messageId -> -1
+                messageId == other.messageId -> messageSerial - other.messageSerial
+                else -> 1
+            }
+        }
+    }
+
+    /**
+     * A display message can either be a sent or an unsent message.
+     */
+    sealed interface DisplayMessage {
+        val message: String
+        val senderId: UserId
+        val type: Int
+        val messageComposeId: MessageComposeId
+    }
+
+    data class SentDisplayMessage(
+        val msg: Message,
+    ) : DisplayMessage {
+        override val message: String = msg.message
+        override val messageComposeId = MessageComposeId(msg.messageId, 0)
+        override val senderId: UserId = msg.senderId
+        override val type: Int = msg.type
+    }
+
+    data class PendingDisplayMessage(
+        val msgProgress: MessageUploadProgress,
+        val currentUserId: UserId,
+    ) : DisplayMessage {
+        override val message: String = getString(R.string.chat_message_sending)
+        override val senderId: UserId = currentUserId
+        override val messageComposeId = MessageComposeId(
+            msgProgress.unsentMessage.attachAfter,
+            msgProgress.unsentMessage.messageSerial)
+        override val type: Int = msgProgress.unsentMessage.messageType.type
+
+        val isSending: Boolean = msgProgress is Uploading || msgProgress is Submitting
+        val isFailed: Boolean = !isSending
+    }
+
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
-    val chatMessageList = MutableLiveData<List<Message>>(listOf())
+    val chatMessageList = MutableLiveData<List<DisplayMessage>>(listOf())
     val isAtBottom = MutableStateFlow(true)
     val fabVisible = isAtBottom.mapLatest {
         if (!it) {
             // delays being visible
-            delay(200)
+            delay(400) // longer than bottom popup
         }
         it
     }.asInitializedLiveData(coroutineContext, true)
@@ -79,11 +125,11 @@ class ChatViewModel @Inject constructor(
     // messages that are sending but not sent
     private val pendingMessageList = messageRepository.pendingMessageList.map {
         it.filter { pending -> pending.unsentMessage.chatId == chatId }
-    }
+    }.shareIn(viewModelScope, SharingStarted.Eagerly)
     val failedMessageCount = pendingMessageList.mapLatest { list ->
         list.count { it is UploadFailed || it is SubmitFailed }
     }
-    val pendingMessageDisplayCount = pendingMessageList.mapLatest { list ->
+    private val pendingMessageDisplayCount = pendingMessageList.mapLatest { list ->
         Log.d(this@ChatViewModel.LOG_TAG, "list size: ${list.size}")
         val filteredList = list.filter { it is Uploading || it is Submitting }
         if (filteredList.isNotEmpty()) {
@@ -108,8 +154,8 @@ class ChatViewModel @Inject constructor(
             })
 
     // panel
-    val expanded = MutableLiveData<Boolean>(false)
-    val selectedPage = MutableLiveData<Int>(0)
+    val expanded = MutableLiveData(false)
+    val selectedPage = MutableLiveData(0)
     val buttonSelected = (0..3).map {
         generateMediatorLiveData(expanded, selectedPage) {
             expanded.value == true && selectedPage.value == it
@@ -118,11 +164,23 @@ class ChatViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            chatMessages.messageFlow.collect { res: Resource<List<Message>> ->
+            instantCombine(chatMessages.messageFlow,
+                pendingMessageList.mapLatest { delay(200); it }).collectLatest { pair ->
+                val (res: Resource<List<Message>>?, pending) = pair
+                Log.d(LOG_TAG, "pending: $pending")
                 when (res) {
+                    null -> Unit
                     is Resource.Error -> Unit
                     is Resource.Loading -> Unit
-                    is Resource.Success -> chatMessageList.postValue(res.data.reversed())
+                    is Resource.Success -> chatMessageList.postValue(
+                        if (pending != null) {
+                            (res.data.map { SentDisplayMessage(it) } + pending.map {
+                                PendingDisplayMessage(it, currentUserId)
+                            })
+                        } else {
+                            res.data.map { SentDisplayMessage(it) }
+                        }.sortedByDescending { it.messageComposeId }
+                    )
                 }
             }
         }
@@ -149,11 +207,36 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendTextMessage(message: String) {
-        messageRepository.addMessageToPendingList(TextMessage(chatId, message))
+        messageRepository.addMessageToPendingList(TextMessage(chatId,
+            latestMessage.value?.messageId ?: 1,
+            message))
+    }
+
+    fun sendAudioMessage(file: File) {
+        messageRepository.addMessageToPendingList(AudioMessage(chatId,
+            latestMessage.value?.messageId ?: 1, file))
+    }
+
+    fun sendVideoMessage(file: File) {
+        messageRepository.addMessageToPendingList(VideoMessage(chatId,
+            latestMessage.value?.messageId ?: 1, file))
+    }
+
+    fun sendImageMessage(file: File) {
+        messageRepository.addMessageToPendingList(ImageMessage(chatId,
+            latestMessage.value?.messageId ?: 1, file))
     }
 
     fun retryAllPendingMessages() {
         messageRepository.retryAllPendingMessages(chatId)
+    }
+
+    fun retryMessage(msgProgress: MessageUploadProgress) {
+        if (msgProgress is SubmitFailed) {
+            messageRepository.resubmitSubmitFailedMessage(msgProgress.unsentMessage.messageSerial)
+        } else if (msgProgress is UploadFailed) {
+            messageRepository.resubmitUploadFailedMessage(msgProgress.unsentMessage.messageSerial)
+        }
     }
 
     fun dropAllPendingMessages() {
@@ -200,28 +283,60 @@ class ChatViewModel @Inject constructor(
     }
 
     private val mediaRecorder = MediaRecorder()
-    private val isRecording = MutableLiveData(false)
+    private val recordingFile = MutableLiveData<String?>(null)
+    val isRecording = MutableLiveData(false)
 
     @MainThread
-    fun onPermissionGranted(isPermissionGranted: Boolean) {
-        if (isPermissionGranted && isRecording.value == false) {
+    fun startRecording() {
+        if (isRecording.value != true) {
             mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            mediaRecorder.setOutputFile(getTempFile(".3gp").absolutePath)
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            mediaRecorder.setAudioEncodingBitRate(128 * 1024)
+            mediaRecorder.setAudioSamplingRate(44100)
+            getTempFile(".mp4").absolutePath.let { filename ->
+                recordingFile.value = filename
+                mediaRecorder.setOutputFile(filename)
+            }
             mediaRecorder.prepare()
             mediaRecorder.start()
             isRecording.value = true
         }
     }
 
+    /**
+     * Finishes audio recording and sends it.
+     */
     @MainThread
-    fun stopMediaRecorder() {
+    fun finishRecording() {
         if (isRecording.value == true) {
-            mediaRecorder.stop()
-            mediaRecorder.reset()
-            mediaRecorder.release()
-            isRecording.value = false
+            try {
+                mediaRecorder.stop()
+                mediaRecorder.reset()
+                val filename = recordingFile.value!!
+                sendAudioMessage(File(filename))
+            } finally {
+                isRecording.value = false
+                recordingFile.value = null
+            }
+        }
+    }
+
+    /**
+     * Cancels audio recording and drops recorded file.
+     */
+    @MainThread
+    fun cancelRecording() {
+        if (isRecording.value == true) {
+            try {
+                mediaRecorder.stop()
+                mediaRecorder.reset()
+                val filename = recordingFile.value!!
+                File(filename).delete()
+            } finally {
+                isRecording.value = false
+                recordingFile.value = null
+            }
         }
     }
 
@@ -243,6 +358,10 @@ class ChatViewModel @Inject constructor(
                     }
                 }.asLiveData(coroutineContext)
         }
+    }
+
+    override fun onCleared() {
+        mediaRecorder.release()
     }
 
     enum class MessageDirection(val type: Int) {
