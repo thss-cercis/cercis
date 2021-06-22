@@ -67,8 +67,9 @@ class ChatListFragment : Fragment() {
                 )
             },
             onBindViewHolderWithExecution = { holder, position ->
-                holder.binding.data = chatListViewModel.getChatDisplay(currentList[position])
-                holder.binding.root.setOnClickListener { requireMainActivity().openChat(currentList[position].toChat()) }
+                val chat = currentList[position]
+                holder.binding.data = chatListViewModel.getChatDisplay(chat)
+                holder.binding.root.setOnClickListener { requireMainActivity().openChat(chat.toChat()) }
             },
             itemViewType = { chatType }
         )

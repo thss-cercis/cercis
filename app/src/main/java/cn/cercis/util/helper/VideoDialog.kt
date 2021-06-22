@@ -11,7 +11,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 fun showVideoDialog(context: Context, uri: String): AlertDialog {
     return MaterialAlertDialogBuilder(context)
         .setTitle(R.string.video_dialog_title)
-        .setPositiveButton(R.string.dialog_ok, null)
         .setView(R.layout.dialog_play_video)
         .show().apply {
             DialogPlayVideoBinding.bind(findViewById<ConstraintLayout>(R.id.dialog_play_video)!!)

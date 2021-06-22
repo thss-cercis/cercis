@@ -129,8 +129,7 @@ class ProfileFragment : Fragment() {
                     }
                     arrayOf(origin, confirm, new).forEach {
                         it.doOnTextChanged { _, _, _, _ ->
-                            val canSubmit =
-                                passwordError(new.text.toString()) == null && confirm.text.toString() == new.text.toString()
+                            val canSubmit = validatePassword(new.text.toString()).valid && confirm.text.toString() == new.text.toString()
                             dialog.getButton(AlertDialog.BUTTON_POSITIVE).apply {
                                 isEnabled = canSubmit
                                 isClickable = canSubmit
