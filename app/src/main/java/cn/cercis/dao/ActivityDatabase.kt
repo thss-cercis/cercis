@@ -2,14 +2,16 @@ package cn.cercis.dao
 
 import androidx.room.*
 import cn.cercis.common.ActivityId
+import cn.cercis.common.UserId
 import cn.cercis.entity.Activity
 import cn.cercis.entity.Comment
 import cn.cercis.entity.Medium
+import cn.cercis.entity.ThumbUp
 import kotlinx.coroutines.flow.Flow
 
 
 @Database(
-    entities = [Activity::class, Medium::class, Comment::class],
+    entities = [Activity::class, Medium::class, Comment::class, ThumbUp::class],
     version = 1,
     exportSchema = false
 )
@@ -31,6 +33,8 @@ data class EntireActivity(
     val media: List<Medium>,
     @Relation(parentColumn = "id", entityColumn = "activityId")
     val comments: List<Comment>,
+    @Relation(parentColumn = "id", entityColumn = "activityId")
+    val thumbUps: List<ThumbUp>,
 )
 
 @Dao
@@ -67,6 +71,13 @@ interface ActivityDao {
         saveComment(*activities.toTypedArray())
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveThumbUp(vararg activities: ThumbUp)
+
+    fun saveThumbUpList(activities: List<ThumbUp>) {
+        saveThumbUp(*activities.toTypedArray())
+    }
+
     @Query("SELECT * FROM comment WHERE activityId = :activityId")
     fun loadCommentList(activityId: ActivityId): Flow<List<Comment>>
 
@@ -75,9 +86,11 @@ interface ActivityDao {
         activities: List<Activity>,
         media: List<Medium>,
         comments: List<Comment>,
+        thumbUps: List<ThumbUp>,
     ) {
         saveActivityList(activities)
         saveMediumList(media)
         saveCommentList(comments)
+        saveThumbUpList(thumbUps)
     }
 }

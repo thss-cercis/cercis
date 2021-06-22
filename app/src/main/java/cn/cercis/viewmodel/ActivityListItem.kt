@@ -5,10 +5,9 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
 import cn.cercis.R
-import cn.cercis.common.CommonId
-import cn.cercis.common.LOG_TAG
-import cn.cercis.common.MediaType
-import cn.cercis.common.Timestamp
+import cn.cercis.common.*
+import cn.cercis.entity.Comment
+import cn.cercis.entity.ThumbUp
 import cn.cercis.entity.User
 import cn.cercis.util.getString
 
@@ -19,6 +18,8 @@ class ActivityListItem(
     val mediaType: MediaType,
     mediaUrlList: List<String>,
     val publishedAt: Timestamp,
+    val commentList: List<Comment>,
+    val thumbUpList: List<UserId>,
     val isLoading: LiveData<Boolean>,
 ) {
     private val imageList = when (mediaType) {

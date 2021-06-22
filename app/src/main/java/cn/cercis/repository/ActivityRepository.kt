@@ -53,6 +53,8 @@ class ActivityRepository @Inject constructor(
                     }
                 }, data.flatMap {
                     it.comments
+                }, data.flatMap {
+                    it.thumbUps
                 })
             }
 

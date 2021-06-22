@@ -143,6 +143,7 @@ class ActivityFragment : Fragment() {
             },
             itemViewType = { viewType },
         )
+
         binding.activityRecyclerView.apply {
             var pinToTop = true
             val linearLayoutManager = layoutManager as LinearLayoutManager

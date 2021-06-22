@@ -56,3 +56,18 @@ data class Comment(
     val content: String,
     @Json(name = "created_at") val createdAt: String,
 )
+
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Activity::class,
+        parentColumns = ["id"],
+        childColumns = ["activityId"],
+        onDelete = ForeignKey.CASCADE,
+    )],
+    indices = [Index("activityId")]
+)
+@JsonClass(generateAdapter = true)
+data class ThumbUp(
+    @PrimaryKey @Json(name = "activity_id") val activityId: ActivityId,
+    @PrimaryKey @Json(name = "user_id") val userId: UserId,
+)

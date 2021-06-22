@@ -93,3 +93,5 @@ lint/tmp/
 # Platform dependent
 .DS_Store
 desktop.ini
+
+/secrets

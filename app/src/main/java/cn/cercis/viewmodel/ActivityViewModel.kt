@@ -1,10 +1,7 @@
 package cn.cercis.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
@@ -53,7 +50,7 @@ class ActivityViewModel @Inject constructor(
     val isLoading by lazy { Transformations.map(activitySource) { it is Resource.Loading } }
 
     val activities: LiveData<List<ActivityListItem>> by lazy {
-        Transformations.map(activitySource) { resource ->
+        activitySource.map { resource ->
             val updateMark = atomicInteger.get()
             Log.d(LOG_TAG, "updated with mark $updateMark")
             (resource?.data ?: listOf()).map {
@@ -64,6 +61,8 @@ class ActivityViewModel @Inject constructor(
                         mediaType = mediaType,
                         text = text,
                         mediaUrlList = it.media.mapRun { url },
+                        commentList = it.comments,
+                        thumbUpList = it.thumbUps.mapRun { userId },
                         publishedAt = publishedAt,
                         isLoading = isLoading,
                     )

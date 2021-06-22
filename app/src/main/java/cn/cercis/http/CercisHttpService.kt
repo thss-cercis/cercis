@@ -135,11 +135,16 @@ interface CercisHttpService {
     ): NetworkResponse<List<ActivityPayload>>
 
     @POST("activity")
-//    suspend fun publishActivity(@Body request: PublishActivityRequest): NetworkResponse<ActivityPayload>
     suspend fun publishActivity(@Body request: PublishActivityRequest): EmptyNetworkResponse
 
-    @POST("activity/like")
-    suspend fun likeActivity(@Body request: LikeActivityRequest): EmptyNetworkResponse
+    @POST("activity/thumbup")
+    suspend fun thumbUpActivity(@Body request: ActivityRequest): EmptyNetworkResponse
+
+    @DELETE("activity/thumbup")
+    suspend fun undoThumbUpActivity(@Body request: ActivityRequest): EmptyNetworkResponse
+
+    @POST("activity/comment")
+    suspend fun addActivityComment(@Body request: ActivityCommentRequest): EmptyNetworkResponse
 
     @GET("upload")
     suspend fun getUploadToken(): NetworkResponse<UploadTokenResponse>
@@ -349,17 +354,13 @@ data class ResetPasswordRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class LikeActivityRequest(
-    val id: String,
-)
-
-@JsonClass(generateAdapter = true)
 data class ActivityPayload(
     val id: ActivityId,
     val text: String,
     @Json(name = "sender_id") val userId: UserId,
     val media: List<MediaPayload>,
     val comments: List<Comment>,
+    @Json(name = "thumb_ups") val thumbUps: List<ThumbUp>,
     @Json(name = "created_at") val createdAt: String,
 ) {
     @JsonClass(generateAdapter = true)
@@ -371,6 +372,17 @@ data class ActivityPayload(
         @Json(name = "created_at") val createdAt: String,
     )
 }
+
+@JsonClass(generateAdapter = true)
+data class ActivityRequest(
+    @Json(name = "activity_id") val activityId: ActivityId,
+)
+
+@JsonClass(generateAdapter = true)
+data class ActivityCommentRequest(
+    @Json(name = "activity_id") val activityId: ActivityId,
+    val content: String,
+)
 
 @JsonClass(generateAdapter = true)
 data class PublishActivityRequest(

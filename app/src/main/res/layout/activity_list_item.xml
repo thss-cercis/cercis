@@ -216,8 +216,8 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:text="@{activity.publishedTimeText}"
-            app:layout_constraintBaseline_toBaselineOf="@id/activity_item_button_like"
-            app:layout_constraintEnd_toStartOf="@id/activity_item_button_like"
+            app:layout_constraintBaseline_toBaselineOf="@id/activity_item_button_thumb_up"
+            app:layout_constraintEnd_toStartOf="@id/activity_item_button_thumb_up"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
             tools:text="2038-01-20" />
 
@@ -231,7 +231,7 @@
 
         <!-- Comments -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/activity_item_button_like"
+            android:id="@+id/activity_item_button_thumb_up"
             style="@style/Widget.Cercis.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -253,7 +253,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="activity_item_button_comment, activity_item_button_like, activity_item_published_time" />
+            app:constraint_referenced_ids="activity_item_button_comment, activity_item_button_thumb_up, activity_item_published_time" />
 
         <TextView
             android:id="@+id/activity_item_like_users"
