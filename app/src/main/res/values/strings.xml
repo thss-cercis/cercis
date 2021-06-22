@@ -80,6 +80,9 @@
     <string name="hint_create_group_name">群聊名称</string>
     <string name="hint_email">邮箱</string>
     <string name="hint_friend_display_name">好友备注(可以留空)</string>
+    <string name="hint_change_password_original_password">原密码</string>
+    <string name="hint_change_password_new_password">新密码</string>
+    <string name="hint_change_password_new_password_confirm">确认新密码</string>
     <string name="hint_friend_request_display_name">好友备注(可选)</string>
     <string name="hint_friend_request_remark">验证消息(可选)</string>
     <string name="hint_nickname">昵称</string>
@@ -149,4 +152,8 @@
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_edit_display_name">编辑好友备注</string>
     <string name="user_info_send_messages">发消息</string>
+    <string name="profile_edit_change_password">修改密码</string>
+    <string name="error_change_password_inconsistent">两次密码不一致</string>
+    <string name="profile_snackbar_change_password_success">密码已修改</string>
+    <string name="profile_snackbar_change_password_failed">未能修改密码: %s</string>
 </resources>

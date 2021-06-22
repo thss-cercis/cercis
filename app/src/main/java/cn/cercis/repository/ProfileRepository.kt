@@ -6,6 +6,7 @@ import cn.cercis.entity.LoginHistory
 import cn.cercis.entity.UserDetail
 import cn.cercis.http.CercisHttpService
 import cn.cercis.http.EmptyNetworkResponse
+import cn.cercis.http.UpdatePasswordRequest
 import cn.cercis.http.UpdateUserDetailRequest
 import cn.cercis.util.livedata.AutoResetLiveData
 import cn.cercis.util.resource.DataSource
@@ -56,5 +57,9 @@ class ProfileRepository @Inject constructor(
             bio = bio,
         )
         return httpService.updateUserDetail(request)
+    }
+
+    suspend fun changePassword(originalPassword: String, newPassword: String): EmptyNetworkResponse {
+        return httpService.updatePassword(UpdatePasswordRequest(originalPassword, newPassword))
     }
 }

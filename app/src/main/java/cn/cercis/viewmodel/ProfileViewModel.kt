@@ -5,6 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import cn.cercis.entity.UserDetail
+import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.ProfileRepository
 import cn.cercis.repository.UserRepository
@@ -46,6 +47,10 @@ class ProfileViewModel @Inject constructor(
             is Resource.Success -> "Success!"
             else -> "Preparing request"
         }
+    }
+
+    suspend fun changePassword(originalPassword: String, newPassword: String): EmptyNetworkResponse {
+        return profileRepository.changePassword(originalPassword, newPassword)
     }
 
     private fun generateCurrentUserResource(): LiveData<Resource<UserDetail>> {

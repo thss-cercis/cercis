@@ -35,58 +35,55 @@ private val PASSWORD_ALLOWED_SYMBOLS = """~!@#$%^&*()_-=+'",.;?\[]<>/""".toCharA
  */
 fun validatePassword(password: LiveData<String>): MediatorLiveData<PasswordValidationResult> {
     val liveData = MediatorLiveData<PasswordValidationResult>()
-    liveData.addSource(password) { str: String? ->
-        var ruleLengthVal = false
-        var ruleAllowedCharactersVal = true
-        var ruleUpperCaseVal = false
-        var ruleLowerCaseVal = false
-        var ruleDigitVal = false
-        var ruleSymbolVal = false
-        var invalidCharacterVal = ""
-        if (str != null) {
-            ruleLengthVal = str.length in PASSWORD_MIN_LENGTH..PASSWORD_MAX_LENGTH
-            str.forEach {
-                when {
-                    it.isUpperCase() -> {
-                        ruleUpperCaseVal = true
-                    }
-                    it.isLowerCase() -> {
-                        ruleLowerCaseVal = true
-                    }
-                    it.isDigit() -> {
-                        ruleDigitVal = true
-                    }
-                    it in PASSWORD_ALLOWED_SYMBOLS -> {
-                        ruleSymbolVal = true
-                    }
-                    else -> {
-                        ruleAllowedCharactersVal = false
-                        invalidCharacterVal = try {
-                            String(charArrayOf(it))
-                        } catch (t: Throwable) {
-                            // TODO: deal with surrogate pair
-                            ""
-                        }
-                    }
+    liveData.addSource(password) { it?.let { liveData.value = validatePassword(it) } }
+    return liveData
+}
+
+fun validatePassword(password: String): PasswordValidationResult {
+    var ruleAllowedCharactersVal = true
+    var ruleUpperCaseVal = false
+    var ruleLowerCaseVal = false
+    var ruleDigitVal = false
+    var ruleSymbolVal = false
+    var invalidCharacterVal = ""
+    val ruleLengthVal = password.length in PASSWORD_MIN_LENGTH..PASSWORD_MAX_LENGTH
+    password.forEach {
+        when {
+            it.isUpperCase() -> {
+                ruleUpperCaseVal = true
+            }
+            it.isLowerCase() -> {
+                ruleLowerCaseVal = true
+            }
+            it.isDigit() -> {
+                ruleDigitVal = true
+            }
+            it in PASSWORD_ALLOWED_SYMBOLS -> {
+                ruleSymbolVal = true
+            }
+            else -> {
+                ruleAllowedCharactersVal = false
+                invalidCharacterVal = try {
+                    String(charArrayOf(it))
+                } catch (t: Throwable) {
+                    // TODO: deal with surrogate pair
+                    ""
                 }
             }
         }
-        val valid = ruleLengthVal
+    }
+    val valid = ruleLengthVal
             && ruleAllowedCharactersVal
             && arrayOf(ruleUpperCaseVal, ruleLowerCaseVal, ruleDigitVal, ruleSymbolVal).count { it } >= 3
-        liveData.postValue(
-            PasswordValidationResult(
-                emptyOrValid = str.isNullOrEmpty() || valid,
-                valid = valid,
-                ruleLength = ruleLengthVal,
-                ruleAllowedCharacters = ruleAllowedCharactersVal,
-                ruleUpperCase = ruleUpperCaseVal,
-                ruleLowerCase = ruleLowerCaseVal,
-                ruleDigit = ruleDigitVal,
-                ruleSymbol = ruleSymbolVal,
-                invalidCharacter = invalidCharacterVal,
-            )
+    return PasswordValidationResult(
+            emptyOrValid = password.isEmpty() || valid,
+            valid = valid,
+            ruleLength = ruleLengthVal,
+            ruleAllowedCharacters = ruleAllowedCharactersVal,
+            ruleUpperCase = ruleUpperCaseVal,
+            ruleLowerCase = ruleLowerCaseVal,
+            ruleDigit = ruleDigitVal,
+            ruleSymbol = ruleSymbolVal,
+            invalidCharacter = invalidCharacterVal,
         )
-    }
-    return liveData
 }
