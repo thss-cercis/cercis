@@ -133,4 +133,9 @@
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_edit_display_name">编辑好友备注</string>
     <string name="user_info_send_messages">发消息</string>
+    <string name="group_info_exit_group">退出群聊</string>
+    <string name="activity_select_location_permission_dialog_title">无法定位</string>
+    <string name="activity_select_location_permission_dialog_message">请尝试在应用设置中修改权限设置</string>
+    <string name="activity_select_location_permission_dialog_cancel">取消</string>
+    <string name="activity_select_location_permission_dialog_settings">设置</string>
 </resources>

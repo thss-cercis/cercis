@@ -77,3 +77,10 @@ fun Fragment.openApplicationSettingsPage() {
     intent.data = uri
     ContextCompat.startActivity(requireContext(), intent, Bundle())
 }
+
+fun Context.openApplicationSettingsPage() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    val uri = Uri.fromParts("package", this.packageName, null)
+    intent.data = uri
+    ContextCompat.startActivity(this, intent, Bundle())
+}

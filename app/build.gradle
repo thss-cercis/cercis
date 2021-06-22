@@ -24,6 +24,10 @@ android {
                 arg("room.expandProjection", "true")
             }
         }
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "arm64-v8a", "x86_64"
+        }
     }
 
     buildTypes {
@@ -109,6 +113,9 @@ dependencies {
     implementation('com.qiniu:qiniu-android-sdk:8.2.+') {
         exclude(group: 'com.squareup.okhttp3', module: 'okhttp')
     }
+    implementation 'com.amap.api:3dmap:5.0.0'
+    implementation 'com.amap.api:location:3.3.0'
+    implementation 'com.amap.api:search:5.0.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"

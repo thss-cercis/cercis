@@ -7,6 +7,8 @@
 
         <import type="cn.cercis.viewmodel.GroupInfoViewModel" />
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="GroupInfoViewModel" />
@@ -19,6 +21,13 @@
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:elevation="3dp"
+            app:layout_constraintBottom_toTopOf="@id/group_info_toolbar"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/group_info_toolbar"
@@ -100,6 +109,7 @@
             android:layout_height="wrap_content"
             android:text="@string/group_info_remove_member"
             android:theme="@style/ErrorThemeOverlay"
+            android:visibility="@{viewModel.isGroupManager ? View.VISIBLE : View.GONE, default=gone}"
             app:icon="@drawable/ic_remove_member_24"
             app:iconGravity="top"
             app:layout_constraintEnd_toEndOf="parent"
@@ -111,10 +121,30 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/group_info_button_background"
             app:layout_constraintTop_toBottomOf="@id/group_info_bottom_barrier"
             tools:itemCount="3"
             tools:listitem="@layout/group_info_member_list_item" />
+
+        <View
+            android:id="@+id/group_info_button_background"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/navigation_view_height"
+            android:background="?attr/colorSurfaceDark"
+            app:elevation="3dp"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/group_info_exit_group"
+            style="@style/Widget.Cercis.Button.Outlined.Accent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:backgroundTint="?attr/colorSurface"
+            android:text="@string/group_info_exit_group"
+            app:elevation="3dp"
+            app:layout_constraintBottom_toBottomOf="@id/group_info_button_background"
+            app:layout_constraintTop_toTopOf="@id/group_info_button_background" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

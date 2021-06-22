@@ -1,13 +1,12 @@
 package cn.cercis.viewmodel
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import cn.cercis.common.ChatId
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
 import cn.cercis.entity.Chat
 import cn.cercis.entity.FriendUser
+import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
@@ -28,11 +27,12 @@ import javax.inject.Inject
 @FlowPreview
 @ExperimentalCoroutinesApi
 @HiltViewModel
-class CreateGroupViewModel @Inject constructor(
+class AddGroupUserViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     friendRepository: FriendRepository,
-    private val userRepository: UserRepository,
     private val chatRepository: MessageRepository,
 ) : ViewModel() {
+    val chatId = savedStateHandle.get<ChatId>("chatId")!!
     private val refreshTime = MutableStateFlow(System.currentTimeMillis())
     private val listFlow: Flow<List<FriendUser>> = refreshTime.flatMapLatest {
         friendRepository.getFriendUserList()
@@ -51,7 +51,7 @@ class CreateGroupViewModel @Inject constructor(
     val buttonClickable = generateMediatorLiveData(busyLoading, selectedUserCount) {
         busyLoading.value == false && (selectedUserCount.value ?: 0) > 0
     }
-    val createGroupChatResponse = MutableLiveData<NetworkResponse<Chat>>(null)
+    val createGroupChatResponse = MutableLiveData<EmptyNetworkResponse>(null)
 
     fun toggleUserSelected(userId: UserId) {
         selectedUsers.value!!.let {
@@ -63,12 +63,12 @@ class CreateGroupViewModel @Inject constructor(
         selectedUsers.postValue(selectedUsers.value)
     }
 
-    fun createGroup(name: String) {
+    fun addToGroup(name: String) {
         busyLoading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 selectedUserList.value?.let {
-                    createGroupChatResponse.postValue(chatRepository.createGroup(name, it.mapRun { friendUserId }))
+                    createGroupChatResponse.postValue(chatRepository.addMembersToGroup(chatId, it.mapRun { friendUserId }))
                 }
             } finally {
                 busyLoading.postValue(false)

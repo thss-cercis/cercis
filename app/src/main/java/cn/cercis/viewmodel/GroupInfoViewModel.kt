@@ -4,10 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import cn.cercis.entity.Chat
-import cn.cercis.entity.ChatMember
-import cn.cercis.entity.FriendEntry
-import cn.cercis.entity.User
+import cn.cercis.entity.*
+import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.coroutineContext
@@ -28,6 +26,7 @@ class GroupInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     val groupInitData = savedStateHandle.get<Chat>("chat")!!
     val chatId = groupInitData.id
@@ -39,6 +38,8 @@ class GroupInfoViewModel @Inject constructor(
     }
     val groupMemberList = groupMemberListFlow.asInitializedLiveData(coroutineContext, listOf())
     val groupMemberCount = groupMemberList.map { it.size }
+    val selfMember = groupMemberList.map { member -> member.firstOrNull { it.second?.id == authRepository.currentUserId } }
+    val isGroupManager = selfMember.map { it?.let { it.first.permission >= GroupChatPermission.GROUP_ADMIN.value } ?: false }
 }
 
 fun Triple<ChatMember, User?, FriendEntry?>.toCommonListItemData(): CommonListItemData {

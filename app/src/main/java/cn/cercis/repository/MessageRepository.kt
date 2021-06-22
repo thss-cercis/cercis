@@ -497,6 +497,18 @@ class MessageRepository @Inject constructor(
         }
     }
 
+    suspend fun addMembersToGroup(chatId: ChatId, newMembers: List<UserId>): EmptyNetworkResponse {
+        for (user in newMembers) {
+            // interrupt inviting when network error occurred
+            when (val res = httpService.inviteGroupMember(InviteGroupMemberRequest(chatId, user))) {
+                is NetworkResponse.NetworkError -> break
+                is NetworkResponse.Reject -> return res
+                else -> continue
+            }
+        }
+        return Success(EmptyPayload())
+    }
+
     /**
      * Gets basic info about a chat participated.
      *
