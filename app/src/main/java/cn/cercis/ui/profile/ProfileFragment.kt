@@ -56,7 +56,7 @@ class ProfileFragment : Fragment() {
                 .setTitle("修改密码")
                 .setView(R.layout.dialog_change_password)
                 .setPositiveButton(R.string.dialog_ok) { dialog, _ -> dialog.dismiss() }
-                .setNegativeButton(R.string.dialog_cancel, null)
+                .setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
                 .show().let { dialog ->
                     val originLayout =
                         dialog.findViewById<TextInputLayout>(R.id.dialog_change_password_original_password_layout)!!
@@ -137,7 +137,6 @@ class ProfileFragment : Fragment() {
                             }
                         }
                     }
-                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener { }
                 }
         }
         return binding.root

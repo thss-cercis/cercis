@@ -7,9 +7,19 @@
 
         <import type="cn.cercis.viewmodel.ActivityListItem" />
 
+        <import type="android.view.View" />
+
         <variable
             name="activity"
             type="ActivityListItem" />
+
+        <variable
+            name="progressVisible"
+            type="Boolean" />
+
+        <variable
+            name="buttonVisible"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,22 +53,22 @@
             android:maxLines="1"
             android:text="@{activity.user.nickname}"
             android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@+id/activity_item_item_text"
+            app:layout_constraintBottom_toTopOf="@+id/activity_item_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/activity_sample_nickname" />
 
         <TextView
-            android:id="@+id/activity_item_item_text"
+            android:id="@+id/activity_item_text"
             style="@style/TextAppearance.Cercis.ListItem.Text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_TEXT)}"
             android:text="@{activity.text}"
             android:textSize="15sp"
+            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_TEXT)}"
             app:layout_constraintBottom_toTopOf="@+id/activity_item_image_grid"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
@@ -71,96 +81,96 @@
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:orientation="horizontal"
-            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_IMAGE_GRID)}"
-            android:useDefaultMargins="true"
             android:columnCount="@{activity.columnCount}"
-            app:layout_constraintDimensionRatio="2:1"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true"
+            android:visibility="@{activity.isViewVisible(ActivityListItem.ID_IMAGE_GRID)}"
             app:layout_constraintBottom_toBottomOf="@id/activity_item_video"
+            app:layout_constraintDimensionRatio="2:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
-            app:layout_constraintTop_toBottomOf="@id/activity_item_item_text">
+            app:layout_constraintTop_toBottomOf="@id/activity_item_text">
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(0)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(0)}"
-                imageUrl="@{activity.getImageUrl(0)}" />
+                android:visibility="@{activity.isImageVisible(0)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(1)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(1)}"
-                imageUrl="@{activity.getImageUrl(1)}" />
+                android:visibility="@{activity.isImageVisible(1)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(2)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(2)}"
-                imageUrl="@{activity.getImageUrl(2)}" />
+                android:visibility="@{activity.isImageVisible(2)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(3)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(3)}"
-                imageUrl="@{activity.getImageUrl(3)}" />
+                android:visibility="@{activity.isImageVisible(3)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(4)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(4)}"
-                imageUrl="@{activity.getImageUrl(4)}" />
+                android:visibility="@{activity.isImageVisible(4)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(5)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(5)}"
-                imageUrl="@{activity.getImageUrl(5)}" />
+                android:visibility="@{activity.isImageVisible(5)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(6)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(6)}"
-                imageUrl="@{activity.getImageUrl(6)}" />
+                android:visibility="@{activity.isImageVisible(6)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(7)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(7)}"
-                imageUrl="@{activity.getImageUrl(7)}" />
+                android:visibility="@{activity.isImageVisible(7)}" />
 
             <ImageView
+                imageUrl="@{activity.getImageUrl(8)}"
                 android:layout_width="0dp"
-                android:layout_columnWeight="1"
                 android:layout_height="0dp"
                 android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
                 android:scaleType="centerCrop"
-                android:visibility="@{activity.isImageVisible(8)}"
-                imageUrl="@{activity.getImageUrl(8)}" />
+                android:visibility="@{activity.isImageVisible(8)}" />
 
         </GridLayout>
 
@@ -176,18 +186,89 @@
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
             app:layout_constraintTop_toBottomOf="@id/activity_item_image_grid" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/activity_item_video_start_button"
+            style="@style/Widget.Cercis.Button.OutlinedIconButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{buttonVisible ? View.VISIBLE : View.GONE, default=gone}"
+            app:elevation="3dp"
+            app:icon="@drawable/ic_play_circle_60"
+            app:iconGravity="textStart"
+            app:iconTint="@color/surface_day"
+            app:layout_constraintBottom_toBottomOf="@id/activity_item_video"
+            app:layout_constraintEnd_toEndOf="@id/activity_item_video"
+            app:layout_constraintStart_toStartOf="@id/activity_item_video"
+            app:layout_constraintTop_toTopOf="@id/activity_item_video"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/activity_item_video_progress_bar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:indeterminate="false"
+            android:visibility="@{progressVisible ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintBottom_toBottomOf="@id/activity_item_video"
+            app:layout_constraintEnd_toEndOf="@id/activity_item_video"
+            app:layout_constraintStart_toStartOf="@id/activity_item_video"
+            app:layout_constraintTop_toTopOf="@id/activity_item_video" />
+
         <TextView
             android:id="@+id/activity_item_published_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:gravity="end"
+            android:gravity="start"
             android:text="@{activity.publishedTimeText}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
-            app:layout_constraintTop_toBottomOf="@id/activity_item_video"
+            app:layout_constraintBaseline_toBaselineOf="@id/activity_item_button_like"
+            app:layout_constraintEnd_toStartOf="@id/activity_item_button_like"
+            app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
             tools:text="2038-01-20" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/activity_item_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:barrierMargin="8dp"
+            app:constraint_referenced_ids="activity_item_video, activity_item_image_grid, activity_item_text" />
+
+        <!-- Comments -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/activity_item_button_like"
+            style="@style/Widget.Cercis.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_thumb_up_24"
+            app:layout_constraintEnd_toStartOf="@id/activity_item_button_comment"
+            app:layout_constraintTop_toBottomOf="@id/activity_item_barrier" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/activity_item_button_comment"
+            style="@style/Widget.Cercis.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_insert_comment_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/activity_item_barrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/activity_item_comment_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="activity_item_button_comment, activity_item_button_like, activity_item_published_time" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activity_item_comment_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorSurfaceDark"
+            tools:listitem="@layout/activity_comment_item"
+            tools:itemCount="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
+            app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

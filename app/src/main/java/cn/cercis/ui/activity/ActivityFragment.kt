@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityListItemBinding
@@ -95,21 +96,35 @@ class ActivityFragment : Fragment() {
                     activity = currentList[position].also {
                         when (it.viewType) {
                             VIEW_TYPE_VIDEO -> {
+                                buttonVisible = false
+                                progressVisible = true
+                                activityItemVideoStartButton.setOnClickListener {
+                                    activityItemVideo.start()
+                                    buttonVisible = false
+                                    binding.executePendingBindings()
+                                }
                                 activityItemVideo.apply {
                                     setVideoURI(Uri.parse(it.videoUrl))
-//                                    setOnPreparedListener { mp: MediaPlayer ->
+                                    setOnPreparedListener {
+                                        progressVisible = false
+                                        buttonVisible = true
+                                        binding.executePendingBindings()
 //                                        activityItemRootLayout.setDimensionRatio(
 //                                            activityItemVideo.id,
 //                                            "${mp.videoWidth}:${mp.videoHeight}"
 //                                        )
-//                                    }
-                                    setOnClickListener {
-                                        Log.d(LOG_TAG, "video clicked")
-                                        when {
-                                            isPlaying -> pause()
-                                            else -> start()
-                                        }
                                     }
+                                    setOnCompletionListener {
+                                        buttonVisible = true
+                                        binding.executePendingBindings()
+                                    }
+//                                    setOnClickListener {
+//                                        Log.d(LOG_TAG, "video clicked")
+//                                        when {
+//                                            isPlaying -> pause()
+//                                            else -> start()
+//                                        }
+//                                    }
                                 }
                             }
                             else -> {
@@ -124,6 +139,23 @@ class ActivityFragment : Fragment() {
             },
             itemViewType = { viewType },
         )
+        binding.activityRecyclerView.apply {
+            var pinToTop = true
+            val linearLayoutManager = layoutManager as LinearLayoutManager
+            setOnScrollChangeListener { _, _, _, _, _ ->
+                val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+                pinToTop = (latestVisible == 0)
+            }
+            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+                pinToTop = (latestVisible == 0)
+                if (pinToTop) {
+                    post {
+                        smoothScrollToPosition(0)
+                    }
+                }
+            }
+        }
 
         binding.activitySwipe.setOnRefreshListener {
             viewModel.refresh()

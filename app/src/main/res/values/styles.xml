@@ -69,10 +69,17 @@
         <item name="colorOnPrimary">?attr/colorOnError</item>
     </style>
 
+    <style name="TextAppearance.Cercis.Comment.DisplayName" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Cercis.Comment.Content" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">15sp</item>
+    </style>
+
     <style name="TextAppearance.Cercis.Messages.Username" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">17sp</item>
     </style>
-
 
     <style name="TextAppearance.Cercis.Messages.Preview" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">17sp</item>
@@ -183,6 +190,16 @@
 
     <style name="Widget.Cercis.Button.TextButton.Accent" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
     </style>
 
     <style name="Widget.Cercis.Button.Outlined.Accent" parent="Widget.MaterialComponents.Button.OutlinedButton">

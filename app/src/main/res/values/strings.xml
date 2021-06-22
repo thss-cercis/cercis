@@ -15,6 +15,7 @@
     <string name="activity_select_location_permission_dialog_title">无法定位</string>
     <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
+    <string name="chat_action_extra_share_location">分享位置</string>
     <string name="chat_action_send_audio_cancel_icon_description">撤销发送</string>
     <string name="chat_action_send_audio_hint_cancel">松开撤消</string>
     <string name="chat_action_send_audio_hint_press">按住录制</string>

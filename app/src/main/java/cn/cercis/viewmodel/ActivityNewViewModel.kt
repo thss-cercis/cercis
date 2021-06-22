@@ -67,7 +67,7 @@ class ActivityNewViewModel @Inject constructor(
         }
     }
 
-    fun submit(onSuccess: () -> Unit) {
+    fun submit(onSuccess: () -> Unit, onFailure: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             isBusy.postValue(true)
             try {
@@ -76,9 +76,11 @@ class ActivityNewViewModel @Inject constructor(
                     text = text.value!!,
                     imageUrls = imageUrls
                 )
-                if (response is NetworkResponse.Success) {
-                    launch(Dispatchers.Main) {
+                launch(Dispatchers.Main) {
+                    if (response is NetworkResponse.Success) {
                         onSuccess()
+                    } else {
+                        onFailure()
                     }
                 }
             } finally {

@@ -184,6 +184,7 @@
             android:layout_height="wrap_content"
             android:checkable="true"
             android:checked="@{viewModel.buttonSelected[2]}"
+            android:visibility="gone"
             app:icon="@drawable/ic_insert_emoticon_24"
             app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@id/chat_action_extra_barrier"
@@ -231,10 +232,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/chat_action_other"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            <include
+                android:id="@+id/chat_action_extra_page"
+                layout="@layout/fragment_chat_page_extra" />
         </ViewFlipper>
 
         <View

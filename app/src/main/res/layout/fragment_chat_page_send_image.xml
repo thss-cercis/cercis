@@ -41,7 +41,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/chat_action_send_image_from_gallery_button"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="@dimen/chat_extra_action_button_size"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="?attr/colorSurface"
         android:elevation="2dp"

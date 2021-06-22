@@ -30,12 +30,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
+import cn.cercis.SelectLocationActivity
+import cn.cercis.SelectedLocation
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.*
 import cn.cercis.entity.ChatType
 import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
+import cn.cercis.ui.startup.LoginFragment
 import cn.cercis.util.getSharedTempFile
 import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
@@ -88,6 +91,8 @@ class ChatFragment : Fragment() {
         const val PAGE_IMAGE = 1
         const val PAGE_EMOJI = 2
         const val PAGE_ADDITION = 3
+
+        const val REQ_SHARE_LOCATION = 100
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -556,6 +561,7 @@ class ChatFragment : Fragment() {
             }
         }
 
+        // bind image sharing page
         binding.chatActionSendImagePage.apply {
             var imageFile: File? = null
             val takePictureLauncher =
@@ -626,12 +632,29 @@ class ChatFragment : Fragment() {
             }
         }
 
+        binding.chatActionExtraPage.apply {
+            chatActionExtraShareLocation.setOnClickListener {
+                @Suppress("DEPRECATION")
+                startActivityForResult(Intent(requireContext(), SelectLocationActivity::class.java), REQ_SHARE_LOCATION)
+            }
+        }
+
         // bind send image/video page
         binding.chatActionSendAudio.setOnClickListener { switchToPanel(PAGE_AUDIO) }
         binding.chatActionSendImage.setOnClickListener { switchToPanel(PAGE_IMAGE) }
         binding.chatActionSendEmoji.setOnClickListener { switchToPanel(PAGE_EMOJI) }
         binding.chatActionSendAddition.setOnClickListener { switchToPanel(PAGE_ADDITION) }
         return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_SHARE_LOCATION && resultCode == SelectLocationActivity.RESULT_CODE_SUCCESS) {
+            data?.let {
+                val location = data.getParcelableExtra<SelectedLocation>("location")!!
+                Log.d(LOG_TAG, "$location")
+            }
+        }
     }
 
     override fun onDestroy() {

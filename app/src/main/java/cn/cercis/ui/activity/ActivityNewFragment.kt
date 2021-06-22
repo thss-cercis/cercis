@@ -11,7 +11,9 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.databinding.FragmentActivityNewBinding
 import cn.cercis.util.getTempFile
+import cn.cercis.util.snackbarMakeError
 import cn.cercis.viewmodel.ActivityNewViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -38,9 +40,14 @@ class ActivityNewFragment : Fragment() {
         }
 
         binding.activityNewSubmit.setOnClickListener {
-            viewModel.submit {
-                findNavController().popBackStack()
-            }
+            viewModel.submit(
+                onSuccess = {
+                    findNavController().popBackStack()
+                },
+                onFailure = {
+                    snackbarMakeError(binding.root, "发送失败", Snackbar.LENGTH_SHORT)
+                }
+            )
         }
 
         val fromGalleryLauncher = registerForActivityResult(
