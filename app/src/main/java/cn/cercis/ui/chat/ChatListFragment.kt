@@ -57,7 +57,7 @@ class ChatListFragment : Fragment() {
         val adapter = DiffRecyclerViewAdapter.getInstance(
             dataSource = chatListViewModel.chatListData,
             viewLifecycleOwnerSupplier = { viewLifecycleOwner },
-            itemIndex = { id },
+            itemIndex = { chatId },
             contentsSameCallback = { a, b -> a.chatId == b.chatId && a.chatType == ChatType.CHAT_GROUP },
             inflater = { inflater1, parent, _ ->
                 ChatListItemBinding.inflate(

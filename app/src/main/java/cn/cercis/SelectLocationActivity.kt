@@ -43,6 +43,7 @@ class SelectLocationActivity : AppCompatActivity() {
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
         )
         const val RESULT_CODE_SUCCESS = 1
         const val RESULT_CODE_FAILURE = 0

@@ -297,10 +297,12 @@ class ChatFragment : Fragment() {
                                                 putExtra("location", locationContent)
                                             })
                                         }
-                                        textView.text = locationContent.address.takeIf { it.isNotEmpty() }
+                                        textView.text =
+                                            locationContent.address.takeIf { it.isNotEmpty() }
                                                 ?: "[${getString(R.string.message_type_location)}]"
                                     } else {
-                                        textView.text = "[${getString(R.string.message_type_location)}]"
+                                        textView.text =
+                                            "[${getString(R.string.message_type_location)}]"
                                     }
                                 }
                                 MessageType.UNKNOWN -> {
