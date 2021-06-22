@@ -4,12 +4,9 @@ import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
-import cn.cercis.R
 import cn.cercis.common.*
 import cn.cercis.entity.Comment
-import cn.cercis.entity.ThumbUp
 import cn.cercis.entity.User
-import cn.cercis.util.getString
 
 class ActivityListItem(
     val activityId: CommonId,

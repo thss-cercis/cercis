@@ -1,14 +1,14 @@
 package cn.cercis.repository
 
+import cn.cercis.common.ActivityId
 import cn.cercis.common.MediaType
 import cn.cercis.common.mapRun
 import cn.cercis.dao.ActivityDao
 import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.Activity
+import cn.cercis.entity.Comment
 import cn.cercis.entity.Medium
-import cn.cercis.http.ActivityPayload
-import cn.cercis.http.CercisHttpService
-import cn.cercis.http.PublishActivityRequest
+import cn.cercis.http.*
 import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
@@ -63,6 +63,10 @@ class ActivityRepository @Inject constructor(
             }
         }
 
+    fun getCommentList(activityId: ActivityId): Flow<List<Comment>> {
+        return activityDao.loadCommentList(activityId)
+    }
+
     suspend fun publishNormalActivity(text: String, imageUrls: List<String>) =
         httpService.publishActivity(
             PublishActivityRequest(
@@ -80,4 +84,8 @@ class ActivityRepository @Inject constructor(
                 contents = listOf(videoUrl),
             )
         )
+
+    suspend fun sendComment(activityId: ActivityId, content: String): EmptyNetworkResponse {
+        return httpService.addActivityComment(ActivityCommentRequest(activityId, content))
+    }
 }

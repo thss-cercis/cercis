@@ -3,11 +3,15 @@ package cn.cercis.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import cn.cercis.Constants.STATIC_BASE
+import cn.cercis.common.ActivityId
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
 import cn.cercis.dao.EntireActivity
+import cn.cercis.entity.Comment
 import cn.cercis.entity.User
+import cn.cercis.http.EmptyNetworkResponse
+import cn.cercis.http.EmptyPayload
 import cn.cercis.repository.ActivityRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.FileUploadUtils
@@ -20,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -37,10 +42,15 @@ class ActivityViewModel @Inject constructor(
     private val atomicInteger = AtomicInteger(0)
 
     private val users = HashMap<UserId, LiveData<User>>()
+    private val usersDisplay = HashMap<UserId, LiveData<CommonListItemData>>()
+    private val comments = HashMap<ActivityId, LiveData<List<Comment>>>()
 
     private val activitySource by lazy {
         object : MappingLiveData<Resource<List<EntireActivity>>>() {
-            init { refresh() }
+            init {
+                refresh()
+            }
+
             fun refresh() {
                 setSource(activityRepository.getActivityList().asLiveData(coroutineContext))
             }
@@ -73,9 +83,29 @@ class ActivityViewModel @Inject constructor(
         }
     }
 
-    private fun getUserLiveData(userId: UserId): LiveData<User> {
+    fun getUserLiveData(userId: UserId): LiveData<User> {
         return users.computeIfAbsent(userId) {
             userRepository.getUser(it).asLiveData(coroutineContext).unwrapResource()
+        }
+    }
+
+    suspend fun sendComment(activityId: ActivityId, content: String): EmptyNetworkResponse {
+        return activityRepository.sendComment(activityId, content).thenUse {
+            activityRepository.getActivityList().fetchAndSave()
+        }.use { EmptyPayload() }
+    }
+
+    fun loadUser(userId: UserId): LiveData<CommonListItemData> {
+        return usersDisplay.computeIfAbsent(userId) { uid ->
+            userRepository.getUserWithFriendDisplay(uid, true)
+                .mapLatest { it }
+                .asLiveData(coroutineContext)
+        }
+    }
+
+    fun getCommentLiveData(activityId: ActivityId): LiveData<List<Comment>> {
+        return comments.computeIfAbsent(activityId) {
+            activityRepository.getCommentList(activityId).asLiveData(coroutineContext)
         }
     }
 

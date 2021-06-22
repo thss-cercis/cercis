@@ -58,6 +58,7 @@ data class Comment(
 )
 
 @Entity(
+    primaryKeys = ["activityId", "userId"],
     foreignKeys = [ForeignKey(
         entity = Activity::class,
         parentColumns = ["id"],
@@ -68,6 +69,6 @@ data class Comment(
 )
 @JsonClass(generateAdapter = true)
 data class ThumbUp(
-    @PrimaryKey @Json(name = "activity_id") val activityId: ActivityId,
-    @PrimaryKey @Json(name = "user_id") val userId: UserId,
+    @Json(name = "activity_id") val activityId: ActivityId,
+    @Json(name = "user_id") val userId: UserId,
 )

@@ -1,36 +1,41 @@
 package cn.cercis.ui.activity
 
 import android.content.ContentResolver
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
-import cn.cercis.common.LOG_TAG
+import cn.cercis.databinding.ActivityCommentItemBinding
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
-import cn.cercis.util.getSharedTempFile
 import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setDimensionRatio
+import cn.cercis.util.snackbarMakeError
 import cn.cercis.viewmodel.ActivityListItem.Companion.VIEW_TYPE_VIDEO
 import cn.cercis.viewmodel.ActivityViewModel
-import com.yalantis.ucrop.UCrop
+import cn.cercis.viewmodel.CommonListItemData
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import java.io.File
+import kotlinx.coroutines.launch
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
@@ -137,6 +142,55 @@ class ActivityFragment : Fragment() {
                                     it.dimensionRatio
                                 )
                             }
+                        }
+                        // comments
+                        activityItemCommentList.adapter = DiffRecyclerViewAdapter.getInstance(
+                            dataSource = viewModel.getCommentLiveData(it.activityId),
+                            viewLifecycleOwnerSupplier = { viewLifecycleOwner },
+                            itemIndex = { id },
+                            contentsSameCallback = Objects::equals,
+                            inflater = { inflater, parent, _ ->
+                                ActivityCommentItemBinding.inflate(inflater, parent, false)
+                            },
+                            onBindViewHolderWithExecution = { holder, position ->
+                                val data = currentList[position]
+                                holder.binding.apply {
+                                    displayName = viewModel.loadUser(data.commenterId)
+                                        .map { p: CommonListItemData? ->
+                                            p?.let { p.displayName.toString() } ?: ""
+                                        }
+                                    content = data.content
+                                }
+                            },
+                            itemViewType = { 0 }
+                        )
+                        activityItemButtonComment.setOnClickListener {
+                            val activityId = currentList[position].activityId
+                            MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("评论")
+                                .setView(R.layout.dialog_send_comment)
+                                .setPositiveButton(R.string.dialog_ok) { dialog, _ ->
+                                    dialog as AlertDialog
+                                    val editText =
+                                        dialog.findViewById<TextInputEditText>(R.id.dialog_send_comment_edit_text)!!
+                                    if (editText.text.toString().isNotEmpty()) {
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            viewModel.sendComment(activityId,
+                                                editText.text.toString()).apply {
+                                                if (this !is NetworkResponse.Success) {
+                                                    snackbarMakeError(
+                                                        binding.root,
+                                                        getString(R.string.activity_send_comment_failed_message).format(
+                                                            this.message ?: ""),
+                                                        Snackbar.LENGTH_SHORT
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+                                .show()
                         }
                     }
                 }

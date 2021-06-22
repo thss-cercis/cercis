@@ -13,6 +13,7 @@
     <string name="activity_select_location_permission_dialog_message">请尝试在应用设置中修改权限设置</string>
     <string name="activity_select_location_permission_dialog_settings">设置</string>
     <string name="activity_select_location_permission_dialog_title">无法定位</string>
+    <string name="activity_send_comment_failed_message">评论发送失败: %s</string>
     <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
     <string name="chat_action_extra_share_location">分享位置</string>
