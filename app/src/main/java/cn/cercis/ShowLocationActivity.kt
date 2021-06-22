@@ -3,11 +3,9 @@ package cn.cercis
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
-import cn.cercis.databinding.ActivitySelectLocationBinding
+import cn.cercis.databinding.ActivityShowLocationBinding
 import cn.cercis.util.helper.openApplicationSettingsPage
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
@@ -24,15 +22,14 @@ import com.amap.api.services.geocoder.RegeocodeQuery
 import com.amap.api.services.geocoder.RegeocodeResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.parcelize.Parcelize
 
 
 /**
- * 使用 startActivity 启用此类，可以选择一个地图上的位置，并作为 result 返回一个
- * {@link cn.cercis.SelectedLocation} 类型.
+ * 使用 startActivity 启用此 activity 即可。
+ * Intent 的 extra 中，需要设置 "location" 属性，值为 {@link cn.cercis.SelectedLocation} 类型.
  */
 @AndroidEntryPoint
-class SelectLocationActivity : AppCompatActivity() {
+class ShowLocationActivity : AppCompatActivity() {
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
         val requiredPermissions = arrayOf(
@@ -43,7 +40,7 @@ class SelectLocationActivity : AppCompatActivity() {
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
         )
-        const val RESULT_CODE_SUCCESS = 1
+        const val RESULT_CODE_SUCCESS = 0
         const val RESULT_CODE_FAILURE = 0
     }
 
@@ -51,16 +48,20 @@ class SelectLocationActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
     private lateinit var aMap: AMap
-    private var currentLoc: Location? = null
     private var locDes: String? = null
     private var marker: Marker? = null
+    private var targetLoc: SelectedLocation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivitySelectLocationBinding.inflate(layoutInflater)
+        val binding = ActivityShowLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mapView = binding.selectMap
         mapView.onCreate(savedInstanceState)
+
+        intent?.let {
+            targetLoc = it.getParcelableExtra("location")
+        }
 
         aMap = mapView.map
         // 自身蓝点样式
@@ -79,65 +80,26 @@ class SelectLocationActivity : AppCompatActivity() {
             override fun onRegeocodeSearched(regeocodeResult: RegeocodeResult, i: Int) {
                 locDes = regeocodeResult.regeocodeAddress.formatAddress
                 marker?.let { it.snippet = locDes }
+                // 设置标题
+                binding.topAppBar.title = locDes
             }
             override fun onGeocodeSearched(geocodeResult: GeocodeResult, i: Int) {}
         })
-        // 增加位置定时更新的回调
-        aMap.addOnMyLocationChangeListener { location: Location? ->
-            if (currentLoc == null && location != null) {
-                // 设置第一个 marker
-                val latLng = LatLng(location.latitude, location.longitude)
-                val markerOption = MarkerOptions()
-                markerOption.position(latLng)
-                markerOption.title("选定位置：")
-                markerOption.draggable(false) //设置Marker可拖动
-                // 将Marker设置为贴地显示，可以双指下拉地图查看效果
-                val m = aMap.addMarker(markerOption)
-                m.showInfoWindow()
-                marker = m
-                // 初次移动到相应位置
-                aMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-                // set description
-                val query = RegeocodeQuery(LatLonPoint(latLng.latitude, latLng.longitude), 50F, GeocodeSearch.AMAP)
-                geocodeSearch.getFromLocationAsyn(query)
-            }
-            currentLoc = location
-        }
-        // 增加地图点击监听
-        aMap.addOnMapClickListener { latLng: LatLng ->
-            marker?.let {
-                val markerOption = MarkerOptions()
-                markerOption.position(latLng)
-                markerOption.title("选定位置：")
-                markerOption.draggable(false) //设置Marker可拖动
-                // 将Marker设置为贴地显示，可以双指下拉地图查看效果
-                it.showInfoWindow()
-                it.position = latLng
-                // 初次移动到相应位置
-                aMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-                it.snippet = null
-                // set description
-                val query = RegeocodeQuery(LatLonPoint(latLng.latitude, latLng.longitude),
-                    50F,
-                    GeocodeSearch.AMAP)
-                geocodeSearch.getFromLocationAsyn(query)
-            }
-        }
-
-        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.map_action_tick -> {
-                    currentLoc?.let {
-                        setResult(RESULT_CODE_SUCCESS, Intent().apply {
-                            putExtra("location", SelectedLocation(
-                                it.longitude, it.latitude, locDes ?: ""
-                            ))
-                        })
-                    } ?: setResult(RESULT_CODE_FAILURE, Intent())
-                    finish()
-                }
-            }
-            true
+        // 设置 marker
+        targetLoc?.let {
+            val markerOption = MarkerOptions()
+            val lat = LatLng(it.latitude, it.longitude)
+            markerOption.position(lat)
+            markerOption.title("位置：")
+            markerOption.draggable(false) //设置Marker可拖动
+            // 将Marker设置为贴地显示，可以双指下拉地图查看效果
+            val m = aMap.addMarker(markerOption)
+            m.showInfoWindow()
+            marker = m
+            // 询问位置
+            val query = RegeocodeQuery(LatLonPoint(lat.latitude, lat.longitude), 50F, GeocodeSearch.AMAP)
+            geocodeSearch.getFromLocationAsyn(query)
+            aMap.animateCamera(CameraUpdateFactory.newLatLng(lat))
         }
 
         binding.topAppBar.setNavigationOnClickListener {
@@ -253,10 +215,3 @@ class SelectLocationActivity : AppCompatActivity() {
             .show()
     }
 }
-
-@Parcelize
-data class SelectedLocation(
-    val longitude: Double,
-    val latitude: Double,
-    val address: String,
-) : Parcelable

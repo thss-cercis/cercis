@@ -70,6 +70,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ShowLocationActivity" />
 
         <service android:name=".service.NotificationService" />
         <service android:name="com.amap.api.location.APSService" />

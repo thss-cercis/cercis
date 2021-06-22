@@ -7,4 +7,6 @@
 /.idea/*
 !/.idea/codeStyles/
 
+app/release/
+
 .DS_Store

@@ -13,6 +13,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.SelectLocationActivity
+import cn.cercis.SelectedLocation
+import cn.cercis.ShowLocationActivity
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentLoginBinding
 import cn.cercis.util.helper.enableTransition
@@ -40,9 +42,9 @@ class LoginFragment : Fragment() {
             binding.signupPassword.error = it
         }
         binding.linkResetPassword.setOnClickListener {
-//            val it: Intent = Intent("android.intent.action.MAP")
-//            startActivity(it)
-            startActivityForResult(Intent(requireContext(), SelectLocationActivity::class.java), REQUEST1)
+//            val it = Intent(requireContext(), ShowLocationActivity::class.java)
+//            it.putExtra("location", SelectedLocation(116.32632, 40.00383, ""))
+//            startActivityForResult(it, REQUEST1)
             Log.d(LOG_TAG, "reset password not implemented")
             Toast.makeText(context, "暂不支持密码重置", Toast.LENGTH_SHORT).show()
         }
@@ -59,9 +61,9 @@ class LoginFragment : Fragment() {
         (binding.root as ViewGroup).enableTransition()
         return binding.root
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(LOG_TAG, "code: $requestCode, result: $resultCode, data: $data")
-    }
+//
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d(LOG_TAG, "code: $requestCode, result: $resultCode, data: $data")
+//    }
 }
