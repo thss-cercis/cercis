@@ -128,7 +128,7 @@ class SelectLocationActivity : AppCompatActivity() {
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.map_action_tick -> {
-                    currentLoc?.let {
+                    marker?.position?.let {
                         setResult(RESULT_CODE_SUCCESS, Intent().apply {
                             putExtra("location", SelectedLocation(
                                 it.longitude, it.latitude, locDes ?: ""

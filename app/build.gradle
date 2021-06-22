@@ -8,7 +8,7 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\Rhacoal\\keystore\\cercis-keystore.jks')
+            storeFile file('secrets/cercis-keystore.jks')
             storePassword 'cercis'
             keyAlias 'Cercis'
             keyPassword 'cercis'

@@ -10,3 +10,6 @@
 app/release/
 
 .DS_Store
+
+# 密钥位置
+app/secrets/
