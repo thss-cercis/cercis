@@ -93,6 +93,10 @@ class ActivityFragment : Fragment() {
             },
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.apply {
+                    activityItemLikeUsers.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_thumb_up_16,
+                        0,
+                        0,
+                        0)
                     activity = currentList[position].also {
                         when (it.viewType) {
                             VIEW_TYPE_VIDEO -> {

@@ -255,6 +255,14 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="activity_item_button_comment, activity_item_button_like, activity_item_published_time" />
 
+        <TextView
+            android:id="@+id/activity_item_like_users"
+            app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier"
+            app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/activity_item_comment_list"
             android:layout_width="0dp"
@@ -265,7 +273,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
-            app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier" />
+            app:layout_constraintTop_toBottomOf="@id/activity_item_like_users" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
