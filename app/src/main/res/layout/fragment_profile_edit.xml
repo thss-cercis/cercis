@@ -131,7 +131,7 @@
                     android:clickable="@{viewModel.canSubmit}"
                     android:enabled="@{viewModel.canSubmit}"
                     android:onClick="@{viewModel::onSubmit}"
-                    android:text="@string/hint_submit"
+                    android:text="@string/submit"
                     app:layout_constraintTop_toBottomOf="@id/profile_edit_bio" />
 
                 <com.google.android.material.textview.MaterialTextView

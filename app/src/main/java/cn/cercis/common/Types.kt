@@ -12,8 +12,9 @@ typealias SerialId = Long
 typealias WSMessageTypeId = Long
 typealias Timestamp = Long
 
-enum class MediaType {
-    IMAGE, VIDEO;
+enum class MediaType(val code: Int) {
+    IMAGE(0),
+    VIDEO(1);
     companion object {
         val NONE = IMAGE
     }

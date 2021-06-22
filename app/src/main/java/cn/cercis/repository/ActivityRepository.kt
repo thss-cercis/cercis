@@ -1,5 +1,6 @@
 package cn.cercis.repository
 
+import cn.cercis.common.MediaType
 import cn.cercis.common.mapRun
 import cn.cercis.dao.ActivityDao
 import cn.cercis.dao.EntireActivity
@@ -7,6 +8,7 @@ import cn.cercis.entity.Activity
 import cn.cercis.entity.Medium
 import cn.cercis.http.ActivityPayload
 import cn.cercis.http.CercisHttpService
+import cn.cercis.http.PublishActivityRequest
 import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
@@ -58,4 +60,13 @@ class ActivityRepository @Inject constructor(
                 return activityDao.loadEntireActivityList()
             }
         }
+
+    suspend fun publishVideoActivity(url: String) =
+        httpService.publishActivity(
+            PublishActivityRequest(
+                text = "",
+                type = MediaType.VIDEO.code,
+                contents = listOf(url),
+            )
+        )
 }

@@ -2,19 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search_white_24dp"
-        android:title=""
-        app:showAsAction="ifRoom" />
-    <item
         android:icon="@drawable/ic_add_white"
         android:title=""
         app:showAsAction="always">
         <menu>
             <item
                 android:enabled="true"
-                android:id="@+id/action_create_group"
-                android:title="@string/action_create_group" />
+                android:id="@+id/action_new_normal_activity"
+                android:title="@string/action_new_normal_activity" />
+            <item
+                android:enabled="true"
+                android:id="@+id/action_new_video_activity"
+                android:title="@string/action_new_video_activity" />
         </menu>
     </item>
 </menu>

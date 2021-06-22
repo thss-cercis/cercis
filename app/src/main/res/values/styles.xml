@@ -55,6 +55,11 @@
         <item name="cornerSize">20%</item>
     </style>
 
+    <style name="roundedCorner5">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">5%</item>
+    </style>
+
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
     </style>

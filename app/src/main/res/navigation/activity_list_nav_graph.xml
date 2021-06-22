@@ -10,6 +10,11 @@
         android:label="fragment_activity"
         tools:layout="@layout/fragment_activity" />
     <fragment
+        android:id="@+id/activityNewFragment"
+        android:name="cn.cercis.ui.activity.ActivityNewFragment"
+        android:label="activityNewFragment"
+        tools:layout="@layout/fragment_activity_new" />
+    <fragment
         android:id="@+id/userInfoFragment"
         android:name="cn.cercis.ui.contacts.UserInfoFragment"
         android:label="fragment_user_info"

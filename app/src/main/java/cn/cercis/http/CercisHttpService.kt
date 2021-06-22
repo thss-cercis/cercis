@@ -134,6 +134,10 @@ interface CercisHttpService {
         @Query("activity_id") activityId: ActivityId = 1
     ): NetworkResponse<List<ActivityPayload>>
 
+    @POST("activity")
+//    suspend fun publishActivity(@Body request: PublishActivityRequest): NetworkResponse<ActivityPayload>
+    suspend fun publishActivity(@Body request: PublishActivityRequest): EmptyNetworkResponse
+
     @POST("activity/like")
     suspend fun likeActivity(@Body request: LikeActivityRequest): EmptyNetworkResponse
 
@@ -366,6 +370,21 @@ data class ActivityPayload(
         val content: String,
         @Json(name = "created_at") val createdAt: String,
     )
+}
+
+@JsonClass(generateAdapter = true)
+data class PublishActivityRequest(
+    val text: String,
+    val media: List<MediaRequest>,
+) {
+    @JsonClass(generateAdapter = true)
+    data class MediaRequest(
+        val type: Int,
+        val content: String,
+    )
+
+    constructor(text: String, type: Int, contents: List<String>)
+            : this(text, contents.map { MediaRequest(type, it) })
 }
 
 @JsonClass(generateAdapter = true)

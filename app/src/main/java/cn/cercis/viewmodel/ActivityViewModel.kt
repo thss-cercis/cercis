@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
@@ -11,13 +13,18 @@ import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.User
 import cn.cercis.repository.ActivityRepository
 import cn.cercis.repository.UserRepository
+import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.MappingLiveData
 import cn.cercis.util.livedata.unwrapResource
+import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
@@ -27,6 +34,7 @@ import javax.inject.Inject
 class ActivityViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
     private val userRepository: UserRepository,
+    private val fileUploadUtils: FileUploadUtils,
 ) : ViewModel() {
     // this works as a flag indicating users need to be re-fetched
     private val atomicInteger = AtomicInteger(0)
@@ -83,5 +91,18 @@ class ActivityViewModel @Inject constructor(
         users.clear()
         // trigger activity list reload
         activitySource.refresh()
+    }
+
+    fun publishVideoActivity(file: File) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = fileUploadUtils.uploadFile(file)
+            if (res is NetworkResponse.Success) {
+                val url = STATIC_BASE + res.data
+                activityRepository.publishVideoActivity(url)
+                launch(Dispatchers.Main) {
+                    refresh()
+                }
+            }
+        }
     }
 }
