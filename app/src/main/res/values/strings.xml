@@ -4,6 +4,10 @@
     <string name="activity_published_time">发布于 %s</string>
     <string name="activity_sample_nickname">测试用户</string>
     <string name="activity_sample_video_url">http://azusa.one/cercis/1</string>
+    <string name="activity_select_location_permission_dialog_cancel">取消</string>
+    <string name="activity_select_location_permission_dialog_message">请尝试在应用设置中修改权限设置</string>
+    <string name="activity_select_location_permission_dialog_settings">设置</string>
+    <string name="activity_select_location_permission_dialog_title">无法定位</string>
     <string name="activity_title">动态</string>
     <string name="app_name">Cercis</string>
     <string name="chat_action_send_audio_cancel_icon_description">撤销发送</string>
@@ -34,19 +38,20 @@
     <string name="contact_list_title">联系人</string>
     <string name="create_chat_failed_message">创建群聊失败: %s</string>
     <string name="create_group_button">创建 (%d)</string>
-    <string name="create_group_dialog_cancel">取消</string>
-    <string name="create_group_dialog_ok">确定</string>
     <string name="create_group_retry">重试</string>
     <string name="create_group_title">创建群聊</string>
-    <string name="dialog_edit_friend_display_name_title">修改备注</string>
+    <string name="dialog_cancel">取消</string>
     <string name="dialog_edit_friend_display_name_cancel">取消</string>
     <string name="dialog_edit_friend_display_name_retry">重试</string>
     <string name="dialog_edit_friend_display_name_success">备注已修改</string>
+    <string name="dialog_edit_friend_display_name_title">修改备注</string>
     <string name="dialog_friend_request_cancel">取消</string>
     <string name="dialog_friend_request_retry">重试</string>
     <string name="dialog_friend_request_send">发送申请</string>
     <string name="dialog_friend_request_sent">申请已发送</string>
     <string name="dialog_friend_request_title">添加 %s 为好友</string>
+    <string name="dialog_ok">确定</string>
+    <string name="snackbar_retry">重试</string>
     <string name="empty" />
     <string name="error_authorization">未登录</string>
     <string name="error_network_exception">无法连接到 Cercis 服务器</string>
@@ -58,6 +63,13 @@
     <string name="friend_request_finished">已确认</string>
     <string name="friend_request_pending">待确认</string>
     <string name="group_info_add_member">添加成员</string>
+    <string name="group_info_exit_group">退出群聊</string>
+    <string name="group_info_exit_group_dialog_retry_message">群主不能退出群聊，请长按群成员选择让渡群主后重试</string>
+    <string name="group_info_exit_group_dialog_title">退出群聊</string>
+    <string name="group_info_exit_group_dialog_confirm_message">确定退出群聊吗？</string>
+    <string name="group_info_give_away_owner_dialog_title">让渡群主</string>
+    <string name="group_info_give_away_owner_success">群主已让渡</string>
+    <string name="group_info_give_away_owner_dialog_message">确定要让渡群主给 %s 吗？</string>
     <string name="group_info_member_count">%d 位成员</string>
     <string name="group_info_remove_member">删除成员</string>
     <string name="group_info_toolbar_title">群聊信息</string>
@@ -72,6 +84,8 @@
     <string name="hint_friend_request_remark">验证消息(可选)</string>
     <string name="hint_nickname">昵称</string>
     <string name="hint_submit">提交</string>
+    <string name="invite_group_user_button_caption">添加 (%d)</string>
+    <string name="invite_group_user_failed_message">添加用户失败</string>
     <string name="login_error_invalid_credential">用户名或密码错误</string>
     <string name="login_hint_password">密码</string>
     <string name="login_hint_user_id">ID / 手机号</string>
@@ -106,6 +120,8 @@
     <string name="profile_display_name">备注: %s</string>
     <string name="profile_edit_select_avatar">选择头像图片</string>
     <string name="profile_edit_title">修改个人信息</string>
+    <string name="remove_group_member_button_caption">移除 (%d)</string>
+    <string name="remove_group_member_failed_message">移除成员失败</string>
     <string name="select_user_default_title">选择用户</string>
     <string name="signup_button_back_to_login">返回登录界面</string>
     <string name="signup_button_signup">注册</string>
@@ -133,9 +149,4 @@
     <string name="user_info_delete_friend">删除好友</string>
     <string name="user_info_edit_display_name">编辑好友备注</string>
     <string name="user_info_send_messages">发消息</string>
-    <string name="group_info_exit_group">退出群聊</string>
-    <string name="activity_select_location_permission_dialog_title">无法定位</string>
-    <string name="activity_select_location_permission_dialog_message">请尝试在应用设置中修改权限设置</string>
-    <string name="activity_select_location_permission_dialog_cancel">取消</string>
-    <string name="activity_select_location_permission_dialog_settings">设置</string>
 </resources>

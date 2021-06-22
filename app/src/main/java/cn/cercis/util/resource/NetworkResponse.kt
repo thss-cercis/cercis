@@ -28,7 +28,7 @@ sealed class NetworkResponse<out T>(open val message: String?) {
         }
     }
 
-    suspend fun <ToType> then(block: suspend T.() -> NetworkResponse<ToType>): NetworkResponse<ToType> {
+    suspend fun <ToType> thenUse(block: suspend T.() -> NetworkResponse<ToType>): NetworkResponse<ToType> {
         return when (this) {
             is Success -> data.block()
             is Reject -> Reject(code, message)

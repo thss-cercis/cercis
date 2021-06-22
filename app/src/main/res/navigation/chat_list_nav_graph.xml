@@ -70,7 +70,29 @@
         <argument
             android:name="chat"
             app:argType="cn.cercis.entity.Chat" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_addGroupUserFragment"
+            app:destination="@id/addGroupUserFragment" />
+        <action
+            android:id="@+id/action_groupInfoFragment_to_removeGroupMemberFragment"
+            app:destination="@id/removeGroupMemberFragment" />
     </fragment>
     <action android:id="@+id/action_global_groupInfoFragment" app:destination="@id/groupInfoFragment" />
+    <fragment
+        android:id="@+id/addGroupUserFragment"
+        android:name="cn.cercis.ui.chat.AddGroupUserFragment"
+        android:label="AddGroupUserFragment" >
+        <argument
+            android:name="chatId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/removeGroupMemberFragment"
+        android:name="cn.cercis.ui.chat.RemoveGroupMemberFragment"
+        android:label="RemoveGroupMemberFragment" >
+        <argument
+            android:name="chatId"
+            app:argType="long" />
+    </fragment>
 
 </navigation>

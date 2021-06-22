@@ -68,7 +68,7 @@ class CreateGroupFragment : Fragment() {
             MaterialAlertDialogBuilder(requireContext()).apply {
                 setTitle(R.string.create_group_title)
                 setView(R.layout.dialog_create_group)
-                setPositiveButton(R.string.create_group_dialog_ok) { dialog, _ ->
+                setPositiveButton(R.string.dialog_ok) { dialog, _ ->
                     dialog as AlertDialog
                     val chatName =
                         dialog.findViewById<TextInputEditText>(R.id.dialog_create_group_name_edit_text)!!.text?.toString()
@@ -79,7 +79,7 @@ class CreateGroupFragment : Fragment() {
                         dialog.dismiss()
                     }
                 }
-                setNegativeButton(R.string.create_group_dialog_cancel) { _, _ -> }
+                setNegativeButton(R.string.dialog_cancel) { _, _ -> }
             }.show().apply {
                 getButton(AlertDialog.BUTTON_POSITIVE).let {
                     it.isEnabled = false

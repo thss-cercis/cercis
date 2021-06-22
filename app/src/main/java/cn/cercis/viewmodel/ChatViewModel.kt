@@ -113,6 +113,7 @@ class ChatViewModel @Inject constructor(
     }
 
     val initialValue = ArrayList<DisplayMessage>()
+
     @SuppressLint("NullSafeMutableLiveData") // stupid workaround for IDE bugs
     val chatMessageList = MutableLiveData<List<DisplayMessage>>(initialValue)
     val isAtBottom = MutableStateFlow(true)
@@ -172,17 +173,24 @@ class ChatViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             instantCombine(chatMessages.messageFlow,
-                pendingMessageList.mapLatest { delay(200); it }).collectLatest { pair ->
-                val (res: Resource<List<Message>>?, pending) = pair
-                Log.d(LOG_TAG, "pending: $pending")
+                pendingMessageList.mapLatest { delay(200); it }
+                    .combine(pendingMessageList) { a, b -> (a to b) }).collectLatest { pair ->
+                val (res: Resource<List<Message>>?, pendingPair) = pair
+                val (delayedPending, actualPending) = pendingPair ?: null to null
+                Log.d(LOG_TAG, "pending: $delayedPending")
                 when (res) {
                     null -> Unit
                     is Resource.Error -> Unit
                     is Resource.Loading -> Unit
                     is Resource.Success -> {
                         chatMessageList.postValue(
-                            if (pending != null) {
-                                (res.data.map { SentDisplayMessage(it) } + pending.map {
+                            if (delayedPending != null) {
+                                (res.data.map { SentDisplayMessage(it) } + (
+                                        if (delayedPending.size > actualPending!!.size) {
+                                            actualPending
+                                        } else {
+                                            delayedPending
+                                        }).map {
                                     PendingDisplayMessage(it, currentUserId)
                                 })
                             } else {

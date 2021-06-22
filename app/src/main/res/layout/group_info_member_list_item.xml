@@ -12,6 +12,10 @@
             type="cn.cercis.viewmodel.CommonListItemData" />
 
         <variable
+            name="userId"
+            type="long" />
+
+        <variable
             name="selected"
             type="boolean" />
 
@@ -47,17 +51,28 @@
             style="@style/TextAppearance.Cercis.Messages.Username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginHorizontal="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{data.displayName}"
             android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@+id/text_description"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/group_info_member_permission"
             app:layout_constraintStart_toEndOf="@id/avatar"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread"
             tools:text="Example displayName" />
+
+        <TextView
+            android:id="@+id/group_info_member_permission"
+            style="@style/TextAppearance.Cercis.Messages.Preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/text_display_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/text_display_name"
+            android:text="@{permission}"
+            tools:text="群主" />
 
         <TextView
             android:id="@+id/text_description"

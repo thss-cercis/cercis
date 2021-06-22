@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
@@ -17,18 +19,22 @@ import cn.cercis.entity.GroupChatPermission.GROUP_ADMIN
 import cn.cercis.entity.GroupChatPermission.GROUP_OWNER
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.livedata.observeFilterFirst
+import cn.cercis.util.resource.NetworkResponse
+import cn.cercis.util.snackbarMakeError
+import cn.cercis.util.snackbarMakeSuccess
 import cn.cercis.viewmodel.GroupInfoViewModel
 import cn.cercis.viewmodel.toCommonListItemData
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.*
 import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class GroupInfoFragment : Fragment() {
-    private val groupInfoViewModel: GroupInfoViewModel by viewModels()
+    private val viewModel: GroupInfoViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,22 +42,69 @@ class GroupInfoFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         val binding = FragmentGroupInfoBinding.inflate(inflater, container, false)
-        binding.viewModel = groupInfoViewModel
+        binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         binding.executePendingBindings()
         binding.groupInfoMemberListView.adapter = DiffRecyclerViewAdapter.getInstance(
-            dataSource = groupInfoViewModel.groupMemberList,
+            dataSource = viewModel.groupMemberList,
             viewLifecycleOwnerSupplier = { viewLifecycleOwner },
             itemIndex = { id },
             contentsSameCallback = Objects::equals,
             inflater = { inflater1, parent, _ ->
-                GroupInfoMemberListItemBinding.inflate(inflater1, parent, false)
+                GroupInfoMemberListItemBinding.inflate(inflater1, parent, false).apply {
+                    this.root.setOnCreateContextMenuListener { menu, _, _ ->
+                        menu.add(getString(R.string.group_info_give_away_owner_dialog_title))
+                            .setOnMenuItemClickListener {
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(R.string.group_info_give_away_owner_dialog_title)
+                                    .setMessage(getString(R.string.group_info_give_away_owner_dialog_message).format(
+                                        this.data?.displayName ?: ""))
+                                    .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                                        val userId = this.userId
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            val makeRequest = suspend {
+                                                viewModel.reassignGroupOwner(userId)
+                                            }
+                                            val result = MutableLiveData(makeRequest())
+                                            lifecycleScope.launch(Dispatchers.Main) {
+                                                result.observe(viewLifecycleOwner) {
+                                                    when (it) {
+                                                        is NetworkResponse.NetworkError, is NetworkResponse.Reject -> {
+                                                            snackbarMakeError(binding.root,
+                                                                it.message!!,
+                                                                Snackbar.LENGTH_SHORT) {
+                                                                setAction(R.string.snackbar_retry) {
+                                                                    launch(Dispatchers.IO) {
+                                                                        result.postValue(makeRequest())
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        is NetworkResponse.Success -> {
+                                                            snackbarMakeSuccess(binding.root,
+                                                                getString(R.string.group_info_give_away_owner_success),
+                                                                Snackbar.LENGTH_SHORT
+                                                            )
+                                                        }
+                                                        null -> Unit
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+                                    .show()
+                                true
+                            }
+                    }
+                }
             },
             onBindViewHolderWithExecution = { holder, position ->
                 val value = currentList[position]
                 holder.binding.data = value.toCommonListItemData()
                 holder.binding.selected = false
                 holder.binding.permission = permissionToString(value.first.permission)
+                holder.binding.userId = value.first.userId
             },
             itemViewType = { 0 }
         )
@@ -61,9 +114,19 @@ class GroupInfoFragment : Fragment() {
         binding.groupInfoToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+        binding.groupInfoAddMembers.setOnClickListener {
+            findNavController().navigate(GroupInfoFragmentDirections.actionGroupInfoFragmentToAddGroupUserFragment(
+                viewModel.chatId
+            ))
+        }
+        binding.groupInfoRemoveMembers.setOnClickListener {
+            findNavController().navigate(GroupInfoFragmentDirections.actionGroupInfoFragmentToRemoveGroupMemberFragment(
+                viewModel.chatId
+            ))
+        }
         postponeEnterTransition()
         val start0 = System.currentTimeMillis()
-        groupInfoViewModel.groupMemberList.observeFilterFirst(viewLifecycleOwner,
+        viewModel.groupMemberList.observeFilterFirst(viewLifecycleOwner,
             until = { !it.isNullOrEmpty() },
             observer = {
                 (view?.parent as? ViewGroup)?.doOnPreDraw {
@@ -73,6 +136,31 @@ class GroupInfoFragment : Fragment() {
                     startPostponedEnterTransition()
                 }
             })
+        binding.groupInfoExitGroup.setOnClickListener {
+            if (!viewModel.canLeaveGroup()) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.group_info_exit_group_dialog_title)
+                    .setMessage(R.string.group_info_exit_group_dialog_retry_message)
+                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+                    .show()
+            } else {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.group_info_exit_group_dialog_title)
+                    .setMessage(R.string.group_info_exit_group_dialog_confirm_message)
+                    .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            viewModel.leaveGroup().use {
+                                viewModel.refreshChatList()
+                                launch(Dispatchers.Main) {
+                                    findNavController().popBackStack(R.id.emptyFragment, false)
+                                }
+                            }
+                        }
+                    }
+                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+                    .show()
+            }
+        }
         return binding.root
     }
 

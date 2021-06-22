@@ -99,7 +99,7 @@ class UserInfoFragment : Fragment() {
                                         it.message!!,
                                         Snackbar.LENGTH_SHORT) {
                                         setAction(R.string.dialog_edit_friend_display_name_retry) {
-                                            launch {
+                                            launch(Dispatchers.IO) {
                                                 result.postValue(makeRequest())
                                             }
                                         }

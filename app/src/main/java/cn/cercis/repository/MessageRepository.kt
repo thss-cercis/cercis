@@ -280,11 +280,18 @@ class MessageRepository @Inject constructor(
             scope.launch(Dispatchers.IO) {
                 // message submitting handlers
                 for (preparedMessage in messagesWaitingToSubmit) {
-                    val res = sendMessage(
-                        preparedMessage.chatId,
-                        preparedMessage.messageType,
-                        preparedMessage.content
-                    )
+                    val res = if (preparedMessage.messageType == MessageType.WITHDRAW) {
+                        httpService.withdrawMessage(
+                            WithdrawMessageRequest(preparedMessage.chatId,
+                                preparedMessage.content.toLong())
+                        )
+                    } else {
+                        sendMessage(
+                            preparedMessage.chatId,
+                            preparedMessage.messageType,
+                            preparedMessage.content
+                        )
+                    }
                     Log.d(LOG_TAG, "tried to send(${preparedMessage.messageSerial}): $res")
                     if (res is Success) {
                         pendingMessages.remove(preparedMessage.messageSerial)
@@ -346,7 +353,7 @@ class MessageRepository @Inject constructor(
      */
     private suspend fun uploadResource(message: PendingMessage): NetworkResponse<PreparedMessage> {
         return when (message) {
-            is AudioMessage, is ImageMessage, is VideoMessage  ->
+            is AudioMessage, is ImageMessage, is VideoMessage ->
                 fileUploadUtils.uploadFile(message.file!!)
                     .use {
                         PreparedMessage(
@@ -507,6 +514,22 @@ class MessageRepository @Inject constructor(
             }
         }
         return Success(EmptyPayload())
+    }
+
+    suspend fun removeMembersFromGroup(chatId: ChatId, members: List<UserId>): EmptyNetworkResponse {
+        for (user in members) {
+            // interrupt removing when network error occurred
+            when (val res = httpService.deleteGroupMember(DeleteGroupMemberRequest(chatId, user))) {
+                is NetworkResponse.NetworkError -> break
+                is NetworkResponse.Reject -> return res
+                else -> continue
+            }
+        }
+        return Success(EmptyPayload())
+    }
+
+    suspend fun giveawayGroupOwner(chatId: ChatId, userId: UserId): EmptyNetworkResponse {
+        return httpService.giveawayGroupOwner(GiveAwayGroupOwnerRequest(chatId, userId))
     }
 
     /**

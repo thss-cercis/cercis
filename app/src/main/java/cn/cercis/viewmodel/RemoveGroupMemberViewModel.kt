@@ -3,10 +3,11 @@ package cn.cercis.viewmodel
 import androidx.lifecycle.*
 import cn.cercis.common.ChatId
 import cn.cercis.common.UserId
-import cn.cercis.entity.FriendUser
 import cn.cercis.http.EmptyNetworkResponse
+import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.FriendRepository
 import cn.cercis.repository.MessageRepository
+import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.AutoResetLiveData
 import cn.cercis.util.livedata.asInitializedLiveData
@@ -22,42 +23,44 @@ import javax.inject.Inject
 @FlowPreview
 @ExperimentalCoroutinesApi
 @HiltViewModel
-class AddGroupUserViewModel @Inject constructor(
+class RemoveGroupMemberViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     friendRepository: FriendRepository,
+    authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val messageRepository: MessageRepository,
 ) : ViewModel() {
     val chatId = savedStateHandle.get<ChatId>("chatId")!!
-    private val refreshTime = MutableStateFlow(System.currentTimeMillis())
-    private val listFlow: Flow<List<FriendUser>> = refreshTime.flatMapLatest {
-        friendRepository.getFriendUserList()
-    }
+    val currentUserId = authRepository.currentUserId
     private val selectedUsers = MutableLiveData<HashSet<UserId>>(HashSet())
-    private val listLiveData = listFlow.asInitializedLiveData(coroutineContext, listOf())
     private val busyLoading = MutableLiveData(false)
-    private val members = messageRepository.getChatMemberList(chatId).fallbackFlow()
-        .mapLatest { res ->
-            res.data?.let { list -> HashSet<UserId>(list.map { it.userId }) } ?: HashSet()
-        }
-        .asLiveData(coroutineContext)
-    val friendList = generateMediatorLiveData(listLiveData, selectedUsers, members) {
-        listLiveData.value!!.map {
-            Triple(
-                it,
-                selectedUsers.value!!.contains(it.friendUserId),
-                members.value?.contains(it.friendUserId) ?: false
-            )
-        }
+    private val groupMemberListFlow = userRepository.run {
+        viewModelScope.withFriends(messageRepository.getChatMemberList(chatId).flow()
+            .map { it.data }.filterNotNull().flowOn(Dispatchers.IO), { userId }, false)
     }
-    val selectedUserList = generateMediatorLiveData(listLiveData, selectedUsers) {
-        listLiveData.value!!.filter { selectedUsers.value!!.contains(it.friendUserId) }
+    private val groupMemberList =
+        groupMemberListFlow.asInitializedLiveData(coroutineContext, listOf())
+    private val selfMember =
+        groupMemberList.map { it.firstOrNull { member -> member.first.userId == currentUserId } }
+    val groupMemberListSource =
+        generateMediatorLiveData(groupMemberList, selectedUsers, selfMember) {
+            groupMemberList.value!!.map { triple ->
+                Triple(
+                    triple,
+                    selectedUsers.value!!.contains(triple.first.userId),
+                    selfMember.value?.let { triple.first.permission < it.first.permission } ?: true
+                )
+            }
+        }
+    val selectedUserList = generateMediatorLiveData(groupMemberListSource, selectedUsers) {
+        groupMemberListSource.value!!.filter { selectedUsers.value!!.contains(it.first.first.userId) }
     }
     val selectedUserCount =
         selectedUserList.map { it?.size ?: 0 }.apply { this as MutableLiveData; value = 0 }
     val buttonClickable = generateMediatorLiveData(busyLoading, selectedUserCount) {
         busyLoading.value == false && (selectedUserCount.value ?: 0) > 0
     }
-    val selectUserResponse = AutoResetLiveData<EmptyNetworkResponse?>(null)
+    val removeMemberResponse = AutoResetLiveData<EmptyNetworkResponse?>(null)
 
     fun toggleUserSelected(userId: UserId) {
         selectedUsers.value!!.let {
@@ -69,14 +72,13 @@ class AddGroupUserViewModel @Inject constructor(
         selectedUsers.postValue(selectedUsers.value)
     }
 
-    fun addToGroup() {
+    fun removeFromGroup() {
         busyLoading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 selectedUserList.value?.let { list ->
-                    selectUserResponse.postValue(messageRepository.addMembersToGroup(chatId,
-                        list.asSequence().map { it.friendUserId }
-                            .filterNot { members.value?.contains(it) ?: false }.toList()).apply {
+                    removeMemberResponse.postValue(messageRepository.removeMembersFromGroup(chatId,
+                        list.map { it.first.first.userId }).apply {
                         messageRepository.getChatMemberList(chatId).fetchAndSave()
                     })
                 }
