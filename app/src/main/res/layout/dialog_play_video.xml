@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="buttonVisible"
+            type="boolean" />
+
+        <variable
+            name="progressVisible"
+            type="boolean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:paddingVertical="10dp"
+        android:id="@+id/dialog_play_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_height="180dp"
+        tools:layout_width="360dp">
+
+        <VideoView
+            android:id="@+id/dialog_play_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dialog_play_video_button"
+            style="@style/Widget.Cercis.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{buttonVisible ? View.VISIBLE : View.GONE, default=gone}"
+            app:elevation="3dp"
+            app:icon="@drawable/ic_play_circle_60"
+            app:iconGravity="textStart"
+            app:iconTint="@color/surface_day"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_play_video_view"
+            app:layout_constraintEnd_toEndOf="@id/dialog_play_video_view"
+            app:layout_constraintStart_toStartOf="@id/dialog_play_video_view"
+            app:layout_constraintTop_toTopOf="@id/dialog_play_video_view"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/dialog_play_video_progress_bar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:indeterminate="false"
+            android:visibility="@{progressVisible ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_play_video_view"
+            app:layout_constraintEnd_toEndOf="@id/dialog_play_video_view"
+            app:layout_constraintStart_toStartOf="@id/dialog_play_video_view"
+            app:layout_constraintTop_toTopOf="@id/dialog_play_video_view" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

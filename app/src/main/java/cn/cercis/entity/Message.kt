@@ -3,6 +3,7 @@ package cn.cercis.entity
 import androidx.room.Entity
 import androidx.room.Index
 import cn.cercis.R
+import cn.cercis.SelectedLocation
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.common.Timestamp
@@ -56,29 +57,3 @@ enum class MessageType(val type: Int) {
 }
 
 fun Int.asMessageType(): MessageType = MessageType.of(this)
-
-data class MessageLocationContent(
-    val longitude: Double,
-    val latitude: Double,
-    val description: String,
-) {
-    companion object {
-        fun fromMessageContent(content: String): MessageLocationContent {
-            val splits = content.split(Regex("#"), 3)
-            if (splits.size == 3) {
-                try {
-                    return MessageLocationContent(
-                        longitude = splits[0].toDouble(),
-                        latitude = splits[1].toDouble(),
-                        description = splits[2]
-                    )
-                } catch (ignore: NumberFormatException) {
-                }
-            }
-            // if location format is incorrect, return the location of Tsinghua University
-            return MessageLocationContent(40.0,
-                116.322665376,
-                getString(R.string.message_incorrect_location))
-        }
-    }
-}

@@ -20,32 +20,24 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.SelectLocationActivity
 import cn.cercis.SelectedLocation
+import cn.cercis.ShowLocationActivity
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.*
 import cn.cercis.entity.ChatType
-import cn.cercis.entity.MessageLocationContent
 import cn.cercis.entity.MessageType
 import cn.cercis.entity.asMessageType
-import cn.cercis.ui.startup.LoginFragment
 import cn.cercis.util.getSharedTempFile
 import cn.cercis.util.getTempFile
-import cn.cercis.util.helper.DiffRecyclerViewAdapter
-import cn.cercis.util.helper.closeIme
-import cn.cercis.util.helper.openApplicationSettingsPage
-import cn.cercis.util.helper.requireMainActivity
-import cn.cercis.util.livedata.observeFilterFirst
+import cn.cercis.util.helper.*
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
@@ -95,7 +87,7 @@ class ChatFragment : Fragment() {
         const val REQ_SHARE_LOCATION = 100
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -163,16 +155,17 @@ class ChatFragment : Fragment() {
                                     textView.visibility = View.GONE
                                 }
                                 MessageType.VIDEO -> {
-                                    ResourcesCompat.getDrawable(
-                                        resources,
-                                        R.drawable.ic_play_circle_24,
-                                        null
-                                    )?.let {
-                                        imageView.overlay.add(it)
-                                    }
-                                    textView.visibility = View.GONE
+                                    textView.setCompoundDrawablesWithIntrinsicBounds(
+                                        R.drawable.ic_video_24, 0, 0, 0
+                                    )
+                                    imageView.visibility = View.GONE
                                 }
-                                MessageType.LOCATION -> Unit
+                                MessageType.LOCATION -> {
+                                    textView.setCompoundDrawablesWithIntrinsicBounds(
+                                        R.drawable.ic_location_40, 0, 0, 0
+                                    )
+                                    imageView.visibility = View.GONE
+                                }
                                 else -> throw IllegalStateException("unexpected message type")
                             }
                             if (mvt.direction == OUTGOING.type) {
@@ -275,7 +268,6 @@ class ChatFragment : Fragment() {
                                     }
                                 }
                                 MessageType.AUDIO -> {
-                                    // TODO bind audio playing
                                     if (data is ChatViewModel.SentDisplayMessage) {
                                         bubble.setOnClickListener {
                                             mediaPlayer.reset()
@@ -288,17 +280,28 @@ class ChatFragment : Fragment() {
                                     textView.text = getString(R.string.message_type_audio)
                                 }
                                 MessageType.VIDEO -> {
-                                    // TODO bind video playing
-                                    Glide.with(imageView)
-                                        .load(data.message + "")
+                                    if (data is ChatViewModel.SentDisplayMessage) {
+                                        bubble.setOnClickListener {
+                                            showVideoDialog(requireContext(), data.message)
+                                        }
+                                    }
+                                    textView.text = getString(R.string.message_type_video)
                                 }
                                 MessageType.LOCATION -> {
-                                    val locationContent =
-                                        MessageLocationContent.fromMessageContent(data.message)
-                                    imageView.setOnClickListener {
-                                        // TODO open location in popup window(?)
+                                    if (data is ChatViewModel.SentDisplayMessage) {
+                                        val locationContent =
+                                            SelectedLocation.fromMessageContent(data.message)
+                                        bubble.setOnClickListener {
+                                            startActivity(Intent(requireContext(),
+                                                ShowLocationActivity::class.java).apply {
+                                                putExtra("location", locationContent)
+                                            })
+                                        }
+                                        textView.text = locationContent.address.takeIf { it.isNotEmpty() }
+                                                ?: "[${getString(R.string.message_type_location)}]"
+                                    } else {
+                                        textView.text = "[${getString(R.string.message_type_location)}]"
                                     }
-                                    textView.text = locationContent.description
                                 }
                                 MessageType.UNKNOWN -> {
                                     textView.text = getString(R.string.message_type_unknown)
@@ -511,6 +514,7 @@ class ChatFragment : Fragment() {
 
             var rect: Rect? = null
             var recordStartTime: Long = 0
+            var inRange: Boolean = true
             this.chatActionSendAudioRecordButton.setOnTouchListener { v, event ->
                 val recording = viewModel.isRecording.value == true
                 when (event.action) {
@@ -529,12 +533,16 @@ class ChatFragment : Fragment() {
                     }
                     ACTION_UP -> {
                         v.isPressed = false
-                        if (System.currentTimeMillis() - recordStartTime < 500) {
-                            Toast.makeText(requireContext(),
-                                getString(R.string.chat_send_audio_page_toast_record_too_short),
-                                Toast.LENGTH_SHORT).show()
+                        if (inRange) {
+                            if (System.currentTimeMillis() - recordStartTime < 500) {
+                                Toast.makeText(requireContext(),
+                                    getString(R.string.chat_send_audio_page_toast_record_too_short),
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                            viewModel.finishRecording()
+                        } else {
+                            viewModel.cancelRecording()
                         }
-                        viewModel.finishRecording()
                         this.chatActionSendAudioPage.transitionToStart()
                     }
                     ACTION_CANCEL -> {
@@ -549,8 +557,10 @@ class ChatFragment : Fragment() {
                                 if (!it.contains(v.left + event.x.toInt(), v.top + event.y.toInt())
                                 ) {
                                     // User moved outside bounds
+                                    inRange = false
                                     this.chatActionSendAudioPage.transitionToState(R.id.state_send_audio_about_to_delete)
                                 } else {
+                                    inRange = true
                                     this.chatActionSendAudioPage.transitionToState(R.id.state_send_audio_recording)
                                 }
                             }
@@ -583,7 +593,7 @@ class ChatFragment : Fragment() {
             val takeVideoLauncher =
                 registerForActivityResult(ActivityResultContracts.TakeVideo()
                 ) { bitmap ->
-                    if (bitmap != null && videoFile != null) {
+                    if (videoFile != null) {
                         videoFile?.let { viewModel.sendVideoMessage(it) }
                     }
                 }
@@ -635,7 +645,8 @@ class ChatFragment : Fragment() {
         binding.chatActionExtraPage.apply {
             chatActionExtraShareLocation.setOnClickListener {
                 @Suppress("DEPRECATION")
-                startActivityForResult(Intent(requireContext(), SelectLocationActivity::class.java), REQ_SHARE_LOCATION)
+                startActivityForResult(Intent(requireContext(), SelectLocationActivity::class.java),
+                    REQ_SHARE_LOCATION)
             }
         }
 
@@ -648,11 +659,13 @@ class ChatFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_SHARE_LOCATION && resultCode == SelectLocationActivity.RESULT_CODE_SUCCESS) {
             data?.let {
                 val location = data.getParcelableExtra<SelectedLocation>("location")!!
                 Log.d(LOG_TAG, "$location")
+                viewModel.sendLocationMessage(location)
             }
         }
     }

@@ -166,4 +166,5 @@
     <string name="user_info_edit_display_name">编辑好友备注</string>
     <string name="user_info_send_messages">发消息</string>
     <string name="show_location_title">位置</string>
+    <string name="video_dialog_title">视频</string>
 </resources>

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import cn.cercis.R
+import cn.cercis.SelectedLocation
 import cn.cercis.common.*
 import cn.cercis.entity.Chat
 import cn.cercis.entity.Message
@@ -243,6 +244,11 @@ class ChatViewModel @Inject constructor(
             latestMessage.value?.messageId ?: 1, file))
     }
 
+    fun sendLocationMessage(location: SelectedLocation) {
+        messageRepository.addMessageToPendingList(LocationMessage(chatId,
+            latestMessage.value?.messageId ?: 1, location))
+    }
+
     fun sendImageMessage(file: File) {
         messageRepository.addMessageToPendingList(ImageMessage(chatId,
             latestMessage.value?.messageId ?: 1, file))
@@ -332,10 +338,14 @@ class ChatViewModel @Inject constructor(
     fun finishRecording() {
         if (isRecording.value == true) {
             try {
-                mediaRecorder.stop()
-                mediaRecorder.reset()
-                val filename = recordingFile.value!!
-                sendAudioMessage(File(filename))
+                try {
+                    mediaRecorder.stop()
+                    val filename = recordingFile.value!!
+                    sendAudioMessage(File(filename))
+                } catch (e: Exception) {
+                } finally {
+                    mediaRecorder.reset()
+                }
             } finally {
                 isRecording.value = false
                 recordingFile.value = null
@@ -354,6 +364,7 @@ class ChatViewModel @Inject constructor(
                 mediaRecorder.reset()
                 val filename = recordingFile.value!!
                 File(filename).delete()
+            } catch (e: Exception) {
             } finally {
                 isRecording.value = false
                 recordingFile.value = null

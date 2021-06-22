@@ -6,6 +6,7 @@ import androidx.annotation.MainThread
 import androidx.paging.*
 import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.R
+import cn.cercis.SelectedLocation
 import cn.cercis.common.*
 import cn.cercis.dao.ChatDao
 import cn.cercis.dao.ChatMemberDao
@@ -217,9 +218,7 @@ class MessageRepository @Inject constructor(
         data class LocationMessage(
             override val chatId: ChatId,
             override val attachAfter: MessageId,
-            val latitude: Double,
-            val longitude: Double,
-            val description: String,
+            val selectedLocation: SelectedLocation,
         ) : PendingMessage(chatId, attachAfter, MessageType.LOCATION)
 
         data class WithdrawMessage(override val chatId: ChatId, val messageId: MessageId) :
@@ -370,7 +369,7 @@ class MessageRepository @Inject constructor(
                     message.chatId,
                     message.attachAfter,
                     MessageType.LOCATION,
-                    "${message.longitude}#${message.latitude}#${message.description}"
+                    message.selectedLocation.toString(),
                 )
             )
             is TextMessage -> Success(
@@ -516,7 +515,10 @@ class MessageRepository @Inject constructor(
         return Success(EmptyPayload())
     }
 
-    suspend fun removeMembersFromGroup(chatId: ChatId, members: List<UserId>): EmptyNetworkResponse {
+    suspend fun removeMembersFromGroup(
+        chatId: ChatId,
+        members: List<UserId>,
+    ): EmptyNetworkResponse {
         for (user in members) {
             // interrupt removing when network error occurred
             when (val res = httpService.deleteGroupMember(DeleteGroupMemberRequest(chatId, user))) {

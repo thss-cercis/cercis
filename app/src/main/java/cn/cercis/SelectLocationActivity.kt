@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import cn.cercis.databinding.ActivitySelectLocationBinding
+import cn.cercis.util.getString
 import cn.cercis.util.helper.openApplicationSettingsPage
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
@@ -259,4 +260,28 @@ data class SelectedLocation(
     val longitude: Double,
     val latitude: Double,
     val address: String,
-) : Parcelable
+) : Parcelable {
+    companion object {
+        fun fromMessageContent(content: String): SelectedLocation {
+            val splits = content.split(Regex("#"), 3)
+            if (splits.size == 3) {
+                try {
+                    return SelectedLocation(
+                        longitude = splits[0].toDouble(),
+                        latitude = splits[1].toDouble(),
+                        address = splits[2],
+                    )
+                } catch (ignore: NumberFormatException) {
+                }
+            }
+            // if location format is incorrect, return the location of Tsinghua University
+            return SelectedLocation(40.0,
+                116.322665376,
+                getString(R.string.message_incorrect_location))
+        }
+    }
+
+    override fun toString(): String {
+        return "${longitude}#${latitude}#${address}"
+    }
+}
