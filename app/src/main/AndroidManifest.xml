@@ -64,6 +64,12 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".SelectLocationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAP" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".service.NotificationService" />
         <service android:name="com.amap.api.location.APSService" />
@@ -81,6 +87,9 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="8a0ff04718148ca996cedd768b709e27" />
+<!--        <meta-data-->
+<!--            android:name="com.amap.api.v2.apikey"-->
+<!--            android:value="f2c653b5d7486ff9152a731f997d9e73" />-->
     </application>
 
 </manifest>

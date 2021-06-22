@@ -1,5 +1,6 @@
 package cn.cercis.ui.startup
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
+import cn.cercis.SelectLocationActivity
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentLoginBinding
 import cn.cercis.util.helper.enableTransition
@@ -23,6 +25,10 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
+    companion object {
+        const val REQUEST1 = 12
+    }
+
     private val loginViewModel: LoginViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -34,6 +40,9 @@ class LoginFragment : Fragment() {
             binding.signupPassword.error = it
         }
         binding.linkResetPassword.setOnClickListener {
+//            val it: Intent = Intent("android.intent.action.MAP")
+//            startActivity(it)
+            startActivityForResult(Intent(requireContext(), SelectLocationActivity::class.java), REQUEST1)
             Log.d(LOG_TAG, "reset password not implemented")
             Toast.makeText(context, "暂不支持密码重置", Toast.LENGTH_SHORT).show()
         }
@@ -49,5 +58,10 @@ class LoginFragment : Fragment() {
         }
         (binding.root as ViewGroup).enableTransition()
         return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(LOG_TAG, "code: $requestCode, result: $resultCode, data: $data")
     }
 }

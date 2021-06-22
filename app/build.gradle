@@ -6,6 +6,14 @@ apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/home/link/cercis-keystore.jks')
+            storePassword 'cercis'
+            keyAlias 'Cercis'
+            keyPassword 'cercis'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
@@ -113,9 +121,9 @@ dependencies {
     implementation('com.qiniu:qiniu-android-sdk:8.2.+') {
         exclude(group: 'com.squareup.okhttp3', module: 'okhttp')
     }
-    implementation 'com.amap.api:3dmap:5.0.0'
-    implementation 'com.amap.api:location:3.3.0'
-    implementation 'com.amap.api:search:5.0.0'
+    implementation 'com.amap.api:3dmap:7.9.1'
+    implementation 'com.amap.api:location:5.3.1'
+    implementation 'com.amap.api:search:7.9.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
