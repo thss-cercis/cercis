@@ -8,6 +8,10 @@ import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.Activity
 import cn.cercis.entity.Comment
 import cn.cercis.entity.Medium
+import cn.cercis.http.ActivityPayload
+import cn.cercis.http.ActivityRequest
+import cn.cercis.http.CercisHttpService
+import cn.cercis.http.PublishActivityRequest
 import cn.cercis.http.*
 import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
@@ -84,6 +88,13 @@ class ActivityRepository @Inject constructor(
                 contents = listOf(videoUrl),
             )
         )
+
+    suspend fun thumbUp(activityId: ActivityId, value: Boolean) =
+        if (value) {
+            httpService.thumbUpActivity(ActivityRequest(activityId))
+        } else {
+            httpService.undoThumbUpActivity(ActivityRequest(activityId))
+        }
 
     suspend fun sendComment(activityId: ActivityId, content: String): EmptyNetworkResponse {
         return httpService.addActivityComment(ActivityCommentRequest(activityId, content))

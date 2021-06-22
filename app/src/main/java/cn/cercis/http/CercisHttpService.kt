@@ -140,7 +140,7 @@ interface CercisHttpService {
     @POST("activity/thumbup")
     suspend fun thumbUpActivity(@Body request: ActivityRequest): EmptyNetworkResponse
 
-    @DELETE("activity/thumbup")
+    @HTTP(method = "DELETE", path = "activity/thumbup", hasBody = true)
     suspend fun undoThumbUpActivity(@Body request: ActivityRequest): EmptyNetworkResponse
 
     @POST("activity/comment")

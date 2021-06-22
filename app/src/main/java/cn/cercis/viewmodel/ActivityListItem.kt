@@ -3,21 +3,18 @@ package cn.cercis.viewmodel
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.LiveData
 import cn.cercis.common.*
 import cn.cercis.entity.Comment
-import cn.cercis.entity.User
 
-class ActivityListItem(
+data class ActivityListItem(
     val activityId: CommonId,
-    val user: LiveData<User>,
+    val userId: UserId,
     val text: String,
     val mediaType: MediaType,
-    mediaUrlList: List<String>,
+    val mediaUrlList: List<String>,
     val publishedAt: Timestamp,
     val commentList: List<Comment>,
-    val thumbUpList: List<UserId>,
-    val isLoading: LiveData<Boolean>,
+    val thumbUpUserIdList: List<UserId>,
 ) {
     private val imageList = when (mediaType) {
         MediaType.IMAGE -> mediaUrlList
@@ -30,8 +27,8 @@ class ActivityListItem(
     }
 
     init {
-        Log.d(LOG_TAG, "Init with imageCount=$imageCount")
-        Log.d(LOG_TAG, "$imageList")
+//        Log.d(LOG_TAG, "Init with imageCount=$imageCount")
+//        Log.d(LOG_TAG, "$imageList")
     }
 
     val viewType: Int

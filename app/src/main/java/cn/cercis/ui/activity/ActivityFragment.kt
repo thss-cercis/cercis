@@ -17,11 +17,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.databinding.ActivityCommentItemBinding
+import cn.cercis.common.mapRun
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
+import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setDimensionRatio
 import cn.cercis.util.snackbarMakeError
@@ -88,6 +90,7 @@ class ActivityFragment : Fragment() {
             true
         }
 
+        binding.activityRecyclerView.itemAnimator = null
         binding.activityRecyclerView.adapter = DiffRecyclerViewAdapter.getInstance(
             viewModel.activities,
             { viewLifecycleOwner },
@@ -98,11 +101,31 @@ class ActivityFragment : Fragment() {
             },
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.apply {
-                    activityItemLikeUsers.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_thumb_up_16,
-                        0,
-                        0,
-                        0)
+                    activityItemThumbUpUsers.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_thumb_up_filled_16, 0, 0, 0
+                    )
                     activity = currentList[position].also {
+                        user = viewModel.loadUser(it.userId)
+                        val thumbUpLiveDataList = it.thumbUpUserIdList.map(viewModel::loadUser)
+                        thumbUpUsersText = generateMediatorLiveData(*thumbUpLiveDataList.toTypedArray()) {
+                            thumbUpLiveDataList.mapRun { value?.displayName }.filterNotNull()
+                                .joinToString(cn.cercis.util.getString(R.string.user_separator))
+                        }
+                        activityItemButtonThumbUp.apply {
+                            if (!it.thumbUpUserIdList.contains(viewModel.currentUserId)) {
+                                setIconResource(R.drawable.ic_thumb_up_24)
+                                setOnClickListener { _ ->
+                                    viewModel.thumbUp(it.activityId, true)
+//                                    setIconResource(R.drawable.ic_thumb_up_filled_24)
+                                }
+                            } else {
+                                setIconResource(R.drawable.ic_thumb_up_filled_24)
+                                setOnClickListener { _ ->
+                                    viewModel.thumbUp(it.activityId, false)
+//                                    setIconResource(R.drawable.ic_thumb_up_24)
+                                }
+                            }
+                        }
                         when (it.viewType) {
                             VIEW_TYPE_VIDEO -> {
                                 buttonVisible = false

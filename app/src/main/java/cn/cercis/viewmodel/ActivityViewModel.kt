@@ -13,6 +13,7 @@ import cn.cercis.entity.User
 import cn.cercis.http.EmptyNetworkResponse
 import cn.cercis.http.EmptyPayload
 import cn.cercis.repository.ActivityRepository
+import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.helper.coroutineContext
@@ -24,7 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -34,47 +35,60 @@ import javax.inject.Inject
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class ActivityViewModel @Inject constructor(
+    authRepository: AuthRepository,
     private val activityRepository: ActivityRepository,
     private val userRepository: UserRepository,
     private val fileUploadUtils: FileUploadUtils,
 ) : ViewModel() {
-    // this works as a flag indicating users need to be re-fetched
-    private val atomicInteger = AtomicInteger(0)
+    val currentUserId = authRepository.currentUserId
 
     private val users = HashMap<UserId, LiveData<User>>()
     private val usersDisplay = HashMap<UserId, LiveData<CommonListItemData>>()
     private val comments = HashMap<ActivityId, LiveData<List<Comment>>>()
 
-    private val activitySource by lazy {
-        object : MappingLiveData<Resource<List<EntireActivity>>>() {
-            init {
-                refresh()
-            }
+//    private val activitySource by lazy {
+//        object : MappingLiveData<Resource<List<EntireActivity>>>() {
+//            init {
+//                refresh()
+//            }
+//
+//            fun refresh() {
+//                setSource(activityRepository.getActivityList().asLiveData(coroutineContext))
+//            }
+//        }
+//    }
 
-            fun refresh() {
-                setSource(activityRepository.getActivityList().asLiveData(coroutineContext))
-            }
-        }
+    private val refreshTag = MutableStateFlow(0)
+    private val activitySourceResFlow = refreshTag
+        .flatMapLatest { activityRepository.getActivityList().flow() }
+        .flowOn(Dispatchers.IO)
+        .shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
+    private val activitySource = activitySourceResFlow.map { it.data }
+        .filterNotNull().asLiveData(coroutineContext)
+
+//    init {
+//        activitySource.observeForever {
+//            Log.d(LOG_TAG, "null: ${it == null} length: ${it?.size}")
+//        }
+//    }
+
+    val isLoading by lazy {
+        activitySourceResFlow.map { it is Resource.Loading }.asLiveData(coroutineContext)
     }
-
-    val isLoading by lazy { Transformations.map(activitySource) { it is Resource.Loading } }
 
     val activities: LiveData<List<ActivityListItem>> by lazy {
         activitySource.map { resource ->
-            val updateMark = atomicInteger.get()
-            Log.d(LOG_TAG, "updated with mark $updateMark")
-            (resource?.data ?: listOf()).map {
+            resource.map {
                 it.activity.run {
                     ActivityListItem(
                         activityId = id,
-                        user = getUserLiveData(userId),
-                        mediaType = mediaType,
+                        userId = userId,
                         text = text,
+                        mediaType = mediaType,
                         mediaUrlList = it.media.mapRun { url },
-                        commentList = it.comments,
-                        thumbUpList = it.thumbUps.mapRun { userId },
                         publishedAt = publishedAt,
-                        isLoading = isLoading,
+                        commentList = it.comments,
+                        thumbUpUserIdList = it.thumbUps.mapRun { userId },
                     )
                 }
             }.sortedByDescending {
@@ -113,13 +127,10 @@ class ActivityViewModel @Inject constructor(
      * Refreshes users in the user list.
      */
     fun refresh() {
-        // the following steps should not be reordered
-        // add updateMark by 1 to fail all caches
-        atomicInteger.incrementAndGet()
         // clear users to enforce re-fetch
         users.clear()
         // trigger activity list reload
-        activitySource.refresh()
+        refreshTag.value += 1
     }
 
     fun publishVideoActivity(file: File) {
@@ -128,6 +139,17 @@ class ActivityViewModel @Inject constructor(
             if (response is NetworkResponse.Success) {
                 val url = STATIC_BASE + response.data
                 activityRepository.publishVideoActivity(url)
+                launch(Dispatchers.Main) {
+                    refresh()
+                }
+            }
+        }
+    }
+
+    fun thumbUp(activityId: ActivityId, value: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = activityRepository.thumbUp(activityId, value)
+            if (response is NetworkResponse.Success) {
                 launch(Dispatchers.Main) {
                     refresh()
                 }

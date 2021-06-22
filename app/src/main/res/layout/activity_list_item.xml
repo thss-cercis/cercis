@@ -5,13 +5,22 @@
 
     <data>
 
-        <import type="cn.cercis.viewmodel.ActivityListItem" />
-
         <import type="android.view.View" />
+        <import type="androidx.lifecycle.LiveData" />
+        <import type="cn.cercis.viewmodel.ActivityListItem" />
+        <import type="cn.cercis.viewmodel.CommonListItemData" />
 
         <variable
             name="activity"
             type="ActivityListItem" />
+
+        <variable
+            name="user"
+            type="LiveData&lt;CommonListItemData>" />
+
+        <variable
+            name="thumbUpUsersText"
+            type="LiveData&lt;String>" />
 
         <variable
             name="progressVisible"
@@ -35,7 +44,7 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/activity_item_avatar"
-            avatarUrl="@{activity.user.avatar}"
+            avatarUrl="@{user.avatar}"
             android:layout_width="@dimen/default_avatar_size"
             android:layout_height="@dimen/default_avatar_size"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +60,7 @@
             android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@{activity.user.nickname}"
+            android:text="@{user.displayName}"
             android:textSize="17sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/activity_item_avatar"
@@ -256,12 +265,14 @@
             app:constraint_referenced_ids="activity_item_button_comment, activity_item_button_thumb_up, activity_item_published_time" />
 
         <TextView
-            android:id="@+id/activity_item_like_users"
+            android:id="@+id/activity_item_thumb_up_users"
             app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
             app:layout_constraintEnd_toEndOf="parent"
+            android:text='@{" " + thumbUpUsersText}'
+            android:visibility='@{thumbUpUsersText.length() != 0 ? View.VISIBLE : View.GONE}'
             android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/activity_item_comment_list"
@@ -273,7 +284,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
-            app:layout_constraintTop_toBottomOf="@id/activity_item_like_users" />
+            app:layout_constraintTop_toBottomOf="@id/activity_item_thumb_up_users" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
