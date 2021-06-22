@@ -7,16 +7,23 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
+import cn.cercis.entity.ChatType
 import cn.cercis.entity.FriendEntry
 import cn.cercis.entity.User
 import cn.cercis.repository.FriendRepository
+import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.addSource
+import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
@@ -25,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactListViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
+    private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
     data class FriendEntryWithUpdateMark(
@@ -74,6 +82,7 @@ class ContactListViewModel @Inject constructor(
                 source = friendRepository.getFriendList()
                     .asLiveData(coroutineContext).also { liveData.addSource(it) }
             }
+
             val liveData = liveData
         }.apply {
             refresh()
@@ -94,6 +103,12 @@ class ContactListViewModel @Inject constructor(
         }
     }
     val friendListLoading by lazy { Transformations.map(friendListSource.liveData) { it is Resource.Loading } }
+
+    private val groupChatUpdateTag = MutableStateFlow(0)
+    val groupChatList = groupChatUpdateTag.flatMapLatest { messageRepository.getChatList().flow() }
+        .map { res -> res.data?.filter { it.type == ChatType.CHAT_GROUP } }
+        .filterNotNull()
+        .asInitializedLiveData(coroutineContext, listOf())
 
     /**
      * Gets a user's info, with cached [cn.cercis.util.resource.DataSource] object, to prevent
@@ -123,5 +138,9 @@ class ContactListViewModel @Inject constructor(
         users.clear()
         // trigger friendList reload
         friendListSource.refresh()
+    }
+
+    fun refreshGroupChatList() {
+        groupChatUpdateTag.value += 1
     }
 }

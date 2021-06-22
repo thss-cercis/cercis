@@ -3,6 +3,7 @@ package cn.cercis.ui.activity
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
+import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityCommentItemBinding
 import cn.cercis.common.mapRun
 import cn.cercis.databinding.ActivityListItemBinding
@@ -97,7 +99,9 @@ class ActivityFragment : Fragment() {
             itemIndex = { activityId },
             contentsSameCallback = Objects::equals,
             inflater = { subInflater, parent, _ ->
-                ActivityListItemBinding.inflate(subInflater, parent, false)
+                ActivityListItemBinding.inflate(subInflater, parent, false).apply {
+                    activityItemCommentList.itemAnimator = null
+                }
             },
             onBindViewHolderWithExecution = { holder, position ->
                 holder.binding.apply {
@@ -221,29 +225,12 @@ class ActivityFragment : Fragment() {
             itemViewType = { viewType },
         )
 
-        binding.activityRecyclerView.apply {
-            var pinToTop = true
-            val linearLayoutManager = layoutManager as LinearLayoutManager
-            setOnScrollChangeListener { _, _, _, _, _ ->
-                val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-                pinToTop = (latestVisible == 0)
-            }
-            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                val latestVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-                pinToTop = (latestVisible == 0)
-                if (pinToTop) {
-                    post {
-                        smoothScrollToPosition(0)
-                    }
-                }
-            }
-        }
-
         binding.activitySwipe.setOnRefreshListener {
             viewModel.refresh()
             viewModel.isLoading.let {
                 val observer = object : Observer<Boolean> {
                     override fun onChanged(value: Boolean?) {
+                        Log.d(LOG_TAG, "value: $value")
                         if (value == false) {
                             binding.activitySwipe.isRefreshing = false
                         }

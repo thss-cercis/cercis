@@ -8,7 +8,11 @@
         android:id="@+id/activityFragment"
         android:name="cn.cercis.ui.activity.ActivityFragment"
         android:label="fragment_activity"
-        tools:layout="@layout/fragment_activity" />
+        tools:layout="@layout/fragment_activity" >
+        <action
+            android:id="@+id/action_activityFragment_to_activityNewFragment"
+            app:destination="@id/activityNewFragment" />
+    </fragment>
     <fragment
         android:id="@+id/activityNewFragment"
         android:name="cn.cercis.ui.activity.ActivityNewFragment"

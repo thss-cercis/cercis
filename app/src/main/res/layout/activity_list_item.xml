@@ -6,8 +6,11 @@
     <data>
 
         <import type="android.view.View" />
+
         <import type="androidx.lifecycle.LiveData" />
+
         <import type="cn.cercis.viewmodel.ActivityListItem" />
+
         <import type="cn.cercis.viewmodel.CommonListItemData" />
 
         <variable
@@ -235,7 +238,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:barrierMargin="8dp"
             app:constraint_referenced_ids="activity_item_video, activity_item_image_grid, activity_item_text" />
 
         <!-- Comments -->
@@ -266,25 +268,26 @@
 
         <TextView
             android:id="@+id/activity_item_thumb_up_users"
-            app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier"
-            app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:text='@{" " + thumbUpUsersText}'
             android:visibility='@{thumbUpUsersText.length() != 0 ? View.VISIBLE : View.GONE}'
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
+            app:layout_constraintTop_toTopOf="@id/activity_item_comment_barrier" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/activity_item_comment_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="?attr/colorSurfaceDark"
-            tools:listitem="@layout/activity_comment_item"
-            tools:itemCount="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
-            app:layout_constraintTop_toBottomOf="@id/activity_item_thumb_up_users" />
+            app:layout_constraintTop_toBottomOf="@id/activity_item_thumb_up_users"
+            tools:itemCount="1"
+            tools:listitem="@layout/activity_comment_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

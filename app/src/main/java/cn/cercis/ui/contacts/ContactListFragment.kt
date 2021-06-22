@@ -12,14 +12,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
-import cn.cercis.databinding.ContactListFriendItemBinding
-import cn.cercis.databinding.ContactListRecyclerViewBinding
-import cn.cercis.databinding.FragmentContactListBinding
+import cn.cercis.databinding.*
 import cn.cercis.entity.User
 import cn.cercis.util.helper.DataBindingViewHolder
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.util.helper.requireMainActivity
+import cn.cercis.viewmodel.CommonListItemData
 import cn.cercis.viewmodel.ContactListViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,6 +78,28 @@ class ContactListFragment : Fragment() {
                     )
                 }
 
+                val groupAdapter = DiffRecyclerViewAdapter.getInstance(
+                    contactListViewModel.groupChatList,
+                    { viewLifecycleOwner },
+                    itemIndex = { id },
+                    contentsSameCallback = Objects::equals,
+                    inflater = { inflater, parent, _ ->
+                        GroupChatListItemBinding.inflate(inflater, parent, false)
+                    },
+                    onBindViewHolderWithExecution = { holder, position ->
+                        currentList[position].let { chat ->
+                            holder.binding.data = CommonListItemData(
+                                avatar = chat.avatar,
+                                displayName = chat.name,
+                                description = "",
+                            )
+                            holder.binding.root.setOnClickListener {
+                                requireMainActivity().openChat(chat)
+                            }
+                        }
+                    },
+                )
+
                 override fun onCreateViewHolder(
                     parent: ViewGroup,
                     viewType: Int,
@@ -86,17 +107,23 @@ class ContactListFragment : Fragment() {
                     val recyclerViewBinding = ContactListRecyclerViewBinding.inflate(
                         LayoutInflater.from(parent.context), parent, false
                     )
-                    recyclerViewBinding.contactListSwipe.setOnRefreshListener {
-                        contactListViewModel.refreshFriendList()
-                        val observer = object : Observer<Boolean> {
-                            override fun onChanged(t: Boolean?) {
-                                if (t == false) {
-                                    recyclerViewBinding.contactListSwipe.isRefreshing = false
+                    when(viewType) {
+                        TAB_FRIENDS -> recyclerViewBinding.contactListSwipe.setOnRefreshListener {
+                            contactListViewModel.refreshFriendList()
+                            val observer = object : Observer<Boolean> {
+                                override fun onChanged(t: Boolean?) {
+                                    if (t == false) {
+                                        recyclerViewBinding.contactListSwipe.isRefreshing = false
+                                    }
+                                    contactListViewModel.friendListLoading.removeObserver(this)
                                 }
-                                contactListViewModel.friendListLoading.removeObserver(this)
                             }
+                            contactListViewModel.friendListLoading.observe(viewLifecycleOwner,
+                                observer)
                         }
-                        contactListViewModel.friendListLoading.observe(viewLifecycleOwner, observer)
+                        TAB_GROUPS -> recyclerViewBinding.contactListSwipe.setOnRefreshListener {
+                            contactListViewModel.refreshGroupChatList()
+                        }
                     }
                     return DataBindingViewHolder(recyclerViewBinding)
                 }
@@ -114,7 +141,11 @@ class ContactListFragment : Fragment() {
                             }
                         }
                         TAB_GROUPS -> {
-                            // TODO supports for groups
+                            holder.binding.contactListRecyclerView.apply {
+                                if (adapter != groupAdapter) {
+                                    adapter = groupAdapter
+                                }
+                            }
                         }
                     }
                 }
@@ -165,7 +196,6 @@ class ContactListFragment : Fragment() {
         binding.buttonShowFriendRequests.root.setOnClickListener {
             doDetailNavigation(R.id.action_global_friendRequestListFragment)
         }
-        binding.buttonShowGroupNotifications.root.setOnClickListener { /* TODO */ }
         return binding.root
     }
 

@@ -29,7 +29,6 @@
             android:layout_gravity="top"
             app:layout_constraintTop_toTopOf="parent"
             app:menu="@menu/activity_menu"
-            app:navigationIcon="@drawable/ic_arrow_back_24"
             app:title="@string/activity_title" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

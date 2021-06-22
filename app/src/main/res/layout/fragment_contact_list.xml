@@ -58,16 +58,6 @@
                             android:id="@+id/button_show_friend_requests"
                             layout="@layout/plain_text_list_item"
                             app:text="@{@string/contact_list_action_show_requests}" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?attr/colorDivider" />
-
-                        <include
-                            android:id="@+id/button_show_group_notifications"
-                            layout="@layout/plain_text_list_item"
-                            app:text="@{@string/contact_list_action_show_group_notifications}" />
                     </LinearLayout>
 
                 </FrameLayout>

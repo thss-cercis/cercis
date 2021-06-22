@@ -29,7 +29,6 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
             app:layout_constraintTop_toTopOf="parent"
-            app:navigationIcon="@drawable/ic_arrow_back_24"
             app:menu="@menu/activity_menu"
             app:title="@string/activity_title" />
 
