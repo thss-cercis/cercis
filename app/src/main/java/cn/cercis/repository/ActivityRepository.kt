@@ -61,12 +61,21 @@ class ActivityRepository @Inject constructor(
             }
         }
 
-    suspend fun publishVideoActivity(url: String) =
+    suspend fun publishNormalActivity(text: String, imageUrls: List<String>) =
+        httpService.publishActivity(
+            PublishActivityRequest(
+                text = text,
+                type = MediaType.IMAGE.code,
+                contents = imageUrls,
+            )
+        )
+
+    suspend fun publishVideoActivity(videoUrl: String) =
         httpService.publishActivity(
             PublishActivityRequest(
                 text = "",
                 type = MediaType.VIDEO.code,
-                contents = listOf(url),
+                contents = listOf(videoUrl),
             )
         )
 }

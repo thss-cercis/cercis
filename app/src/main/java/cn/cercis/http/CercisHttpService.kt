@@ -375,7 +375,7 @@ data class ActivityPayload(
 @JsonClass(generateAdapter = true)
 data class PublishActivityRequest(
     val text: String,
-    val media: List<MediaRequest>,
+    val media: List<MediaRequest>?,
 ) {
     @JsonClass(generateAdapter = true)
     data class MediaRequest(
@@ -383,8 +383,10 @@ data class PublishActivityRequest(
         val content: String,
     )
 
-    constructor(text: String, type: Int, contents: List<String>)
-            : this(text, contents.map { MediaRequest(type, it) })
+    constructor(text: String, type: Int, contents: List<String>) : this(text, when {
+        contents.isEmpty() -> null
+        else -> contents.map { MediaRequest(type, it) }
+    })
 }
 
 @JsonClass(generateAdapter = true)

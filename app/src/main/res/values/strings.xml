@@ -92,7 +92,7 @@
     <string name="hint_friend_request_display_name">好友备注(可选)</string>
     <string name="hint_friend_request_remark">验证消息(可选)</string>
     <string name="hint_nickname">昵称</string>
-    <string name="hint_submit">提交</string>
+    <string name="hint_image_count">已添加 %d 张图片</string>
     <string name="invite_group_user_button_caption">添加 (%d)</string>
     <string name="invite_group_user_failed_message">添加用户失败</string>
     <string name="login_error_invalid_credential">用户名或密码错误</string>

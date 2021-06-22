@@ -95,9 +95,9 @@ class ActivityViewModel @Inject constructor(
 
     fun publishVideoActivity(file: File) {
         viewModelScope.launch(Dispatchers.IO) {
-            val res = fileUploadUtils.uploadFile(file)
-            if (res is NetworkResponse.Success) {
-                val url = STATIC_BASE + res.data
+            val response = fileUploadUtils.uploadFile(file)
+            if (response is NetworkResponse.Success) {
+                val url = STATIC_BASE + response.data
                 activityRepository.publishVideoActivity(url)
                 launch(Dispatchers.Main) {
                     refresh()

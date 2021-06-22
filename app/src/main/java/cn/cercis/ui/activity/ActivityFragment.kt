@@ -104,6 +104,7 @@ class ActivityFragment : Fragment() {
 //                                        )
 //                                    }
                                     setOnClickListener {
+                                        Log.d(LOG_TAG, "video clicked")
                                         when {
                                             isPlaying -> pause()
                                             else -> start()
