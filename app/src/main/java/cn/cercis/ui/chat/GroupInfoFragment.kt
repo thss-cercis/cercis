@@ -1,10 +1,14 @@
 package cn.cercis.ui.chat
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,10 +19,15 @@ import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentGroupInfoBinding
 import cn.cercis.databinding.GroupInfoMemberListItemBinding
+import cn.cercis.entity.GroupChatPermission
 import cn.cercis.entity.GroupChatPermission.GROUP_ADMIN
 import cn.cercis.entity.GroupChatPermission.GROUP_OWNER
+import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
+import cn.cercis.util.helper.showImageDialog
+import cn.cercis.util.helper.showInputDialog
 import cn.cercis.util.livedata.observeFilterFirst
+import cn.cercis.util.makeSnackbar
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.snackbarMakeError
 import cn.cercis.util.snackbarMakeSuccess
@@ -26,6 +35,7 @@ import cn.cercis.viewmodel.GroupInfoViewModel
 import cn.cercis.viewmodel.toCommonListItemData
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.util.*
@@ -35,6 +45,17 @@ import java.util.*
 @AndroidEntryPoint
 class GroupInfoFragment : Fragment() {
     private val viewModel: GroupInfoViewModel by viewModels()
+    private val pickImages =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { it ->
+                // The image was saved into the given Uri -> do something with it
+                Log.d(LOG_TAG, it.toString())
+                UCrop.of(uri, Uri.fromFile(getTempFile(".png")))
+                    .withAspectRatio(1f, 1f)
+                    .withMaxResultSize(512, 512)
+                    .start(requireContext(), this)
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +66,13 @@ class GroupInfoFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         binding.executePendingBindings()
+        binding.groupInfoAvatar.apply {
+            setOnClickListener {
+                viewModel.chat.value?.avatar.takeUnless { it.isNullOrEmpty() }?.let { avatar ->
+                    showImageDialog(requireContext(), avatar)
+                }
+            }
+        }
         binding.groupInfoMemberListView.adapter = DiffRecyclerViewAdapter.getInstance(
             dataSource = viewModel.groupMemberList,
             viewLifecycleOwnerSupplier = { viewLifecycleOwner },
@@ -124,6 +152,32 @@ class GroupInfoFragment : Fragment() {
                 viewModel.chatId
             ))
         }
+        binding.groupInfoEditInfo.apply {
+            setOnClickListener {
+                it!!.showContextMenu()
+            }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                menu.add(getString(R.string.group_info_change_avatar))
+                    .setOnMenuItemClickListener {
+                        pickImages.launch("image/*")
+                        true
+                    }
+                menu.add(getString(R.string.group_info_edit_name))
+                    .setOnMenuItemClickListener {
+                        showInputDialog(
+                            requireContext(),
+                            getString(R.string.group_info_change_name_dialog_title),
+                            viewModel.chat.value?.name ?: ""
+                        ) {
+                            makeSnackbar(
+                                { viewModel.editGroupName(it) },
+                                { getString(R.string.group_info_change_name_dialog_title) },
+                            )
+                        }.show()
+                        true
+                    }
+            }
+        }
         postponeEnterTransition()
         val start0 = System.currentTimeMillis()
         viewModel.groupMemberList.observeFilterFirst(viewLifecycleOwner,
@@ -162,6 +216,21 @@ class GroupInfoFragment : Fragment() {
             }
         }
         return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            val resultUri = UCrop.getOutput(data!!)
+            resultUri?.let {
+                makeSnackbar(
+                    { viewModel.changeAvatar(it) },
+                    { getString(R.string.group_info_avatar_changed_success) }
+                )
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            snackbarMakeError(requireView(), cropError?.message ?: "", Snackbar.LENGTH_SHORT)
+        }
     }
 
     private fun permissionToString(groupChatPermission: Int): String {

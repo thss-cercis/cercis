@@ -212,6 +212,7 @@
 
     <style name="AccentButtonOverlay">
         <item name="colorPrimary">?attr/colorAccent</item>
+        <item name="colorOnPrimary">?attr/colorOnSecondary</item>
     </style>
 
     <style name="Widget.Cercis.TextView.Withdraw" parent="Widget.MaterialComponents.TextView">

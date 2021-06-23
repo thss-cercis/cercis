@@ -9,6 +9,7 @@ import com.google.android.material.imageview.ShapeableImageView
 
 @BindingAdapter("avatarUrl")
 fun loadAvatar(view: ShapeableImageView, url: String?) {
+    view.scaleType = ImageView.ScaleType.CENTER_CROP
     Glide.with(view.context)
         // use null url instead of empty url to allow for quicker fallback without error log
         .load(url?.takeIf(String::isNotEmpty))

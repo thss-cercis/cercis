@@ -530,6 +530,17 @@ class MessageRepository @Inject constructor(
         return Success(EmptyPayload())
     }
 
+    suspend fun editGroupChatInfo(
+        chatId: ChatId,
+        name: String?,
+        avatar: String?,
+    ): EmptyNetworkResponse {
+        return httpService.editGroupChatInfo(EditGroupChatInfoRequest(chatId, name, avatar))
+            .thenUse {
+                getChatList().fetchAndSave().use { EmptyPayload() }
+            }
+    }
+
     suspend fun giveawayGroupOwner(chatId: ChatId, userId: UserId): EmptyNetworkResponse {
         return httpService.giveawayGroupOwner(GiveAwayGroupOwnerRequest(chatId, userId))
     }
@@ -546,48 +557,51 @@ class MessageRepository @Inject constructor(
      *
      * A null value indicates loading.
      */
-    fun getChatDisplay(currentUserId: UserId, chat: Chat): Flow<CommonListItemData?> {
-        return messageDao.loadLatestMessage(chat.id).flatMapLatest { msg ->
-            when (chat.type) {
-                ChatType.CHAT_PRIVATE -> {
-                    getOtherUserId(
-                        currentUserId,
-                        chat.id
-                    ).map { it.data }.filterNotNull().flatMapLatest {
-                        it.let { userId ->
-                            userRepository.getUserWithFriendDisplay(userId, true)
-                                .map { display -> display.copy(description = digest(msg)) }
+    fun getChatDisplay(currentUserId: UserId, chatId: ChatId): Flow<CommonListItemData?> {
+        return chatDao.loadChat(chatId)
+            .filterNotNull()
+            .combine(messageDao.loadLatestMessage(chatId)) { chat, msg -> chat to msg }
+            .flatMapLatest { (chat, msg) ->
+                when (chat.type) {
+                    ChatType.CHAT_PRIVATE -> {
+                        getOtherUserId(
+                            currentUserId,
+                            chat.id
+                        ).map { it.data }.filterNotNull().flatMapLatest {
+                            it.let { userId ->
+                                userRepository.getUserWithFriendDisplay(userId, true)
+                                    .map { display -> display.copy(description = digest(msg)) }
+                            }
                         }
                     }
-                }
-                else -> {
-                    if (msg == null) {
-                        MutableStateFlow(
-                            CommonListItemData(
-                                avatar = chat.avatar,
-                                displayName = chat.name,
-                                description = digest(msg),
-                            )
-                        )
-                    } else {
-                        userRepository.getUserWithFriendDisplay(msg.senderId, true)
-                            .map {
-                                val digestMsg = it.let {
-                                    getString(R.string.message_digest).format(
-                                        it.displayName,
-                                        digest(msg),
-                                    )
-                                }
+                    else -> {
+                        if (msg == null) {
+                            MutableStateFlow(
                                 CommonListItemData(
                                     avatar = chat.avatar,
                                     displayName = chat.name,
-                                    description = digestMsg
+                                    description = digest(msg),
                                 )
-                            }
+                            )
+                        } else {
+                            userRepository.getUserWithFriendDisplay(msg.senderId, true)
+                                .map {
+                                    val digestMsg = it.let {
+                                        getString(R.string.message_digest).format(
+                                            it.displayName,
+                                            digest(msg),
+                                        )
+                                    }
+                                    CommonListItemData(
+                                        avatar = chat.avatar,
+                                        displayName = chat.name,
+                                        description = digestMsg
+                                    )
+                                }
+                        }
                     }
                 }
             }
-        }
     }
 
     fun digest(messageType: MessageType?, content: String?): String {

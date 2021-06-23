@@ -2,9 +2,8 @@ package cn.cercis.ui.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.Context
-import android.content.Intent
+import android.content.*
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.media.MediaPlayer
@@ -20,6 +19,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -38,6 +38,7 @@ import cn.cercis.entity.asMessageType
 import cn.cercis.util.getSharedTempFile
 import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.*
+import cn.cercis.util.setClipboard
 import cn.cercis.viewmodel.ChatViewModel
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.INCOMING
 import cn.cercis.viewmodel.ChatViewModel.MessageDirection.OUTGOING
@@ -168,21 +169,37 @@ class ChatFragment : Fragment() {
                                 }
                                 else -> throw IllegalStateException("unexpected message type")
                             }
-                            if (mvt.direction == OUTGOING.type) {
-                                when (msgType) {
-                                    MessageType.UNKNOWN, MessageType.WITHDRAW, MessageType.DELETED -> {
-                                    }
-                                    else -> {
-                                        (ret as ChatItemOutgoingBinding).chatItemOutgoingBubble.apply {
+                            when (msgType) {
+                                MessageType.UNKNOWN, MessageType.WITHDRAW, MessageType.DELETED -> {
+                                }
+                                else -> {
+                                    if (mvt.direction == OUTGOING.type || msgType == MessageType.TEXT) {
+                                        when (mvt.direction) {
+                                            OUTGOING.type -> (ret as ChatItemOutgoingBinding).chatItemOutgoingBubble
+                                            INCOMING.type -> (ret as ChatItemIncomingBinding).chatItemIncomingBubble
+                                            else -> throw IllegalStateException("invalid message direction")
+                                        }.apply {
                                             setOnCreateContextMenuListener { menu, _, _ ->
-                                                menu.add(getString(R.string.chat_message_action_withdraw))
-                                                    .setOnMenuItemClickListener {
-                                                        viewModel.withdrawMessage((ret as ChatItemOutgoingBinding).messageId)
-                                                        true
-                                                    }
-                                            }
-                                            setOnLongClickListener {
-                                                showContextMenu()
+                                                if (mvt.direction == OUTGOING.type) {
+                                                    menu.add(R.string.chat_message_action_withdraw)
+                                                        .setOnMenuItemClickListener {
+                                                            viewModel.withdrawMessage((ret as ChatItemOutgoingBinding).messageId)
+                                                            true
+                                                        }
+                                                }
+                                                if (msgType == MessageType.TEXT) {
+                                                    menu.add(R.string.chat_message_action_copy)
+                                                        .setOnMenuItemClickListener {
+                                                            setClipboard(requireContext(),
+                                                                when (mvt.direction) {
+                                                                    OUTGOING.type -> (ret as ChatItemOutgoingBinding).chatItemMessageText
+                                                                    INCOMING.type -> (ret as ChatItemIncomingBinding).chatItemMessageText
+                                                                    else -> throw IllegalStateException(
+                                                                        "invalid message direction")
+                                                                }.text.toString())
+                                                            true
+                                                        }
+                                                }
                                             }
                                         }
                                     }

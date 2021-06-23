@@ -150,13 +150,13 @@ class ChatViewModel @Inject constructor(
     }
 
     // display of chat default info
-    val chatDisplay = messageRepository.getParticipatedChat(chatId).filterNotNull().flatMapLatest {
-        messageRepository.getChatDisplay(currentUserId, it)
-    }.combine(pendingMessageDisplayCount) { t1, t2 ->
-        if (t2 == 0) {
-            t1
-        } else t1?.copy(displayName = getString(R.string.chat_sending_message_count).format(t2))
-    }.filterNotNull()
+    val chatDisplay = messageRepository.getChatDisplay(currentUserId, chatId)
+        .filterNotNull()
+        .combine(pendingMessageDisplayCount) { t1, t2 ->
+            if (t2 == 0) {
+                t1
+            } else t1?.copy(displayName = getString(R.string.chat_sending_message_count).format(t2))
+        }.filterNotNull()
         .asInitializedLiveData(coroutineContext,
             chatInitDisplay ?: savedStateHandle.get<Chat>("chat")!!.let {
                 CommonListItemData(it.avatar, it.name, "")

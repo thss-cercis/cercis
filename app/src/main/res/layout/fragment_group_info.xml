@@ -112,9 +112,25 @@
             android:visibility="@{viewModel.isGroupManager ? View.VISIBLE : View.GONE, default=gone}"
             app:icon="@drawable/ic_remove_member_24"
             app:iconGravity="top"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/group_info_edit_info"
             app:layout_constraintStart_toEndOf="@id/group_info_add_members"
-            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_member_count" />
+            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_member_count"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/group_info_edit_info"
+            style="@style/Widget.Cercis.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_info_edit_info"
+            android:theme="@style/AccentButtonOverlay"
+            android:visibility="@{viewModel.isGroupManager ? View.VISIBLE : View.GONE, default=gone}"
+            app:icon="@drawable/ic_edit_24"
+            app:iconGravity="top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/group_info_remove_members"
+            app:layout_constraintTop_toBottomOf="@id/group_info_collapse_member_count"
+            tools:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/group_info_member_list_view"

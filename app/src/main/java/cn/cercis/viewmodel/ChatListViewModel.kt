@@ -59,10 +59,9 @@ class ChatListViewModel @Inject constructor(
         return hashMap.computeIfAbsent(chat.chatId) {
             Log.d(LOG_TAG, "recreated live data (chat: ${chat.chatId})")
             combine(
-                messageRepository.getChatDisplay(authRepository.currentUserId, chat.toChat()),
+                messageRepository.getChatDisplay(authRepository.currentUserId, chat.chatId),
                 messageRepository.unreadCount(chat.chatId),
             ) { common, unread ->
-                val msg = chat.toMessage()
                 common?.let {
                     ChatListItemData(
                         chatId = chat.chatId,

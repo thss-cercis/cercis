@@ -1,9 +1,12 @@
 package cn.cercis.viewmodel
 
+import android.net.Uri
+import androidx.core.net.toFile
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.common.UserId
 import cn.cercis.entity.*
 import cn.cercis.http.EmptyNetworkResponse
@@ -13,6 +16,7 @@ import cn.cercis.repository.MessageRepository
 import cn.cercis.repository.NotificationRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.service.WSMessage
+import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.livedata.asInitializedLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +36,7 @@ class GroupInfoViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
+    private val uploadUtils: FileUploadUtils,
     private val notificationRepository: NotificationRepository,
 ) : ViewModel() {
     val groupInitData = savedStateHandle.get<Chat>("chat")!!
@@ -77,6 +82,16 @@ class GroupInfoViewModel @Inject constructor(
             use {
             }
         }
+    }
+
+    suspend fun changeAvatar(avatar: Uri): EmptyNetworkResponse {
+        return uploadUtils.uploadFile(avatar.toFile()).thenUse {
+            messageRepository.editGroupChatInfo(chatId, null, STATIC_BASE + this)
+        }
+    }
+
+    suspend fun editGroupName(name: String): EmptyNetworkResponse {
+        return messageRepository.editGroupChatInfo(chatId, name, null)
     }
 }
 

@@ -1,10 +1,14 @@
 package cn.cercis.util
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import cn.cercis.CercisApplication
 import java.io.File
@@ -43,3 +47,9 @@ fun getSharedTempFile(extension: String): Pair<Uri, File> {
         ) to it
     }
 }
+
+fun setClipboard(context: Context, text: String) {
+    ContextCompat.getSystemService(context, ClipboardManager::class.java)
+        ?.setPrimaryClip(ClipData.newPlainText("label", text))
+}
+

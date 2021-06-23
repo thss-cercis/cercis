@@ -15,7 +15,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.ActivityCommentItemBinding
@@ -214,11 +213,11 @@ class ActivityFragment : Fragment() {
                             val activityId = currentList[position].activityId
                             MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("评论")
-                                .setView(R.layout.dialog_send_comment)
+                                .setView(R.layout.dialog_text_field)
                                 .setPositiveButton(R.string.dialog_ok) { dialog, _ ->
                                     dialog as AlertDialog
                                     val editText =
-                                        dialog.findViewById<TextInputEditText>(R.id.dialog_send_comment_edit_text)!!
+                                        dialog.findViewById<TextInputEditText>(R.id.dialog_text_field_edit_text)!!
                                     if (editText.text.toString().isNotEmpty()) {
                                         lifecycleScope.launch(Dispatchers.IO) {
                                             viewModel.sendComment(activityId,
