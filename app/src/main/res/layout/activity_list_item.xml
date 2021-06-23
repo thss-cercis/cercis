@@ -100,6 +100,7 @@
             app:layout_constraintTop_toBottomOf="@id/activity_item_text">
 
             <ImageView
+                android:id="@+id/activity_item_image_0"
                 imageUrl="@{activity.getImageUrl(0)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -109,6 +110,7 @@
                 android:visibility="@{activity.isImageVisible(0)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_1"
                 imageUrl="@{activity.getImageUrl(1)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -118,6 +120,7 @@
                 android:visibility="@{activity.isImageVisible(1)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_2"
                 imageUrl="@{activity.getImageUrl(2)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -127,6 +130,7 @@
                 android:visibility="@{activity.isImageVisible(2)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_3"
                 imageUrl="@{activity.getImageUrl(3)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -136,6 +140,7 @@
                 android:visibility="@{activity.isImageVisible(3)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_4"
                 imageUrl="@{activity.getImageUrl(4)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -145,6 +150,7 @@
                 android:visibility="@{activity.isImageVisible(4)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_5"
                 imageUrl="@{activity.getImageUrl(5)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -154,6 +160,7 @@
                 android:visibility="@{activity.isImageVisible(5)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_6"
                 imageUrl="@{activity.getImageUrl(6)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -163,6 +170,7 @@
                 android:visibility="@{activity.isImageVisible(6)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_7"
                 imageUrl="@{activity.getImageUrl(7)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -172,6 +180,7 @@
                 android:visibility="@{activity.isImageVisible(7)}" />
 
             <ImageView
+                android:id="@+id/activity_item_image_8"
                 imageUrl="@{activity.getImageUrl(8)}"
                 android:layout_width="0dp"
                 android:layout_height="0dp"

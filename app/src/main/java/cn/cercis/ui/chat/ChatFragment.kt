@@ -265,6 +265,11 @@ class ChatFragment : Fragment() {
                                         Glide.with(imageView)
                                             .load(data.message)
                                             .into(imageView)
+                                        bubble.setOnClickListener {
+                                            showImageDialog(requireContext(), data.message)
+                                        }
+                                    } else {
+                                        bubble.setOnClickListener(null)
                                     }
                                 }
                                 MessageType.AUDIO -> {
@@ -276,6 +281,8 @@ class ChatFragment : Fragment() {
                                             mediaPlayer.prepareAsync()
                                             Log.d(LOG_TAG, "preparing media: ${data.message}")
                                         }
+                                    } else {
+                                        bubble.setOnClickListener(null)
                                     }
                                     textView.text = getString(R.string.message_type_audio)
                                 }
@@ -284,6 +291,8 @@ class ChatFragment : Fragment() {
                                         bubble.setOnClickListener {
                                             showVideoDialog(requireContext(), data.message)
                                         }
+                                    } else {
+                                        bubble.setOnClickListener(null)
                                     }
                                     textView.text = getString(R.string.message_type_video)
                                 }
@@ -303,6 +312,7 @@ class ChatFragment : Fragment() {
                                     } else {
                                         textView.text =
                                             "[${getString(R.string.message_type_location)}]"
+                                        bubble.setOnClickListener(null)
                                     }
                                 }
                                 MessageType.UNKNOWN -> {

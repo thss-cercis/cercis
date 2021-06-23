@@ -25,6 +25,7 @@ import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.getTempFile
 import cn.cercis.util.helper.DiffRecyclerViewAdapter
 import cn.cercis.util.helper.doDetailNavigation
+import cn.cercis.util.helper.showImageDialog
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setDimensionRatio
@@ -101,6 +102,23 @@ class ActivityFragment : Fragment() {
             inflater = { subInflater, parent, _ ->
                 ActivityListItemBinding.inflate(subInflater, parent, false).apply {
                     activityItemCommentList.itemAnimator = null
+                    arrayOf(
+                        this.activityItemImage0,
+                        this.activityItemImage1,
+                        this.activityItemImage2,
+                        this.activityItemImage3,
+                        this.activityItemImage4,
+                        this.activityItemImage5,
+                        this.activityItemImage6,
+                        this.activityItemImage7,
+                        this.activityItemImage8,
+                    ).forEachIndexed { idx, view ->
+                        view.setOnClickListener {
+                            activity?.let {
+                                showImageDialog(requireContext(), it.getImageUrl(idx))
+                            }
+                        }
+                    }
                 }
             },
             onBindViewHolderWithExecution = { holder, position ->
@@ -111,10 +129,11 @@ class ActivityFragment : Fragment() {
                     activity = currentList[position].also {
                         user = viewModel.loadUser(it.userId)
                         val thumbUpLiveDataList = it.thumbUpUserIdList.map(viewModel::loadUser)
-                        thumbUpUsersText = generateMediatorLiveData(*thumbUpLiveDataList.toTypedArray()) {
-                            thumbUpLiveDataList.mapRun { value?.displayName }.filterNotNull()
-                                .joinToString(cn.cercis.util.getString(R.string.user_separator))
-                        }
+                        thumbUpUsersText =
+                            generateMediatorLiveData(*thumbUpLiveDataList.toTypedArray()) {
+                                thumbUpLiveDataList.mapRun { value?.displayName }.filterNotNull()
+                                    .joinToString(cn.cercis.util.getString(R.string.user_separator))
+                            }
                         activityItemButtonThumbUp.apply {
                             if (!it.thumbUpUserIdList.contains(viewModel.currentUserId)) {
                                 setIconResource(R.drawable.ic_thumb_up_24)
