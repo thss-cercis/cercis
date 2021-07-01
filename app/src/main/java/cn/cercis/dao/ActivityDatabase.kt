@@ -2,7 +2,6 @@ package cn.cercis.dao
 
 import androidx.room.*
 import cn.cercis.common.ActivityId
-import cn.cercis.common.UserId
 import cn.cercis.entity.Activity
 import cn.cercis.entity.Comment
 import cn.cercis.entity.Medium
@@ -53,6 +52,9 @@ interface ActivityDao {
     @Transaction
     @Query("SELECT * FROM activity")
     fun loadEntireActivityList(): Flow<List<EntireActivity>>
+
+    @Query("DELETE FROM activity")
+    fun deleteAllActivities()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveMedium(vararg activities: Medium)

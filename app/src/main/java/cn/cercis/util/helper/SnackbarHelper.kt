@@ -8,7 +8,6 @@ import cn.cercis.R
 import cn.cercis.util.resource.NetworkResponse
 import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

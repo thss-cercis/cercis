@@ -2,17 +2,12 @@ package cn.cercis.util.helper
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import android.view.ViewGroup
-import android.view.Window
-import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.net.toUri
 import cn.cercis.R
-import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.DialogPlayVideoBinding
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

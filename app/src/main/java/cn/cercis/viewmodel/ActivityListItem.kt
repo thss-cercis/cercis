@@ -1,9 +1,11 @@
 package cn.cercis.viewmodel
 
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.View
-import cn.cercis.common.*
+import cn.cercis.common.CommonId
+import cn.cercis.common.MediaType
+import cn.cercis.common.Timestamp
+import cn.cercis.common.UserId
 import cn.cercis.entity.Comment
 
 data class ActivityListItem(

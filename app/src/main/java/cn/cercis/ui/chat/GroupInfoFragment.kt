@@ -19,7 +19,6 @@ import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.databinding.FragmentGroupInfoBinding
 import cn.cercis.databinding.GroupInfoMemberListItemBinding
-import cn.cercis.entity.GroupChatPermission
 import cn.cercis.entity.GroupChatPermission.GROUP_ADMIN
 import cn.cercis.entity.GroupChatPermission.GROUP_OWNER
 import cn.cercis.util.getTempFile
@@ -37,7 +36,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 import java.util.*
 
 @FlowPreview

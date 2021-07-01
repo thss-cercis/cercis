@@ -2,7 +2,6 @@ package cn.cercis.util
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.R
 import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView

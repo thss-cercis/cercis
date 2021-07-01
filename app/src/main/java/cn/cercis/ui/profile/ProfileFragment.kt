@@ -8,14 +8,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.lifecycleScope
 import cn.cercis.MainActivity
 import cn.cercis.R
 import cn.cercis.databinding.FragmentProfileBinding
 import cn.cercis.util.helper.doDetailNavigation
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.snackbarMakeSuccess
-import cn.cercis.util.validation.PasswordValidationResult
 import cn.cercis.util.validation.validatePassword
 import cn.cercis.viewmodel.ProfileViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,7 +22,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 
 @FlowPreview
 @ExperimentalCoroutinesApi

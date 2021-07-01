@@ -3,7 +3,6 @@ package cn.cercis.dao
 import androidx.room.*
 import cn.cercis.common.UserId
 import cn.cercis.entity.*
-import cn.cercis.viewmodel.CommonListItemData
 import kotlinx.coroutines.flow.Flow
 
 @Database(

@@ -232,14 +232,25 @@
 
         <TextView
             android:id="@+id/activity_item_published_time"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="start"
             android:text="@{activity.publishedTimeText}"
             app:layout_constraintBaseline_toBaselineOf="@id/activity_item_button_thumb_up"
-            app:layout_constraintEnd_toStartOf="@id/activity_item_button_thumb_up"
+            app:layout_constraintEnd_toStartOf="@id/activity_item_delete"
             app:layout_constraintStart_toStartOf="@id/activity_item_nickname"
             tools:text="2038-01-20" />
+
+        <TextView
+            android:id="@+id/activity_item_delete"
+            style="@style/Widget.Cercis.Button.TextButton.Inline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/delete"
+            app:layout_constraintBaseline_toBaselineOf="@id/activity_item_button_thumb_up"
+            app:layout_constraintEnd_toStartOf="@id/activity_item_button_thumb_up"
+            app:layout_constraintStart_toEndOf="@id/activity_item_published_time" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/activity_item_barrier"

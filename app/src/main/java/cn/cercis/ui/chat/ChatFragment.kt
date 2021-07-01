@@ -3,7 +3,6 @@ package cn.cercis.ui.chat
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
-import android.content.Context.CLIPBOARD_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.media.MediaPlayer
@@ -19,7 +18,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels

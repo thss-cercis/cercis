@@ -2,13 +2,9 @@ package cn.cercis.entity
 
 import androidx.room.Entity
 import androidx.room.Index
-import cn.cercis.R
-import cn.cercis.SelectedLocation
 import cn.cercis.common.ChatId
 import cn.cercis.common.MessageId
 import cn.cercis.common.Timestamp
-import cn.cercis.common.WSMessageTypeId
-import cn.cercis.util.getString
 import cn.cercis.util.helper.TimeString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

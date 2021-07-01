@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
-import cn.cercis.databinding.*
+import cn.cercis.databinding.ContactListFriendItemBinding
+import cn.cercis.databinding.ContactListRecyclerViewBinding
+import cn.cercis.databinding.FragmentContactListBinding
+import cn.cercis.databinding.GroupChatListItemBinding
 import cn.cercis.entity.User
 import cn.cercis.util.helper.DataBindingViewHolder
 import cn.cercis.util.helper.DiffRecyclerViewAdapter

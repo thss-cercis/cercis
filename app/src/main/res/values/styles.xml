@@ -133,6 +133,20 @@
         <item name="android:background">@color/list_delimiter</item>
     </style>
 
+    <style name="Widget.Cercis.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.TextButton.Accent" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
+    </style>
+
     <style name="Widget.Cercis.Button.TextButton.Dense" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textSize">14sp</item>
         <item name="android:insetTop">4dp</item>
@@ -143,6 +157,17 @@
         <item name="android:minHeight">0dp</item>
         <item name="android:paddingLeft">12dp</item>
         <item name="android:paddingRight">12dp</item>
+    </style>
+
+    <style name="Widget.Cercis.Button.TextButton.Inline" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">13sp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
     </style>
 
     <style name="Widget.Cercis.Button.IconButton" parent="Widget.MaterialComponents.Button.TextButton">
@@ -186,20 +211,6 @@
 
     <style name="Widget.Cercis.Button.Fab" parent="Widget.MaterialComponents.Button">
         <item name="materialThemeOverlay">@style/CercisButton</item>
-    </style>
-
-    <style name="Widget.Cercis.Button.TextButton.Accent" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="materialThemeOverlay">@style/AccentButtonOverlay</item>
-    </style>
-
-    <style name="Widget.Cercis.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="iconPadding">0dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
-        <item name="android:minWidth">0dp</item>
-        <item name="android:minHeight">0dp</item>
     </style>
 
     <style name="Widget.Cercis.Button.Outlined.Accent" parent="Widget.MaterialComponents.Button.OutlinedButton">

@@ -10,14 +10,11 @@ import cn.cercis.Constants
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
 import cn.cercis.repository.ActivityRepository
-import cn.cercis.repository.AuthRepository
 import cn.cercis.util.getString
 import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.livedata.AutoResetLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
-import cn.cercis.util.validation.BIO_MAX_LENGTH
-import cn.cercis.util.validation.EMAIL_REGEX
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

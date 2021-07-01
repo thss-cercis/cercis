@@ -20,7 +20,6 @@ import cn.cercis.util.helper.coroutineContext
 import cn.cercis.util.helper.instantCombine
 import cn.cercis.util.livedata.asInitializedLiveData
 import cn.cercis.util.livedata.generateMediatorLiveData
-import cn.cercis.util.livedata.observeOnce
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*

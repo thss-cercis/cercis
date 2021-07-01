@@ -1,13 +1,10 @@
 package cn.cercis.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
 import cn.cercis.Constants.STATIC_BASE
 import cn.cercis.common.ActivityId
-import cn.cercis.common.LOG_TAG
 import cn.cercis.common.UserId
 import cn.cercis.common.mapRun
-import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.Comment
 import cn.cercis.entity.User
 import cn.cercis.http.EmptyNetworkResponse
@@ -17,8 +14,6 @@ import cn.cercis.repository.AuthRepository
 import cn.cercis.repository.UserRepository
 import cn.cercis.util.helper.FileUploadUtils
 import cn.cercis.util.helper.coroutineContext
-import cn.cercis.util.livedata.MappingLiveData
-import cn.cercis.util.livedata.unwrapResource
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +23,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @FlowPreview
@@ -97,11 +91,11 @@ class ActivityViewModel @Inject constructor(
         }
     }
 
-    fun getUserLiveData(userId: UserId): LiveData<User> {
-        return users.computeIfAbsent(userId) {
-            userRepository.getUser(it).asLiveData(coroutineContext).unwrapResource()
-        }
-    }
+//    fun getUserLiveData(userId: UserId): LiveData<User> {
+//        return users.computeIfAbsent(userId) {
+//            userRepository.getUser(it).asLiveData(coroutineContext).unwrapResource()
+//        }
+//    }
 
     suspend fun sendComment(activityId: ActivityId, content: String): EmptyNetworkResponse {
         return activityRepository.sendComment(activityId, content).thenUse {
@@ -110,8 +104,8 @@ class ActivityViewModel @Inject constructor(
     }
 
     fun loadUser(userId: UserId): LiveData<CommonListItemData> {
-        return usersDisplay.computeIfAbsent(userId) { uid ->
-            userRepository.getUserWithFriendDisplay(uid, true)
+        return usersDisplay.computeIfAbsent(userId) { _ ->
+            userRepository.getUserWithFriendDisplay(userId, true)
                 .mapLatest { it }
                 .asLiveData(coroutineContext)
         }
@@ -151,6 +145,18 @@ class ActivityViewModel @Inject constructor(
             val response = activityRepository.thumbUp(activityId, value)
             if (response is NetworkResponse.Success) {
                 launch(Dispatchers.Main) {
+                    refresh()
+                }
+            }
+        }
+    }
+
+    fun deleteActivity(activityId: ActivityId, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = activityRepository.deleteActivity(activityId)
+            if (response is NetworkResponse.Success) {
+                launch(Dispatchers.Main) {
+                    onSuccess()
                     refresh()
                 }
             }

@@ -129,6 +129,9 @@ interface CercisHttpService {
     @POST("auth/recover")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): EmptyNetworkResponse
 
+    @GET("upload")
+    suspend fun getUploadToken(): NetworkResponse<UploadTokenResponse>
+
     @GET("activity/after")
     suspend fun getActivityList(
         @Query("activity_id") activityId: ActivityId = 1
@@ -146,8 +149,8 @@ interface CercisHttpService {
     @POST("activity/comment")
     suspend fun addActivityComment(@Body request: ActivityCommentRequest): EmptyNetworkResponse
 
-    @GET("upload")
-    suspend fun getUploadToken(): NetworkResponse<UploadTokenResponse>
+    @HTTP(method = "DELETE", path = "activity", hasBody = true)
+    suspend fun deleteActivity(@Body request: ActivityRequest): EmptyNetworkResponse
 }
 
 @JsonClass(generateAdapter = true)

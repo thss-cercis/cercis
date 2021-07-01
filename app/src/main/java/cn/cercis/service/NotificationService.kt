@@ -4,7 +4,6 @@ import android.app.Notification
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.Transformations

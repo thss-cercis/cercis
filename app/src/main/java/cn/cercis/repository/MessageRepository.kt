@@ -22,7 +22,6 @@ import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.resource.NetworkResponse.Success
 import cn.cercis.util.resource.Resource
 import cn.cercis.viewmodel.CommonListItemData
-import com.squareup.moshi.JsonAdapter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.*

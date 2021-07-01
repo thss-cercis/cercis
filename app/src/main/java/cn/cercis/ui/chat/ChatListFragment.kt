@@ -10,7 +10,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DefaultItemAnimator
 import cn.cercis.R
 import cn.cercis.databinding.ChatListItemBinding
-import cn.cercis.databinding.CommonListItemBinding
 import cn.cercis.databinding.FragmentChatListBinding
 import cn.cercis.entity.ChatType
 import cn.cercis.util.helper.DiffRecyclerViewAdapter

@@ -17,8 +17,8 @@ import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import cn.cercis.R
 import cn.cercis.common.LOG_TAG
-import cn.cercis.databinding.ActivityCommentItemBinding
 import cn.cercis.common.mapRun
+import cn.cercis.databinding.ActivityCommentItemBinding
 import cn.cercis.databinding.ActivityListItemBinding
 import cn.cercis.databinding.FragmentActivityBinding
 import cn.cercis.util.getTempFile
@@ -29,6 +29,7 @@ import cn.cercis.util.livedata.generateMediatorLiveData
 import cn.cercis.util.resource.NetworkResponse
 import cn.cercis.util.setDimensionRatio
 import cn.cercis.util.snackbarMakeError
+import cn.cercis.util.snackbarMakeSuccess
 import cn.cercis.viewmodel.ActivityListItem.Companion.VIEW_TYPE_VIDEO
 import cn.cercis.viewmodel.ActivityViewModel
 import cn.cercis.viewmodel.CommonListItemData
@@ -146,6 +147,28 @@ class ActivityFragment : Fragment() {
                                     viewModel.thumbUp(it.activityId, false)
 //                                    setIconResource(R.drawable.ic_thumb_up_24)
                                 }
+                            }
+                        }
+                        activityItemDelete.apply {
+                            visibility = when {
+                                it.userId != viewModel.currentUserId -> View.INVISIBLE
+                                else -> View.VISIBLE
+                            }
+                            setOnClickListener { _ ->
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle(R.string.activity_delete_dialog_title)
+                                    .setMessage(R.string.activity_delete_dialog_message)
+                                    .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                                        viewModel.deleteActivity(it.activityId) {
+                                            snackbarMakeSuccess(
+                                                binding.root,
+                                                getString(R.string.activity_delete_dialog_success),
+                                                Snackbar.LENGTH_SHORT
+                                            )
+                                        }
+                                    }
+                                    .setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+                                    .show()
                             }
                         }
                         when (it.viewType) {

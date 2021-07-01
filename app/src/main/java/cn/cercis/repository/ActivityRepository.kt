@@ -8,10 +8,6 @@ import cn.cercis.dao.EntireActivity
 import cn.cercis.entity.Activity
 import cn.cercis.entity.Comment
 import cn.cercis.entity.Medium
-import cn.cercis.http.ActivityPayload
-import cn.cercis.http.ActivityRequest
-import cn.cercis.http.CercisHttpService
-import cn.cercis.http.PublishActivityRequest
 import cn.cercis.http.*
 import cn.cercis.util.resource.DataSourceBase
 import cn.cercis.util.resource.NetworkResponse
@@ -36,6 +32,7 @@ class ActivityRepository @Inject constructor(
             }
 
             override suspend fun saveToDb(data: List<ActivityPayload>) {
+                activityDao.deleteAllActivities()
                 activityDao.saveEntireActivityList(data.mapRun {
                     Activity(
                         id = id,
@@ -96,7 +93,9 @@ class ActivityRepository @Inject constructor(
             httpService.undoThumbUpActivity(ActivityRequest(activityId))
         }
 
-    suspend fun sendComment(activityId: ActivityId, content: String): EmptyNetworkResponse {
-        return httpService.addActivityComment(ActivityCommentRequest(activityId, content))
-    }
+    suspend fun sendComment(activityId: ActivityId, content: String) =
+        httpService.addActivityComment(ActivityCommentRequest(activityId, content))
+
+    suspend fun deleteActivity(activityId: ActivityId) =
+        httpService.deleteActivity(ActivityRequest(activityId))
 }
